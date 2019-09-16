@@ -10,18 +10,13 @@
 Open source UWP App, to brings the Atlas Scientific EZO™ devices in the __Internet of Things__. Per __REST API__ you can fetch live measdata and calibrate connected sensors.
 
 
-[![Bulid](https://img.shields.io/appveyor/ci/100prznt/ezogateway.svg?logo=appveyor&style=popout-square)](https://ci.appveyor.com/project/100prznt/ezogateway)   [![Current version](https://img.shields.io/nuget/v/EzoGateway.svg?logo=nuget&logoColor=%23ef8b00&style=popout-square)](https://www.nuget.org/packages/EzoGateway/)   [![Code size](https://img.shields.io/github/languages/code-size/100prznt/EzoGateway.svg?logo=github&style=popout-square)](#) 
-
+[![Bulid](https://img.shields.io/appveyor/ci/100prznt/ezogateway.svg?logo=appveyor&style=popout-square)](https://ci.appveyor.com/project/100prznt/ezogateway)   [![GitHub issues](https://img.shields.io/github/issues/100prznt/EzoGateway)](https://github.com/100prznt/EzoGateway/issues)   [![Code size](https://img.shields.io/github/languages/code-size/100prznt/EzoGateway.svg?logo=github&style=popout-square)](#) 
 
 ## How to install?
 TODO!
 
-[![Current version](https://img.shields.io/nuget/v/EzoGateway.svg?logo=nuget&logoColor=%23ef8b00&style=popout-square)](https://www.nuget.org/packages/EzoGateway/)   [![NuGet](https://img.shields.io/nuget/dt/EzoGateway.svg?logo=nuget&logoColor=%23ef8b00&style=popout-square)](https://www.nuget.org/packages/EzoGateway/)
-
-
 ## How to use?
 TODO!
-
 
 ## Hardware
 For fast hardware integration there is a cool project from [Whitebox](https://github.com/whitebox-labs). The [Tentacle T3 HAT](https://github.com/whitebox-labs/tentacle-raspi-oshw) accepts three Atlas Scientific EZO™ devices, two of them are electrically isolated.
