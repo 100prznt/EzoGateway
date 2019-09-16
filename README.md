@@ -24,11 +24,11 @@ For fast hardware integration there is a cool project from [Whitebox](https://gi
 ## Releases
 This project build on the continuous integration (CI) platform [AppVeyor](https://www.appveyor.com/) and released in the [Release-Feed](https://github.com/100prznt/NetworkScanner/releases).
 
-[![AppVeyor Build](https://img.shields.io/appveyor/ci/100prznt/EzoGateway.svg?style=popout-square)](https://ci.appveyor.com/project/100prznt/EzoGateway)  
-[![AppVeyor Tests](https://img.shields.io/appveyor/tests/100prznt/EzoGateway/master.svg?style=popout-square)](https://ci.appveyor.com/project/100prznt/EzoGateway/build/tests)
+[![AppVeyor Bulid](https://img.shields.io/appveyor/ci/100prznt/ezogateway.svg?logo=appveyor&style=popout-square)](https://ci.appveyor.com/project/100prznt/ezogateway) 
+[![AppVeyor Tests](https://img.shields.io/appveyor/tests/100prznt/EzoGateway/master.svg?logo=appveyor&style=popout-square)](https://ci.appveyor.com/project/100prznt/EzoGateway/build/tests)
 
-[![GitHub Release](https://img.shields.io/github/release/100prznt/EzoGateway.svg?style=popout-square)](https://github.com/100prznt/EzoGateway/releases/latest)  
-[![GitHub (Pre-)Release](https://img.shields.io/github/release/100prznt/EzoGateway/all.svg?style=popout-square)](https://github.com/100prznt/EzoGateway/releases) (Pre-)Release
+[![GitHub Release](https://img.shields.io/github/release/100prznt/EzoGateway.svg?logo=github&style=popout-square)](https://github.com/100prznt/EzoGateway/releases/latest)  
+[![GitHub (Pre-)Release](https://img.shields.io/github/release/100prznt/EzoGateway/all.svg?logo=github&style=popout-square)](https://github.com/100prznt/EzoGateway/releases) (Pre-)Release
 
 ## Credits
 This library is made possible by contributions from:
@@ -39,10 +39,6 @@ EzoGateway is licensed under [MIT](http://www.opensource.org/licenses/mit-licens
 
 ## Contributions
 Contributions are welcome. Fork this repository and send a pull request if you have something useful to add.
-
-
-[![Bulid](https://img.shields.io/appveyor/ci/100prznt/ezogateway.svg?logo=appveyor&style=popout-square)](https://ci.appveyor.com/project/100prznt/ezogateway)
-
 
 ## Related Projects
 * [Rca.Sht85Lib](https://github.com/100prznt/Rca.Sht85Lib) - UWP driver library for the Sensirion humidity sensor SHT85.
