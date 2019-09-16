@@ -10,7 +10,7 @@
 Open source UWP App, to brings the Atlas Scientific EZO™ devices in the __Internet of Things__. Per __REST API__ you can fetch live measdata and calibrate connected sensors.
 
 
-[![Bulid](https://img.shields.io/appveyor/ci/100prznt/ezogateway.svg?logo=appveyor&style=popout-square)](https://ci.appveyor.com/project/100prznt/ezogateway)   [![GitHub issues](https://img.shields.io/github/issues/100prznt/EzoGateway)](https://github.com/100prznt/EzoGateway/issues)   [![Code size](https://img.shields.io/github/languages/code-size/100prznt/EzoGateway.svg?logo=github&style=popout-square)](#) 
+[![Bulid](https://img.shields.io/appveyor/ci/100prznt/ezogateway.svg?logo=appveyor&style=popout-square)](https://ci.appveyor.com/project/100prznt/ezogateway)   [![GitHub issues](https://img.shields.io/github/issues/100prznt/EzoGateway?style=popout-square)](https://github.com/100prznt/EzoGateway/issues)   [![Code size](https://img.shields.io/github/languages/code-size/100prznt/EzoGateway.svg?logo=github&style=popout-square)](#) 
 
 ## How to install?
 TODO!
@@ -21,6 +21,14 @@ TODO!
 ## Hardware
 For fast hardware integration there is a cool project from [Whitebox](https://github.com/whitebox-labs). The [Tentacle T3 HAT](https://github.com/whitebox-labs/tentacle-raspi-oshw) accepts three Atlas Scientific EZO™ devices, two of them are electrically isolated.
 
+## Releases
+This project build on the continuous integration (CI) platform [AppVeyor](https://www.appveyor.com/) and released in the [Release-Feed](https://github.com/100prznt/NetworkScanner/releases).
+
+[![AppVeyor Build](https://img.shields.io/appveyor/ci/100prznt/EzoGateway.svg?style=popout-square)](https://ci.appveyor.com/project/100prznt/EzoGateway)  
+[![AppVeyor Tests](https://img.shields.io/appveyor/tests/100prznt/EzoGateway/master.svg?style=popout-square)](https://ci.appveyor.com/project/100prznt/EzoGateway/build/tests)
+
+[![GitHub Release](https://img.shields.io/github/release/100prznt/EzoGateway.svg?style=popout-square)](https://github.com/100prznt/EzoGateway/releases/latest)  
+[![GitHub (Pre-)Release](https://img.shields.io/github/release/100prznt/EzoGateway/all.svg?style=popout-square)](https://github.com/100prznt/EzoGateway/releases) (Pre-)Release
 
 ## Credits
 This library is made possible by contributions from:
