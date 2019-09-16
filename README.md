@@ -13,10 +13,10 @@ Open source UWP App, to brings the Atlas Scientific EZO™ devices in the __Inte
 [![Bulid](https://img.shields.io/appveyor/ci/100prznt/ezogateway.svg?logo=appveyor&style=popout-square)](https://ci.appveyor.com/project/100prznt/ezogateway)   [![Current version](https://img.shields.io/nuget/v/EzoGateway.svg?logo=nuget&logoColor=%23ef8b00&style=popout-square)](https://www.nuget.org/packages/EzoGateway/)   [![Code size](https://img.shields.io/github/languages/code-size/100prznt/EzoGateway.svg?logo=github&style=popout-square)](#) 
 
 
-## How To install?
+## How to install?
 TODO!
 
-[![Current version](https://img.shields.io/nuget/v/Rca.EzoDeviceLib.svg?logo=nuget&logoColor=%23ef8b00&style=popout-square)](https://www.nuget.org/packages/Rca.EzoDeviceLib/)   [![NuGet](https://img.shields.io/nuget/dt/Rca.EzoDeviceLib.svg?logo=nuget&logoColor=%23ef8b00&style=popout-square)](https://www.nuget.org/packages/Rca.EzoDeviceLib/)
+[![Current version](https://img.shields.io/nuget/v/EzoGateway.svg?logo=nuget&logoColor=%23ef8b00&style=popout-square)](https://www.nuget.org/packages/EzoGateway/)   [![NuGet](https://img.shields.io/nuget/dt/EzoGateway.svg?logo=nuget&logoColor=%23ef8b00&style=popout-square)](https://www.nuget.org/packages/EzoGateway/)
 
 
 ## How to use?
