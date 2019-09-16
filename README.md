@@ -10,7 +10,7 @@
 Open source UWP App, to brings the Atlas Scientific EZO™ devices in the __Internet of Things__. Per __REST API__ you can fetch live measdata and calibrate connected sensors.
 
 
-[![Bulid](https://img.shields.io/appveyor/ci/100prznt/ezogateway.svg?logo=appveyor&style=popout-square)](https://ci.appveyor.com/project/100prznt/ezogateway)   [![GitHub issues](https://img.shields.io/github/issues/100prznt/EzoGateway?style=popout-square)](https://github.com/100prznt/EzoGateway/issues)   [![Code size](https://img.shields.io/github/languages/code-size/100prznt/EzoGateway.svg?logo=github&style=popout-square)](#) 
+[![Bulid](https://img.shields.io/appveyor/ci/100prznt/ezogateway.svg?logo=appveyor&style=popout-square)](https://ci.appveyor.com/project/100prznt/ezogateway)   [![GitHub issues](https://img.shields.io/github/issues/100prznt/EzoGateway?logo=github&style=popout-square)](https://github.com/100prznt/EzoGateway/issues)   [![Code size](https://img.shields.io/github/languages/code-size/100prznt/EzoGateway.svg?logo=github&style=popout-square)](#) 
 
 ## How to install?
 TODO!
