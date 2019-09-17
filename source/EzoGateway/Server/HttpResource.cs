@@ -87,8 +87,12 @@ namespace EzoGateway.Server
 
         public HttpResource(StorageFile file) : this()
         {
-            LocalPath = file.Path;
-            File = file;
+            if (file != null)
+            {
+                StatusCode = "200 OK";
+                LocalPath = file.Path;
+                File = file;
+            }
         }
 
         #endregion Constructor
@@ -166,6 +170,14 @@ namespace EzoGateway.Server
                 StatusCode = "200 OK",
                 Mime = InternetMediaType.ApplicationJson,
                 BodyTextContent = JsonConvert.SerializeObject(data, Formatting.Indented)
+            };
+
+        public static HttpResource JsonAccepted202(string jobName) =>
+            new HttpResource()
+            {
+                StatusCode = "202 Accepted",
+                Mime = InternetMediaType.ApplicationJson,
+                BodyTextContent = JsonConvert.SerializeObject(new { task = new RestTask(1, jobName) }, Formatting.Indented)
             };
 
         #endregion Services

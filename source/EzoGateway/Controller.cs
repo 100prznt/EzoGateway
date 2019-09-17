@@ -1,4 +1,5 @@
-﻿using EzoGateway.Measurement;
+﻿using EzoGateway.Config;
+using EzoGateway.Measurement;
 using Rca.EzoDeviceLib;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,11 @@ namespace EzoGateway
     /// </summary>
     public class Controller
     {
+        public GeneralSettings Configuration { get; set; }
+
         public Dictionary<int, SensorInfo> SensorInfos { get; set; }
+
+        public Dictionary<int, MeasData> LatestMeasData { get; set; }
 
         /// <summary>
         /// Hardware is initialized.
@@ -41,9 +46,96 @@ namespace EzoGateway
 
         public Controller()
         {
+            ConfigIsLoadedEvent += Controller_ConfigIsLoadedEvent;
+            ConfigIsSavedEvent += Controller_ConfigIsSavedEvent;
+            ConfigIsDeletedEvent += Controller_ConfigIsDeletedEvent;
+
+            LoadConfig();
+
+
+            
+        }
+
+        private void Controller_ConfigIsDeletedEvent()
+        {
+            Debug.WriteLine("Controller_ConfigIsDeletedEvent");
+        }
+
+        private void Controller_ConfigIsSavedEvent()
+        {
+            Debug.WriteLine("Controller_ConfigIsSavedEvent");
+        }
+
+        private void Controller_ConfigIsLoadedEvent()
+        {
+            Debug.WriteLine("Controller_ConfigIsLoadedEvent");
+
             var t = Task.Run(() => InitHardware()); //Initialization in the current task fails. So, outsourcing to own task...
             t.Wait();
+
+            LatestMeasData = new Dictionary<int, MeasData>();
         }
+
+        /// <summary>
+        /// Load config from local config file
+        /// </summary>
+        /// <returns>true: successful; false: can not load config, generate default config</returns>
+        public async Task<bool> LoadConfig()
+        {
+            var localFolder = ApplicationData.Current.LocalFolder;
+
+            var item = await localFolder.TryGetItemAsync("ezogateway.config.json");
+            if (item != null)
+            {
+                try
+                {
+                    Configuration = GeneralSettings.FromJsonFile(item.Path);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+
+                ConfigIsLoadedEvent?.Invoke();
+                return true;
+            }
+            else //Generate default
+            {
+                Configuration = GeneralSettings.Default;
+                SaveConfig();
+                ConfigIsLoadedEvent?.Invoke();
+                return false;
+            }
+        }
+
+        public async void SaveConfig()
+        {
+            DeleteConfig();
+
+            var localFolder = ApplicationData.Current.LocalFolder;
+
+            var file = await localFolder.CreateFileAsync("ezogateway.config.json", CreationCollisionOption.ReplaceExisting);
+
+            if (Configuration == null)
+                Configuration = GeneralSettings.Default;
+
+            await FileIO.WriteTextAsync(file, Configuration.ToJson());
+
+            ConfigIsSavedEvent?.Invoke();
+        }
+
+        public async void DeleteConfig()
+        {
+            var localFolder = ApplicationData.Current.LocalFolder;
+
+            var item = await localFolder.TryGetItemAsync("ezogateway.config.json");
+            if (item != null)
+            {
+                await item.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                ConfigIsDeletedEvent?.Invoke();
+            }
+        }
+
 
         /// <summary>
         /// Hardware initialization
@@ -53,15 +145,26 @@ namespace EzoGateway
         {
             try
             {
-                RedoxSensor = new EzoOrp(); //init with default i2c address (0x62)
-                PhSensor = new EzoPh(); //init with default i2c address (0x63)
-                //TempSensor = new EzoRtd(); //init with default i2c address (0x66)
-
                 SensorInfos = new Dictionary<int, SensorInfo>();
-                SensorInfos.Add(1, GetSensorInfo(PhSensor, "Atlas Scientific EZO pH Circuit")); //id for pH: 1
-                SensorInfos.Add(2, GetSensorInfo(RedoxSensor, "Atlas Scientific EZO ORP circuit")); //id for Redox: 2
-                //SensorInfos.Add(3, GetSensorInfo(TempSensor)); //id for Temperature: 3
 
+                if (Configuration.PhSensor.Enabled)
+                {
+                    PhSensor = new EzoPh(Configuration.PhSensor.I2CAddress);
+                    SensorInfos.Add(1, GetSensorInfo(PhSensor, "Atlas Scientific EZO pH Circuit")); //id for pH: 1
+                }
+
+                if (Configuration.RedoxSensor.Enabled)
+                {
+                    RedoxSensor = new EzoOrp(Configuration.RedoxSensor.I2CAddress);
+                    SensorInfos.Add(2, GetSensorInfo(RedoxSensor, "Atlas Scientific EZO ORP circuit")); //id for Redox: 2
+                }
+
+                if (Configuration.TemperatureSensor.Enabled)
+                {
+                    TempSensor = new EzoRtd(Configuration.TemperatureSensor.I2CAddress);
+                    SensorInfos.Add(3, GetSensorInfo(TempSensor, "Atlas Scientific EZO RTD circuit")); //id for Temperature: 3
+                }
+                
                 Debug.WriteLine("Hardware successfully initialized.");
                 IsInitialized = true;
                 return true;
@@ -69,6 +172,34 @@ namespace EzoGateway
             catch (Exception ex)
             {
                 Debug.WriteLine("Hardware initialization failed. Exception: " + ex);
+                return false;
+            }
+        }
+
+        public bool SingleMeasurement()
+        {
+            if (!IsInitialized)
+                throw new Exception("Hardware is not ininitialized.");
+
+            try
+            {
+                double? ph = null;
+                var temp = TempSensor?.GetMeasValue();
+                if (Configuration.EnablePhTemperatureCompensation && temp is double tempValue)
+                    ph = PhSensor?.GetMeasValue(tempValue);
+                else
+                    ph = PhSensor?.GetMeasValue();
+                var redox = RedoxSensor?.GetMeasValue();
+                AddMeasDataInfo(1, temp, TempSensor?.ValueInfo);
+                AddMeasDataInfo(2, ph, PhSensor?.ValueInfo);
+                AddMeasDataInfo(3, redox, RedoxSensor?.ValueInfo);
+
+                Debug.WriteLine("Single measurement successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Single measurement failed. Exception: " + ex);
                 return false;
             }
         }
@@ -98,6 +229,23 @@ namespace EzoGateway
 
         #region Internal services
 
+        void AddMeasDataInfo(int id, double? measValue, MeasDataInfo info)
+        {
+            if (measValue is double value && info != null)
+            {
+                var data = new MeasData()
+                {
+                    Name = info.Name,
+                    Timestamp = DateTime.Now,
+                    Value = value,
+                    Unit = info.Unit,
+                    Symbol = info.Symbol
+                };
+
+                LatestMeasData[id] = data;
+            }
+        }
+
         SensorInfo GetSensorInfo(EzoBase ezoSensor, string description = "N/A")
         {
             var devInfo = ezoSensor.GetDeviceInfo();
@@ -119,5 +267,13 @@ namespace EzoGateway
         }
 
         #endregion Internal services
+
+        #region Events
+
+        public event Action ConfigIsSavedEvent;
+        public event Action ConfigIsLoadedEvent;
+        public event Action ConfigIsDeletedEvent;
+
+        #endregion Events
     }
 }

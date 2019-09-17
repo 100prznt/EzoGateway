@@ -23,8 +23,6 @@ namespace EzoGateway.Server
         private StreamSocketListener m_Listener;
         private Uri m_ServerUri;
 
-        private EzoOrp m_Ezo;
-
         #endregion Member
 
         #region Properties
@@ -44,6 +42,7 @@ namespace EzoGateway.Server
         /// <summary>
         /// Empty constructor
         /// </summary>
+        /// <param name="controller">Reference to the app controller</param>
         /// <param name="port">Port for the HTTP listener</param>
         public HttpServer(ref Controller controller, int port = 80)
         {
@@ -110,7 +109,7 @@ namespace EzoGateway.Server
 
                         var data = new HttpResource();
 
-                        //API oder Webressourcen Zugriff?
+                        //API or web resource access?
 
                         //ROOT
                         if (request.Uri.Segments.Length == 1 && request.Uri.Segments[0].Equals("/"))
@@ -132,21 +131,12 @@ namespace EzoGateway.Server
                             {
                                 if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("PATHS", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    var paths = m_Controller.GetLocalPaths();
-                                    //paths.Keys.ToList().ForEach(p => paths[p] = "<a href=\"file:/" + paths[p] + "\">" + paths[p] + "</a>");
-                                    data = HttpResource.CreateHtmlResource("OPC paths", paths);
-                                }
-                                else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("CONFIG", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    var paths = m_Controller.GetLocalPaths();
-                                    //paths.Keys.ToList().ForEach(p => paths[p] = "<a href=\"file:/" + paths[p] + "\">" + paths[p] + "</a>");
-                                    data = HttpResource.CreateHtmlResource("OPC paths", paths);
+                                    data = HttpResource.CreateHtmlResource("EzoGateway paths", m_Controller.GetLocalPaths());
                                 }
                                 else
                                 {
-                                    //Prüfung ob angeforderte Resource im Dateisystem verfügbar ist
+                                    //Check if requested resource is available in the file system.
                                     data = await GetWebResource(request.Uri);
-                                    //data = HttpResource.CreateHtmlResource("<h1>WEB</h1>");
                                 }
                             }
                             catch (Exception ex)
@@ -157,11 +147,10 @@ namespace EzoGateway.Server
                         //API
                         else if (request.Uri.Segments.Length >= 2 && request.Uri.Segments[1].Trim('/').Equals("API", StringComparison.OrdinalIgnoreCase))
                         {
-                            //Prüfung ob angeforderte Resource per API verfügbar (Uri) und zugreifbar (Method) ist
+                            //Check if requested resource is available via API (Uri) and accessible (Method).
                             data = ApiRequest(request);
-                            //data = HttpResource.CreateHtmlResource("<h1>API</h1>");
                         }
-                        //Undefiniert
+                        //undefined
                         else
                         {
                             Debug.WriteLine("URL not supported!");
@@ -172,7 +161,8 @@ namespace EzoGateway.Server
                         int fsLength = 0;
                         if (!string.IsNullOrWhiteSpace(data.BodyTextContent))
                             bodyArray = Encoding.UTF8.GetBytes(data.BodyTextContent);
-                        else if (data.IsBinary)
+                        //else if (data.IsBinary)
+                        else if (data.File != null) //bugfix
                         {
                             var fs = await data.File.OpenStreamForReadAsync();
                             if (fs.Length <= int.MaxValue)
@@ -217,21 +207,42 @@ namespace EzoGateway.Server
 
         private HttpResource ApiRequest(HttpServerRequest request)
         {
-            if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("SENSORS", StringComparison.OrdinalIgnoreCase))
+            if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("SENSORS", StringComparison.OrdinalIgnoreCase))
             {
-                if (request.Uri.Segments.Length == 3) //Sensor-Übersicht
+                return HttpResource.CreateJsonResource(m_Controller.SensorInfos);
+            }
+            else if (request.Uri.Segments.Length > 3 && request.Uri.Segments[2].Trim('/').Equals("SENSOR", StringComparison.OrdinalIgnoreCase))
+            {
+                if (request.Uri.Segments.Length >= 4)
                 {
-                    return HttpResource.CreateJsonResource(m_Controller.SensorInfos);
+                    //Select single sensor
                 }
             }
             else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("PATHS", StringComparison.OrdinalIgnoreCase))
             {
                 return HttpResource.CreateJsonResource(m_Controller.GetLocalPaths());
             }
-            else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("CONFIG", StringComparison.OrdinalIgnoreCase))
+            else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("CONFIG", StringComparison.OrdinalIgnoreCase))
             {
-                throw new NotImplementedException();
-                //return HttpResource.CreateJsonResource(m_Controller.Configuration);
+                if (request.Uri.Segments.Length == 3)
+                    return HttpResource.CreateJsonResource(m_Controller.Configuration);
+                //else if (request.Uri.Segments.Length == 4 && request.Uri.Segments[3].Trim('/').Equals("TIME", StringComparison.OrdinalIgnoreCase))
+                //{
+                //    var dt = new DateTime(2015, 05, 25, 16, 45, 05);
+                //    var o = new TimeSpan(-2, 0, 0);
+                //    var dto = new DateTimeOffset(dt, o);
+
+                //    Windows.System.DateTimeSettings.SetSystemDateTime(dto);
+                //}
+            }
+            else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("ACQ", StringComparison.OrdinalIgnoreCase))
+            {
+                m_Controller.SingleMeasurement();
+                return HttpResource.JsonAccepted202("AcquireMeasdata");
+            }
+            else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("FETCH", StringComparison.OrdinalIgnoreCase))
+            {
+                return HttpResource.CreateJsonResource(m_Controller.LatestMeasData);
             }
 
             return null;
