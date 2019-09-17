@@ -34,6 +34,11 @@ This project build on the continuous integration (CI) platform [AppVeyor](https:
 This library is made possible by contributions from:
 * [Elias Rümmler](http://www.100prznt.de) ([@rmmlr](https://github.com/rmmlr)) - core contributor
 
+### Open Source Project Credits
+
+* [Newtonsoft.Json](https://www.newtonsoft.com/json) Object serialization for REST API and local storage
+* [UIkit](https://github.com/uikit/uikit) Style up the web interface
+
 ## License
 The EzoGateway App is licensed under [MIT](http://www.opensource.org/licenses/mit-license.php "Read more about the MIT license form"). Refer to [LICENSE.txt](https://github.com/100prznt/EzoGateway/blob/master/LICENSE.txt) for more information.
 
