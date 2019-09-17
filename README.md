@@ -36,6 +36,7 @@ This library is made possible by contributions from:
 
 ### Open Source Project Credits
 
+* [Rca.EzoDeviceLib](https://github.com/100prznt/Rca.EzoDeviceLib) - UWP driver library for the Atlas Scientific EZO™ devices
 * [Newtonsoft.Json](https://www.newtonsoft.com/json) Object serialization for REST API and local storage
 * [UIkit](https://github.com/uikit/uikit) Style up the web interface
 * [jQuery](https://github.com/jquery/jquery) Web interface data exchange
@@ -45,7 +46,3 @@ The EzoGateway App is licensed under [MIT](http://www.opensource.org/licenses/mi
 
 ## Contributions
 Contributions are welcome. Fork this repository and send a pull request if you have something useful to add.
-
-## Related Projects
-* [Rca.Sht85Lib](https://github.com/100prznt/Rca.Sht85Lib) - UWP driver library for the Sensirion humidity sensor SHT85.
-* [Rca.EzoDeviceLib](https://github.com/100prznt/Rca.EzoDeviceLib) - UWP driver library for the Atlas Scientific EZO™ devices.
