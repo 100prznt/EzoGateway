@@ -41,7 +41,7 @@ namespace EzoGateway
 
         public Controller()
         {
-            var t = Task.Run(() => InitHardware());
+            var t = Task.Run(() => InitHardware()); //Initialization in the current task fails. So, outsourcing to own task...
             t.Wait();
         }
 
