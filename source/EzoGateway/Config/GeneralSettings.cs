@@ -51,8 +51,8 @@ namespace EzoGateway.Config
             {
                 PhSensor = new EzoConfig(EzoPh.DEFAULT_ADDRESS),
                 RedoxSensor = new EzoConfig(EzoOrp.DEFAULT_ADDRESS),
-                TemperatureSensor = new EzoConfig(),
-                EnablePhTemperatureCompensation = false,
+                TemperatureSensor = new EzoConfig(EzoRtd.DEFAULT_ADDRESS),
+                EnablePhTemperatureCompensation = true,
                 TemperatureUnit = TemperatureUnit.Celsius
             };
 

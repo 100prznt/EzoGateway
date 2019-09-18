@@ -169,7 +169,7 @@ namespace EzoGateway.Server
             {
                 StatusCode = "200 OK",
                 Mime = InternetMediaType.ApplicationJson,
-                BodyTextContent = JsonConvert.SerializeObject(data, Formatting.Indented)
+                BodyTextContent = JsonConvert.SerializeObject(data ,Formatting.Indented, new JsonSerializerSettings() { StringEscapeHandling = StringEscapeHandling.EscapeNonAscii })
             };
 
         public static HttpResource JsonAccepted202(string jobName) =>

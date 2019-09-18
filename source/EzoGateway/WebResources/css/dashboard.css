@@ -1,0 +1,82 @@
+.title{
+  text-align:center;
+  margin:45pt;
+  font-family: Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 50pt;
+}
+
+.title > span{
+  font-weight: lighter;
+  font-size: 55pt;
+}
+
+.climatebox{
+    text-align:center;
+}
+
+.circle
+{
+width:230pt;
+height:230pt;
+border-radius:50%;
+border-style: solid;
+border-width: 2px;
+line-height:230pt;
+text-align:center;
+margin:auto;
+font-family: Helvetica, sans-serif;
+font-weight: bold;
+font-size: 68pt;
+}
+
+.units
+{
+width:220pt;
+height:100pt;
+text-align:center;
+margin:0pt;
+font-family: Helvetica, sans-serif;
+font-size: 56pt;
+}
+
+.climate
+{
+  
+  margin: 30pt;
+  text-align:center;
+  max-width: 30%;
+  display:inline-block
+}
+.description
+{
+  margin-top:10pt;
+  text-align:center;
+  max-width: 100pt;
+  font-size:10pt;
+  color: #000;
+  font-family: Helvetica, sans-serif;
+}
+.footer{
+  text-align:center;
+  margin:30pt;
+  margin-bottom: 0px;
+  font-family: Helvetica, sans-serif;
+  font-size: 19pt;
+  color: #525F6B;
+}
+
+/* für Chart */
+
+.titleChart{
+    text-align:center;
+    margin:27pt;
+    font-family: Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 30pt;
+}
+
+.titleChart > span{
+    font-weight: lighter;
+    font-size: 33pt;
+}
