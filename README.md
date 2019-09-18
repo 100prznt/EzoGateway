@@ -5,7 +5,7 @@
 
 ---
 
-![EZO Devices on the Whitebox carrier](docu/img/ezo-on-whitebox-carrier.jpg "Atlas Scientific EZO™ devices (pH and ORP) on the Whitebox carrier.")
+![EZO Devices on the Whitebox carrier](docu/img/wb-ezo-hat.jpg "Atlas Scientific EZO™ devices (pH, ORP and RTD) on the Whitebox carrier.")
 # EzoGateway
 Open source UWP App, to brings the Atlas Scientific EZO™ devices in the __Internet of Things__. Per __REST API__ you can fetch live measdata and calibrate connected sensors.
 
@@ -16,6 +16,8 @@ Open source UWP App, to brings the Atlas Scientific EZO™ devices in the __Inte
 TODO!
 
 ## How to use?
+
+### REST API
 TODO!
 
 ## Hardware
