@@ -22,8 +22,8 @@
 
   * **Code:** 200 <br />
     **Content:** 
-    ```json
-    {
+```javascript
+{
   "1": {
     "Name": "Temperature",
     "Timestamp": "2018-11-08T15:51:28.6019666+01:00",
