@@ -240,7 +240,7 @@ namespace EzoGateway.Server
                 m_Controller.SingleMeasurement();
                 return HttpResource.JsonAccepted202("AcquireMeasdata");
             }
-            else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').StartsWith("FETCH", StringComparison.OrdinalIgnoreCase))
+            else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("FETCH", StringComparison.OrdinalIgnoreCase))
             {
                 if (m_Controller.LatestMeasData == null || m_Controller.LatestMeasData.Count == 0)
                     return HttpResource.JsonAccepted423("No measurement data acquired.");
