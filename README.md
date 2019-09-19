@@ -1,11 +1,11 @@
 ## Project under construction :construction:
 ```diff
-! This project is currently (2019/09/16) under construction, in a very early phase...
+! This project is currently (2019/09/18) under construction, in a very early phase...
 ```
 
 ---
 
-![EZO Devices on the Whitebox carrier](docu/img/ezo-on-whitebox-carrier.jpg "Atlas Scientific EZO™ devices (pH and ORP) on the Whitebox carrier.")
+![EZO Devices on the Whitebox carrier](docu/img/wb-ezo-hat.jpg "Atlas Scientific EZO™ devices (pH, ORP and RTD) on the Whitebox carrier.")
 # EzoGateway
 Open source UWP App, to brings the Atlas Scientific EZO™ devices in the __Internet of Things__. Per __REST API__ you can fetch live measdata and calibrate connected sensors.
 
@@ -16,7 +16,14 @@ Open source UWP App, to brings the Atlas Scientific EZO™ devices in the __Inte
 TODO!
 
 ## How to use?
-TODO!
+
+### REST API
+| URL                              | Method | Description        |
+|----------------------------------|--------|--------------------|
+|`http://<IP address>/api/acq`     |GET     |Acquire measurement |
+|`http://<IP address>/api/fetch`   |GET     |Fetch measdata      |
+|`http://<IP address>/api/sensors` |GET     |Get sensor info     |
+
 
 ## Hardware
 For fast hardware integration there is a cool project from [Whitebox](https://github.com/whitebox-labs). The [Tentacle T3 HAT](https://github.com/whitebox-labs/tentacle-raspi-oshw) accepts three Atlas Scientific EZO™ devices, two of them are electrically isolated.
