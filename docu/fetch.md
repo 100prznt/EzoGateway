@@ -3,25 +3,21 @@
 Returns json data about the last acquired measurement data.
 
 ### URL
-
 /api/fetch
 
 ### Method
-
 `GET`
   
 ### URL Params
-
 None
 
 ### Data Params
-
 None
 
 ### Success Response
 
 #### Code
-200 OK
+`200 OK`
 
 #### Content 
 ```javascript
@@ -53,7 +49,7 @@ None
 ### Error Response
 
 #### Code
-423 Locked
+`423 Locked`
 
 #### Content 
 ```javascript
@@ -62,7 +58,7 @@ None
 }
 ```
 
-### Reason
+#### Reason
 Perform a measurement `api/acq` befor fetch the measdata.
 
 ### Sample Call
