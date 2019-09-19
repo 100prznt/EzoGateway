@@ -52,8 +52,13 @@ namespace EzoGateway
 
             LoadConfig();
 
+            LatestMeasData = new Dictionary<int, MeasData>();
 
-            
+#if DEBUG //generating some measdata for testing
+            LatestMeasData.Add(1, new MeasData() { Value = 18.86, Timestamp = DateTime.Now });
+            LatestMeasData.Add(2, new MeasData() { Value = 7.03 });
+            LatestMeasData.Add(3, new MeasData() { Value = 662 });
+#endif
         }
 
         private void Controller_ConfigIsDeletedEvent()
@@ -72,8 +77,6 @@ namespace EzoGateway
 
             var t = Task.Run(() => InitHardware()); //Initialization in the current task fails. So, outsourcing to own task...
             t.Wait();
-
-            LatestMeasData = new Dictionary<int, MeasData>();
         }
 
         /// <summary>

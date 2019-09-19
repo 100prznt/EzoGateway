@@ -2,48 +2,47 @@
 <html lang="de">
 <head>
     <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
-    <title>EzoGateway</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+    <title>EzoGateway - live data</title>
     <meta name="author" content="Ruemmler, Elias">
     <link rel="stylesheet" type="text/css" href="css/dashboard.css">
     <script src="js/jquery-3.4.1.min.js"></script>
     <script>
-    $( document ).ready(function() {
-      $.ajaxSetup({ cache: false });
-        var refreshId = setInterval(function() {
-            console.log("hello");
-            $.getJSON('../api/fetch', function(data) {
-                console.log(data);
-            $('#temp').text(data[1].Value.toFixed(1));
-            $('#ph').text(data[2].Value.toFixed(1));
-            $('#redox').text(data[3].Value.toFixed(1));
+        $(document).ready(function () {
+            $.ajaxSetup({ cache: false });
+            setInterval(function () {
+                $.getJSON('../api/fetch', function (data) {
+                    console.log(data);
+                    $('#temp').text(data[1].Value.toFixed(1));
+                    $('#ph').text(data[2].Value.toFixed(2));
+                    $('#redox').text(data[3].Value.toFixed(0));
 
-            var datetime = data[1].Timestamp.split("T")
-            var dateonly = datetime[0].split("-");
-            var formateddate = dateonly[2] + '.' + dateonly[1] + '.' + dateonly[0] + ' ' + datetime[1].split(".")[0];
-            var metatext = 'Messwerte vom: ' + formateddate;
-            $('#meta').text(metatext);
-            });
-        }, 1000);
-      });
+                    var datetime = data[1].Timestamp.split("T")
+                    var dateonly = datetime[0].split("-");
+                    var formateddate = dateonly[2] + '.' + dateonly[1] + '.' + dateonly[0] + ' ' + datetime[1].split(".")[0];
+                    var metatext = 'Messwerte vom: ' + formateddate;
+                    $('#meta').text(metatext);
+                });
+            }, 2500);
+        });
     </script>
 </head>
 
 <body>
-<div class="title">live data<br><span>EzoGateway</span></div>
-<div class="climatebox">
-<div class="climate" style="color:#B90276;"><div class="circle" id="temp">NaN</div></div>
-<div class="climate" style="color:#00A8B0;"><div class="circle" id="ph">NaN</div></div>
-<div class="climate" style="color:#78BE20;"><div class="circle" id="redox">NaN</div></div>
-</div>
-<div class="climatebox">
-<div class="climate" style="color:#B90276;"><div class="units">°C</div></div>
-<div class="climate" style="color:#00A8B0;"><div class="units">pH</div></div>
-<div class="climate" style="color:#78BE20;"><div class="units">mV</div></div>
-</div>
+    <div class="title">live data<br><span>EzoGateway</span></div>
+    <div class="climatebox">
+        <div class="climate" style="color:#FFF347;"><div class="circle" id="temp">NaN</div></div>
+        <div class="climate" style="color:#FF2E64;"><div class="circle" id="ph">NaN</div></div>
+        <div class="climate" style="color:#109ECC;"><div class="circle" id="redox">NaN</div></div>
+    </div>
+    <div class="climatebox">
+        <div class="climate" style="color:#FFF347;"><div class="units">°C</div></div>
+        <div class="climate" style="color:#FF2E64;"><div class="units">pH</div></div>
+        <div class="climate" style="color:#109ECC;"><div class="units">mV</div></div>
+    </div>
 
-<div class="footer" id="meta">Daten werden geladen...</div>
+    <div class="footer" id="meta">Daten werden geladen...</div>
 
 </body>
 </html>
