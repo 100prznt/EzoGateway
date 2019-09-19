@@ -1,27 +1,29 @@
-**Fetch Measdata**
-----
-  Returns json data about the last acquired measurement data.
+# Fetch Measdata
 
-* **URL**
+Returns json data about the last acquired measurement data.
 
-  /api/fetch
+### URL
 
-* **Method:**
+/api/fetch
 
-  `GET`
+### Method
+
+`GET`
   
-*  **URL Params**
+### URL Params
 
-  None
+None
 
-* **Data Params**
+### Data Params
 
-  None
+None
 
-* **Success Response:**
+### Success Response
 
-  * **Code:** 200 <br />
-    **Content:** 
+#### Code
+200 OK
+
+#### Content 
 ```javascript
 {
   "1": {
@@ -48,12 +50,22 @@
 }
 ```
  
-* **Error Response:**
+### Error Response
 
-  None
+#### Code
+423 Locked
 
-* **Sample Call:**
+#### Content 
+```javascript
+{
+  "reason": "No measurement data acquired."
+}
+```
 
+### Reason
+Perform a measurement `api/acq` befor fetch the measdata.
+
+### Sample Call
   ```javascript
     $.ajax({
       url: "/api/fetch",

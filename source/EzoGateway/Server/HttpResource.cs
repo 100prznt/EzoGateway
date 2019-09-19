@@ -180,6 +180,19 @@ namespace EzoGateway.Server
                 BodyTextContent = JsonConvert.SerializeObject(new { task = new RestTask(1, jobName) }, Formatting.Indented)
             };
 
+        /// <summary>
+        /// HTTP 423 - Locked
+        /// </summary>
+        /// <param name="error">Error description</param>
+        /// <returns></returns>
+        public static HttpResource JsonAccepted423(string error) =>
+            new HttpResource()
+            {
+                StatusCode = "423 Locked",
+                Mime = InternetMediaType.ApplicationJson,
+                BodyTextContent = JsonConvert.SerializeObject(new { reason = error }, Formatting.Indented)
+            };
+
         #endregion Services
 
         #region Internal services
