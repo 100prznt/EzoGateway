@@ -18,7 +18,7 @@ TODO!
 ## How to use?
 
 ### API Reference
-Moved in the Wiki.
+Moved in the Wiki -> [API Reference](https://github.com/100prznt/EzoGateway/wiki/API-Reference)
 
 ### Web interface
 ![EzoGateway - live data](docu/img/web-interface-live-data.png "EzoGateway web interface shows live measurement data.")
