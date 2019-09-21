@@ -17,12 +17,8 @@ TODO!
 
 ## How to use?
 
-### REST API
-| URL                              | Method | Description        |
-|----------------------------------|--------|--------------------|
-|`http://<IP address>/api/acq`     |GET     |Acquire measurement |
-|`http://<IP address>/api/fetch`   |GET     |Fetch measdata      |
-|`http://<IP address>/api/sensors` |GET     |Get sensor info     |
+### API Reference
+Moved in the Wiki.
 
 ### Web interface
 ![EzoGateway - live data](docu/img/web-interface-live-data.png "EzoGateway web interface shows live measurement data.")
