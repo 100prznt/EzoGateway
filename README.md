@@ -1,6 +1,6 @@
 ## Project under construction :construction:
 ```diff
-! This project is currently (2019/09/19) under construction, in a very early phase...
+! This project is currently (2019/09/20) under construction, in a very early phase...
 ```
 
 ---
@@ -8,6 +8,7 @@
 ![EZO Devices on the Whitebox carrier](docu/img/wb-ezo-hat.jpg "Atlas Scientific EZO™ devices (pH, ORP and RTD) on the Whitebox carrier.")
 # EzoGateway
 Open source UWP App, to brings the Atlas Scientific EZO™ devices in the __Internet of Things__. Per __REST API__ you can fetch live measdata and calibrate connected sensors.
+Ideal for monitoring water quality in your pool.
 
 
 [![Bulid](https://img.shields.io/appveyor/ci/100prznt/ezogateway.svg?logo=appveyor&style=popout-square)](https://ci.appveyor.com/project/100prznt/ezogateway)   [![GitHub issues](https://img.shields.io/github/issues/100prznt/EzoGateway?logo=github&style=popout-square)](https://github.com/100prznt/EzoGateway/issues)   [![Code size](https://img.shields.io/github/languages/code-size/100prznt/EzoGateway.svg?logo=github&style=popout-square)](#) 
