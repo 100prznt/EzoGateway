@@ -37,7 +37,7 @@ This project build on the continuous integration (CI) platform [AppVeyor](https:
 [![GitHub (Pre-)Release](https://img.shields.io/github/release/100prznt/EzoGateway/all.svg?logo=github&style=popout-square)](https://github.com/100prznt/EzoGateway/releases) (Pre-)Release
 
 ## Credits
-This library is made possible by contributions from:
+This app is made possible by contributions from:
 * [Elias Rümmler](http://www.100prznt.de) ([@rmmlr](https://github.com/rmmlr)) - core contributor
 
 ### Open Source Project Credits
