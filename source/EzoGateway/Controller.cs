@@ -164,7 +164,7 @@ namespace EzoGateway
         /// Hardware initialization
         /// </summary>
         /// <returns>true: success; false: failed</returns>
-        public bool InitHardware()
+        public async Task<bool> InitHardware()
         {
             try
             {
@@ -173,18 +173,21 @@ namespace EzoGateway
                 if (Configuration.PhSensor.Enabled)
                 {
                     PhSensor = new EzoPh(Configuration.PhSensor.I2CAddress);
+                    await PhSensor.InitSensorAsync();
                     SensorInfos.Add(1, GetSensorInfo(PhSensor, "Atlas Scientific EZO pH Circuit")); //id for pH: 1
                 }
 
                 if (Configuration.RedoxSensor.Enabled)
                 {
                     RedoxSensor = new EzoOrp(Configuration.RedoxSensor.I2CAddress);
+                    await RedoxSensor.InitSensorAsync();
                     SensorInfos.Add(2, GetSensorInfo(RedoxSensor, "Atlas Scientific EZO ORP circuit")); //id for Redox: 2
                 }
 
                 if (Configuration.TemperatureSensor.Enabled)
                 {
                     TempSensor = new EzoRtd(Configuration.TemperatureSensor.I2CAddress);
+                    await TempSensor.InitSensorAsync();
                     SensorInfos.Add(3, GetSensorInfo(TempSensor, "Atlas Scientific EZO RTD circuit")); //id for Temperature: 3
                 }
 
@@ -199,7 +202,7 @@ namespace EzoGateway
             }
         }
 
-        public bool SingleMeasurement()
+        public async Task<bool> SingleMeasurement()
         {
             if (!IsInitialized)
                 throw new Exception("Hardware is not ininitialized.");
@@ -207,7 +210,7 @@ namespace EzoGateway
             try
             {
                 double? ph = null;
-                var temp = TempSensor?.GetMeasValue();
+                var temp = await TempSensor?.GetMeasValue(); //Test async
                 if (Configuration.EnablePhTemperatureCompensation && temp is double tempValue)
                     ph = PhSensor?.GetMeasValue(tempValue);
                 else
@@ -278,7 +281,7 @@ namespace EzoGateway
             {
                 Name = devInfo.DeviceType,
                 Description = description,
-                Interface = $"I2C ({ezoSensor.BusSpeed})",
+                Interface = $"I2C ({ezoSensor.Settings.BusSpeed})",
                 FirmwareVersion = devInfo.FirmwareVersion,
                 SupplyVoltage = devStatus.VccVoltage,
                 Address = ezoSensor.I2CAddress,

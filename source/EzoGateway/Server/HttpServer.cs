@@ -260,12 +260,45 @@ namespace EzoGateway.Server
                 m_Controller.SingleMeasurement();
                 return HttpResource.JsonAccepted202("AcquireMeasdata");
             }
+            else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("INIT", StringComparison.OrdinalIgnoreCase))
+            {
+                m_Controller.InitHardware();
+                return HttpResource.JsonAccepted202("InitHardware");
+            }
             else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("FETCH", StringComparison.OrdinalIgnoreCase))
             {
                 if (m_Controller.LatestMeasData == null || m_Controller.LatestMeasData.Count == 0)
-                    return HttpResource.JsonAccepted423("No measurement data acquired.");
+                    return HttpResource.JsonLocked423("No measurement data acquired.");
                 else
                     return HttpResource.CreateJsonResource(m_Controller.LatestMeasData);
+            }
+            else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("CAL", StringComparison.OrdinalIgnoreCase))
+            {
+                if (request.Uri.Segments.Length == 4)
+                {
+                    if (request.Uri.Segments[3].Trim('/').Equals("PH", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (request.Method == HttpMethod.Get)
+                        {
+                            //return HttpResource.CreateJsonResource("ph calib info");
+                        }
+                        else if (request.Method == HttpMethod.Put)
+                        {
+                            //Perform sensor calibration
+                            //var calibData = JsonConvert.DeserializeObject<pHCalibData>(request.Content);
+                            //m_Controller.CalibPh...
+                            //return HttpResource.JsonAccepted202("Perform sensor calibration.");
+                        }
+                    }
+                    else if(request.Uri.Segments[3].Trim('/').Equals("ORP", StringComparison.OrdinalIgnoreCase))
+                    {
+
+                    }
+                    else if (request.Uri.Segments[3].Trim('/').Equals("RTD", StringComparison.OrdinalIgnoreCase))
+                    {
+
+                    }
+                }
             }
 
             return null;

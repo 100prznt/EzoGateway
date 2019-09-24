@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>EzoGateway</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/uikit.min.css" />
+    <script src="../js/uikit.min.js"></script>
+    <script src="../js/uikit-icons.min.js"></script>
+    <script src="../js/jquery-3.4.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajaxSetup({ cache: false });
+
+            $.getJSON('../api/config', function (data) {
+                console.log(data);
+                $('#ph-active').prop("checked", data["PhSensor"].Enabled);
+                $('#ph-address').val(data["PhSensor"].I2CAddress);
+                $('#orp-active').prop("checked", data["RedoxSensor"].Enabled);
+                $('#orp-address').val(data["RedoxSensor"].I2CAddress);
+                $('#rtd-active').prop("checked", data["TemperatureSensor"].Enabled);
+                $('#rtd-address').val(data["TemperatureSensor"].I2CAddress);
+                $('#ph-tempcompensation').prop("checked", data.EnablePhTemperatureCompensation);
+                $('#temp-unit').val(data.TemperatureUnit);
+            });
+
+            jQuery('form#config').bind('submit', function (event) {
+                console.log("submit");
+                event.preventDefault();
+
+                var form = this;
+                var json = ConvertFormToGeneralSettings(form);
+                $.ajax({
+                    type: "PUT",
+                    contentType: "application/json; charset=utf-8",
+                    url: "../api/config",
+                    data: JSON.stringify(json)
+                }).done(function () {
+                    console.log("success")
+                }).fail(function () {
+                    console.log("error");
+                });
+
+                return true;
+            });
+        });
+
+        function ConvertFormToGeneralSettings() {
+            var phSensor = new Object();
+            phSensor.Enabled = $('#ph-active').is(":checked");
+            phSensor.I2CAddress = $('#ph-address').val();
+            var redoxSensor = new Object();
+            redoxSensor.Enabled = $('#orp-active').is(":checked");
+            redoxSensor.I2CAddress = $('#orp-address').val();
+            var temperatureSensor = new Object();
+            temperatureSensor.Enabled = $('#rtd-active').is(":checked");
+            temperatureSensor.I2CAddress = $('#rtd-address').val();
+
+            var settings = new Object();
+            settings.PhSensor = phSensor;
+            settings.RedoxSensor = redoxSensor;
+            settings.TemperatureSensor = temperatureSensor;
+            settings.EnablePhTemperatureCompensation = $('#ph-tempcompensation').is(":checked");
+            settings.TemperatureUnit = $('#temp-unit').val();
+
+            console.log(settings);
+
+            return settings;
+        }
+    </script>
+</head>
+<body>
+    <div class="uk-container">
+        <div class="uk-card uk-card-default">
+            <!--<div class="uk-card-media-top">
+                <img src="media/ezo-on-whitebox-carrier.jpg" alt="">
+            </div>-->
+            <div class="uk-card-body">
+                <h3 class="uk-card-title">Calibration</h3>
+                <form id="config">
+                    <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="ph-active"> EZO&trade; pH Circuit</legend>
+                    <p class="uk-margin-small">Module for connecting a pH probe, to measure the pH value.</p>
+                    <label>I2C address (dec):</label>
+                    <input class="uk-input" type="number" id="ph-address" min="1" max="127">
+
+                    <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="orp-active"> EZO&trade; ORP Circuit</legend>
+                    <p class="uk-margin-small">Module for connecting a ORP/Redox probe, to measure the redox potential.</p>
+                    <label>I2C address (dec):</label>
+                    <input class="uk-input" type="number" id="orp-address" min="1" max="127">
+
+                    <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="rtd-active"> EZO&trade; RTD Circuit</legend>
+                    <p class="uk-margin-small">Module for connecting a PT100/1000 temperature sensor.</p>
+                    <label>I2C address (dec):</label>
+                    <input class="uk-input" type="number" id="rtd-address" min="1" max="127">
+
+                    <legend class="uk-legend uk-margin-top">General</legend>
+                    <div class="uk-margin-small">
+                        <label><input class="uk-checkbox" type="checkbox" id="ph-tempcompensation" /> Enable automatic temperature compensation for pH value</label>
+                    </div>
+                    <label>Temperature unit:</label>
+                    <select class="uk-select" id="temp-unit">
+                        <option value="Celsius">Celsius (&deg;C)</option>
+                        <option value="Kelvin">Kelvin (K)</option>
+                        <option value="Fahrenheit">Fahrenheit (&deg;F)</option>
+                    </select>
+
+                    <input class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Save configuration">
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -196,7 +196,7 @@ namespace EzoGateway.Server
         /// </summary>
         /// <param name="error">Error description</param>
         /// <returns></returns>
-        public static HttpResource JsonAccepted423(string error) =>
+        public static HttpResource JsonLocked423(string error) =>
             new HttpResource()
             {
                 StatusCode = "423 Locked",
