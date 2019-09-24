@@ -111,31 +111,51 @@ namespace EzoGateway
             }
         }
 
-        public async void SaveConfig()
+        public void UpdateConfig(GeneralSettings settings)
         {
-            DeleteConfig();
-
-            var localFolder = ApplicationData.Current.LocalFolder;
-
-            var file = await localFolder.CreateFileAsync("ezogateway.config.json", CreationCollisionOption.ReplaceExisting);
-
-            if (Configuration == null)
-                Configuration = GeneralSettings.Default;
-
-            await FileIO.WriteTextAsync(file, Configuration.ToJson());
-
-            ConfigIsSavedEvent?.Invoke();
+            Configuration = settings;
+            SaveConfig();
         }
 
-        public async void DeleteConfig()
+        public async void SaveConfig()
         {
-            var localFolder = ApplicationData.Current.LocalFolder;
-
-            var item = await localFolder.TryGetItemAsync("ezogateway.config.json");
-            if (item != null)
+            try
             {
-                await item.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                ConfigIsDeletedEvent?.Invoke();
+                DeleteConfigFile();
+
+                var localFolder = ApplicationData.Current.LocalFolder;
+
+                var file = await localFolder.CreateFileAsync("ezogateway.config.json", CreationCollisionOption.ReplaceExisting);
+
+                if (Configuration == null)
+                    Configuration = GeneralSettings.Default;
+
+                await FileIO.WriteTextAsync(file, Configuration.ToJson());
+
+                ConfigIsSavedEvent?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException("SaveConfig", ex);
+            }
+        }
+
+        public async void DeleteConfigFile()
+        {
+            try
+            {
+                var localFolder = ApplicationData.Current.LocalFolder;
+
+                var item = await localFolder.TryGetItemAsync("ezogateway.config.json");
+                if (item != null)
+                {
+                    await item.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    ConfigIsDeletedEvent?.Invoke();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException("DeleteConfigFile", ex);
             }
         }
 
@@ -167,7 +187,7 @@ namespace EzoGateway
                     TempSensor = new EzoRtd(Configuration.TemperatureSensor.I2CAddress);
                     SensorInfos.Add(3, GetSensorInfo(TempSensor, "Atlas Scientific EZO RTD circuit")); //id for Temperature: 3
                 }
-                
+
                 Debug.WriteLine("Hardware successfully initialized.");
                 IsInitialized = true;
                 return true;
