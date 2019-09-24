@@ -10,6 +10,7 @@
     <script src="js/jquery-3.4.1.min.js"></script>
     <script>
         $(document).ready(function () {
+            console.log("ready");
             $.ajaxSetup({ cache: false });
             setInterval(function () {
                 $.getJSON('../api/fetch', function (data) {
