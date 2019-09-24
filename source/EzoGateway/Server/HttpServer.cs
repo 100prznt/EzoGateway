@@ -1,10 +1,13 @@
-﻿using EzoGateway.Helpers;
+﻿using EzoGateway.Config;
+using EzoGateway.Helpers;
+using Newtonsoft.Json;
 using Rca.EzoDeviceLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -79,7 +82,7 @@ namespace EzoGateway.Server
         {
             try
             {
-                Debug.WriteLine("Processing of a new request is started.");
+                Debug.WriteLine("Processing of a new HTTP request is started.");
 
                 HttpServerRequest request = null;
 
@@ -127,28 +130,38 @@ namespace EzoGateway.Server
                         //WEB
                         else if (request.Uri.Segments.Length >= 2 && request.Uri.Segments[1].Trim('/').Equals("WEB", StringComparison.OrdinalIgnoreCase))
                         {
-                            try
+                            if (request.Method != HttpMethod.Get)
                             {
-                                if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("PATHS", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    data = HttpResource.CreateHtmlResource("EzoGateway paths", m_Controller.GetLocalPaths());
-                                }
-                                else
-                                {
-                                    //Check if requested resource is available in the file system.
-                                    data = await GetWebResource(request.Uri);
-                                }
+                                data = HttpResource.Error405;
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                Debug.WriteLine(ex.Message);
+                                try
+                                {
+                                    if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("PATHS", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        data = HttpResource.CreateHtmlResource("EzoGateway paths", m_Controller.GetLocalPaths());
+                                    }
+                                    else
+                                    {
+                                        //Check if requested resource is available in the file system.
+                                        data = await GetWebResource(request.Uri);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine(ex.Message);
+                                }
                             }
                         }
                         //API
                         else if (request.Uri.Segments.Length >= 2 && request.Uri.Segments[1].Trim('/').Equals("API", StringComparison.OrdinalIgnoreCase))
                         {
                             //Check if requested resource is available via API (Uri) and accessible (Method).
-                            data = ApiRequest(request);
+                            if (request.Method == HttpMethod.Get || request.Method == HttpMethod.Put)
+                                data = ApiRequest(request);
+                            else
+                                data = HttpResource.Error405;
                         }
                         //undefined
                         else
@@ -225,7 +238,14 @@ namespace EzoGateway.Server
             else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("CONFIG", StringComparison.OrdinalIgnoreCase))
             {
                 if (request.Uri.Segments.Length == 3)
-                    return HttpResource.CreateJsonResource(m_Controller.Configuration);
+                    if (request.Method == HttpMethod.Get)
+                        return HttpResource.CreateJsonResource(m_Controller.Configuration);
+                    else if (request.Method == HttpMethod.Put)
+                    {
+                        //Update config
+                        var settings = JsonConvert.DeserializeObject<GeneralSettings>(request.Content);
+                        m_Controller.UpdateConfig(settings);
+                    }
                 //else if (request.Uri.Segments.Length == 4 && request.Uri.Segments[3].Trim('/').Equals("TIME", StringComparison.OrdinalIgnoreCase))
                 //{
                 //    var dt = new DateTime(2015, 05, 25, 16, 45, 05);

@@ -28,6 +28,8 @@ namespace EzoGateway.Server
 
         public Dictionary<string, string> Parameters { get; set; }
 
+        public string Content { get; set; }
+
         /// <summary>
         /// Empty constructor
         /// </summary>
@@ -61,6 +63,7 @@ namespace EzoGateway.Server
 
             string[] requestFragments = requestString.ToString().Split(new string[] { "\r\n" }, StringSplitOptions.None);
             var uriBuilder = new UriBuilder(baseUri);
+            int processedRequestLines = 0;
             try
             {
                 var headData = requestFragments[0].Split(' ');
@@ -84,6 +87,7 @@ namespace EzoGateway.Server
                 request.Uri = uriBuilder.Uri;
                 if (headData.Length > 2)
                     request.Protocol = headData[2];
+                processedRequestLines++;
 
                 if (requestFragments.Length > 1)
                 {
@@ -92,16 +96,38 @@ namespace EzoGateway.Server
                     {
                         var m = rex.Match(requestFragments[i]);
                         if (m.Success)
-                            request.Details.Add(m.Groups["key"].Value, m.Groups["value"].Value);
+                        {
+                            request.Details.Add(m.Groups["key"].Value.ToUpper(), m.Groups["value"].Value);
+                            processedRequestLines++;
+                        }
                     }
                 }
 
             }
             catch (Exception ex)
             {
+                Debug.WriteLine("Error parsing the HTTP request.");
                 return null;
             }
 
+            try
+            {
+                //Handle HTTP content
+                if (requestFragments.Length > processedRequestLines && request.Details.ContainsKey("CONTENT-LENGTH"))
+                {
+                    if (int.TryParse(request.Details["CONTENT-LENGTH"], out int lenght))
+                    {
+                        if (lenght > 1)
+                        //TODO: quick and dirty implemented!
+                        request.Content = requestFragments.Last();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error parsing the HTTP request content.");
+                return null;
+            }
             return request;
         }
     }
