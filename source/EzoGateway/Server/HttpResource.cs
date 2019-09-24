@@ -67,6 +67,17 @@ namespace EzoGateway.Server
                 BodyTextContent = $"<!DOCTYPE html>\r\n<html>\r\n<h1>404 Not Found</h1>\r\n</html>"
             };
 
+        /// <summary>
+        /// Not Found
+        /// </summary>
+        /// <returns></returns>
+        public static HttpResource Error405 =>
+            new HttpResource()
+            {
+                StatusCode = "405 Method Not Allowed",
+                Mime = InternetMediaType.TextHtml,
+                BodyTextContent = $"<!DOCTYPE html>\r\n<html>\r\n<h1>405 Method Not Allowed</h1>\r\n</html>"
+            };
         #endregion Http errors
 
         #endregion Properties
