@@ -1,6 +1,9 @@
-﻿using EzoGateway.Config;
+﻿using EzoGateway.Calibration;
+using EzoGateway.Config;
+using EzoGateway.Helpers;
 using EzoGateway.Measurement;
 using Rca.EzoDeviceLib;
+using Rca.EzoDeviceLib.Specific.Ph;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,6 +21,7 @@ namespace EzoGateway
     /// </summary>
     public class Controller
     {
+        #region Properties
         public GeneralSettings Configuration { get; set; }
 
         public Dictionary<int, SensorInfo> SensorInfos { get; set; }
@@ -44,6 +48,9 @@ namespace EzoGateway
         /// </summary>
         public EzoRtd TempSensor { get; set; }
 
+        #endregion Properties
+
+        #region Constructor
         public Controller()
         {
             ConfigIsLoadedEvent += Controller_ConfigIsLoadedEvent;
@@ -61,24 +68,9 @@ namespace EzoGateway
 #endif
         }
 
-        private void Controller_ConfigIsDeletedEvent()
-        {
-            Debug.WriteLine("Controller_ConfigIsDeletedEvent");
-        }
+        #endregion Constructor
 
-        private void Controller_ConfigIsSavedEvent()
-        {
-            Debug.WriteLine("Controller_ConfigIsSavedEvent");
-        }
-
-        private void Controller_ConfigIsLoadedEvent()
-        {
-            Debug.WriteLine("Controller_ConfigIsLoadedEvent");
-
-            var t = Task.Run(() => InitHardware()); //Initialization in the current task fails. So, outsourcing to own task...
-            t.Wait();
-        }
-
+        #region Configuration
         /// <summary>
         /// Load config from local config file
         /// </summary>
@@ -159,7 +151,35 @@ namespace EzoGateway
             }
         }
 
+        private void Controller_ConfigIsDeletedEvent()
+        {
+            Debug.WriteLine("Controller_ConfigIsDeletedEvent");
+        }
 
+        private void Controller_ConfigIsSavedEvent()
+        {
+            Debug.WriteLine("Controller_ConfigIsSavedEvent");
+        }
+
+        private void Controller_ConfigIsLoadedEvent()
+        {
+            Debug.WriteLine("Controller_ConfigIsLoadedEvent");
+
+            var t = Task.Run(() => InitHardware()); //Initialization in the current task fails. So, outsourcing to own task...
+            t.Wait();
+        }
+
+        #region Events
+        public event Action ConfigIsSavedEvent;
+        public event Action ConfigIsLoadedEvent;
+        public event Action ConfigIsDeletedEvent;
+
+        #endregion Events
+
+
+        #endregion Configuration
+
+        #region Hardware Init
         /// <summary>
         /// Hardware initialization
         /// </summary>
@@ -202,6 +222,29 @@ namespace EzoGateway
             }
         }
 
+        SensorInfo GetSensorInfo(EzoBase ezoSensor, string description = "N/A")
+        {
+            var devInfo = ezoSensor.GetDeviceInfo();
+            var devStatus = ezoSensor.GetDeviceStatus();
+
+            var info = new SensorInfo()
+            {
+                Name = devInfo.DeviceType,
+                Description = description,
+                Interface = $"I2C ({ezoSensor.Settings.BusSpeed})",
+                FirmwareVersion = devInfo.FirmwareVersion,
+                SupplyVoltage = devStatus.VccVoltage,
+                Address = ezoSensor.I2CAddress,
+                Serial = "N/A",
+                Package = typeof(EzoBase).AssemblyQualifiedName
+            };
+
+            return info;
+        }
+
+        #endregion Hardware Init
+
+        #region Measurement
         public async Task<bool> SingleMeasurement()
         {
             if (!IsInitialized)
@@ -230,6 +273,79 @@ namespace EzoGateway
             }
         }
 
+        void AddMeasDataInfo(int id, double? measValue, MeasDataInfo info)
+        {
+            if (measValue is double value && info != null)
+            {
+                var data = new MeasData()
+                {
+                    Name = info.Name,
+                    Timestamp = DateTime.Now,
+                    Value = value,
+                    Unit = info.Unit,
+                    Symbol = info.Symbol
+                };
+
+                LatestMeasData[id] = data;
+            }
+        }
+
+        #endregion Measurement
+
+        #region Calibration
+        public bool CalPhAddPoint(CalData data, out string errorMessage)
+        {
+            errorMessage = "";
+            if (!data.EzoDevice.Equals("PH", StringComparison.OrdinalIgnoreCase))
+            {
+                errorMessage = $"Calibration data not for EZO pH Circuit, calibration aborted.";
+                return false;
+            }
+
+            if (PhSensor != null)
+            {
+                if (Enum.TryParse(data.CalibPointName, out CalPoint pnt))
+                {
+                    PhSensor.SetCalibrationPoint(pnt, data.Value);
+                    return true;
+                }
+                else
+                {
+                    errorMessage = $"Invalid name ({data.CalibPointName}) for the calibration range, calibration aborted.";
+                    return false;
+                }
+            }
+            else
+            {
+                errorMessage = $"EZO pH Circuit not initialized, calibration aborted.";
+                return false;
+            }
+        }
+
+        public bool CalRtdAddPoint(CalData data, out string errorMessage)
+        {
+            errorMessage = "";
+            if (!data.EzoDevice.Equals("RTD", StringComparison.OrdinalIgnoreCase))
+            {
+                errorMessage = $"Calibration data not for EZO RTD Circuit, calibration aborted.";
+                return false;
+            }
+
+            if (TempSensor != null)
+            {
+                TempSensor.SetCalibrationPoint(data.Value);
+                return true;
+            }
+            else
+            {
+                errorMessage = $"EZO pH Circuit not initialized, calibration aborted.";
+                return false;
+            }
+        }
+
+        #endregion Calibration
+
+        #region System
         public string GetLocalIp()
         {
             List<string> IpAddress = new List<string>();
@@ -253,53 +369,6 @@ namespace EzoGateway
             return paths;
         }
 
-        #region Internal services
-
-        void AddMeasDataInfo(int id, double? measValue, MeasDataInfo info)
-        {
-            if (measValue is double value && info != null)
-            {
-                var data = new MeasData()
-                {
-                    Name = info.Name,
-                    Timestamp = DateTime.Now,
-                    Value = value,
-                    Unit = info.Unit,
-                    Symbol = info.Symbol
-                };
-
-                LatestMeasData[id] = data;
-            }
-        }
-
-        SensorInfo GetSensorInfo(EzoBase ezoSensor, string description = "N/A")
-        {
-            var devInfo = ezoSensor.GetDeviceInfo();
-            var devStatus = ezoSensor.GetDeviceStatus();
-
-            var info = new SensorInfo()
-            {
-                Name = devInfo.DeviceType,
-                Description = description,
-                Interface = $"I2C ({ezoSensor.Settings.BusSpeed})",
-                FirmwareVersion = devInfo.FirmwareVersion,
-                SupplyVoltage = devStatus.VccVoltage,
-                Address = ezoSensor.I2CAddress,
-                Serial = "N/A",
-                Package = typeof(EzoBase).AssemblyQualifiedName
-            };
-
-            return info;
-        }
-
-        #endregion Internal services
-
-        #region Events
-
-        public event Action ConfigIsSavedEvent;
-        public event Action ConfigIsLoadedEvent;
-        public event Action ConfigIsDeletedEvent;
-
-        #endregion Events
+        #endregion System
     }
 }

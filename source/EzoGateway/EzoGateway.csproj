@@ -122,6 +122,7 @@
     <Compile Include="Config\EzoConfig.cs" />
     <Compile Include="Config\GeneralSettings.cs" />
     <Compile Include="Controller.cs" />
+    <Compile Include="Calibration\CalData.cs" />
     <Compile Include="Helpers\PathHelper.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -138,6 +139,8 @@
     <Compile Include="Server\InternetMediaTypeExtensions.cs" />
     <Compile Include="Server\IsBinaryAttribute.cs" />
     <Compile Include="Server\MimeAttribute.cs" />
+    <Compile Include="Server\OperationStatus.cs" />
+    <Compile Include="Server\RestStatus.cs" />
     <Compile Include="Server\RestTask.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -155,6 +158,12 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <Content Include="WebResources\cal\js\ph-live.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WebResources\cal\ph.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="WebResources\cal\rtd.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -180,6 +189,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="WebResources\media\ezo-on-whitebox-carrier.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WebResources\media\wb-ezo-hat.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace EzoGateway.Measurement
 {
-    public enum TemperatureUnit
-    {
-        Celsius,
-        Kelvin,
-        Fahrenheit
-    }
+    //public enum TemperatureUnit
+    //{
+    //    Celsius,
+    //    Kelvin,
+    //    Fahrenheit
+    //}
 }

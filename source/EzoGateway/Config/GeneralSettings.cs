@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Rca.EzoDeviceLib;
+using Rca.EzoDeviceLib.Specific.Rtd;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,7 +42,7 @@ namespace EzoGateway.Config
         /// Temperature unit, valid for the whole app.
         /// </summary>
         [JsonConverter(typeof(StringEnumConverter))]
-        public TemperatureUnit TemperatureUnit { get; set; }
+        public TemperatureScales TemperatureUnit { get; set; }
 
         /// <summary>
         /// Default settings
@@ -53,7 +54,7 @@ namespace EzoGateway.Config
                 RedoxSensor = new EzoConfig(EzoOrp.DEFAULT_ADDRESS),
                 TemperatureSensor = new EzoConfig(EzoRtd.DEFAULT_ADDRESS),
                 EnablePhTemperatureCompensation = true,
-                TemperatureUnit = TemperatureUnit.Celsius
+                TemperatureUnit = TemperatureScales.Celsius
             };
 
         #endregion Properties

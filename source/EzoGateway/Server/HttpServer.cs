@@ -1,4 +1,5 @@
-﻿using EzoGateway.Config;
+﻿using EzoGateway.Calibration;
+using EzoGateway.Config;
 using EzoGateway.Helpers;
 using Newtonsoft.Json;
 using Rca.EzoDeviceLib;
@@ -16,6 +17,7 @@ using Windows.Networking.Connectivity;
 using Windows.Networking.Sockets;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Rca.EzoDeviceLib.Specific.Rtd;
 
 namespace EzoGateway.Server
 {
@@ -159,7 +161,7 @@ namespace EzoGateway.Server
                         {
                             //Check if requested resource is available via API (Uri) and accessible (Method).
                             if (request.Method == HttpMethod.Get || request.Method == HttpMethod.Put)
-                                data = ApiRequest(request);
+                                data = await ApiRequest(request);
                             else
                                 data = HttpResource.Error405;
                         }
@@ -218,7 +220,7 @@ namespace EzoGateway.Server
             return new HttpResource(file);
         }
 
-        private HttpResource ApiRequest(HttpServerRequest request)
+        private async Task<HttpResource> ApiRequest(HttpServerRequest request)
         {
             if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("SENSORS", StringComparison.OrdinalIgnoreCase))
             {
@@ -226,9 +228,14 @@ namespace EzoGateway.Server
             }
             else if (request.Uri.Segments.Length > 3 && request.Uri.Segments[2].Trim('/').Equals("SENSOR", StringComparison.OrdinalIgnoreCase))
             {
-                if (request.Uri.Segments.Length >= 4)
+                if (request.Uri.Segments.Length == 5 && request.Uri.Segments[4].Trim('/').Equals("LIVE", StringComparison.OrdinalIgnoreCase))
                 {
-                    //Select single sensor
+                    if(request.Uri.Segments[3].Trim('/').Equals("1", StringComparison.OrdinalIgnoreCase))
+                        return HttpResource.CreateJsonResource(new { measValue = m_Controller.PhSensor.GetMeasValue() });
+                    else if (request.Uri.Segments[3].Trim('/').Equals("2", StringComparison.OrdinalIgnoreCase))
+                        return HttpResource.CreateJsonResource(new { measValue = m_Controller.RedoxSensor.GetMeasValue() });
+                    else if (request.Uri.Segments[3].Trim('/').Equals("3", StringComparison.OrdinalIgnoreCase))
+                        return HttpResource.CreateJsonResource(new { measValue = await m_Controller.TempSensor.GetMeasValue() });
                 }
             }
             else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("PATHS", StringComparison.OrdinalIgnoreCase))
@@ -280,14 +287,16 @@ namespace EzoGateway.Server
                     {
                         if (request.Method == HttpMethod.Get)
                         {
-                            //return HttpResource.CreateJsonResource("ph calib info");
+                            return HttpResource.CreateJsonResource(new { StoredCalibPoints = m_Controller.PhSensor.GetCalibrationInfo() });
                         }
                         else if (request.Method == HttpMethod.Put)
                         {
                             //Perform sensor calibration
-                            //var calibData = JsonConvert.DeserializeObject<pHCalibData>(request.Content);
-                            //m_Controller.CalibPh...
-                            //return HttpResource.JsonAccepted202("Perform sensor calibration.");
+                            var calibData = JsonConvert.DeserializeObject<CalData>(request.Content);
+                            if (m_Controller.CalPhAddPoint(calibData, out string errorMessage))
+                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration point successfully added"));
+                            else
+                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, errorMessage));
                         }
                     }
                     else if(request.Uri.Segments[3].Trim('/').Equals("ORP", StringComparison.OrdinalIgnoreCase))
@@ -296,7 +305,23 @@ namespace EzoGateway.Server
                     }
                     else if (request.Uri.Segments[3].Trim('/').Equals("RTD", StringComparison.OrdinalIgnoreCase))
                     {
-
+                        if (request.Method == HttpMethod.Get)
+                        {
+                            return HttpResource.CreateJsonResource(new
+                            {
+                                StoredCalibPoints = m_Controller.TempSensor.GetCalibrationInfo(),
+                                UnitScale =  m_Controller.Configuration.TemperatureUnit.GetSymbol()
+                                });
+                        }
+                        else if (request.Method == HttpMethod.Put)
+                        {
+                            //Perform sensor calibration
+                            var calibData = JsonConvert.DeserializeObject<CalData>(request.Content);
+                            if (m_Controller.CalRtdAddPoint(calibData, out string errorMessage))
+                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration point successfully added"));
+                            else
+                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, errorMessage));
+                        }
                     }
                 }
             }

@@ -12,18 +12,41 @@
         $(document).ready(function () {
             $.ajaxSetup({ cache: false });
 
-            $.getJSON('../../api/cal/rtd', function (data) {
-                console.log(data);
+            $.getJSON('../../api/cal/ph', function (data) {
+                //console.log(data);
                 var calPoints = data["StoredCalibPoints"];
-                var unitSymbol = data["UnitScale"];
 
                 if (calPoints > 0) {
-                    $("#calState p").html("The EZO&trade; RTD Circuit is currently calibrated.");
+                    $("#calState p").html("The EZO&trade; pH Circuit is currently calibrated at <strong>" +
+                        calPoints + "</strong> point" + calPoints == 1 ? "." : "s.");
                     $("#calState").removeClass("uk-alert-danger");
                     $("#calState").addClass("uk-alert-success");
                 }
+            });
 
-                $("#refLabel").text("Reference Value (in " + unitSymbol + "):");
+            var worker;
+
+            $("#startReading").click(function () {
+                $("#startReading").prop('disabled', true);
+                $("#stopReading").prop('disabled', false);
+
+                worker = new Worker('js/ph-live.js');
+                worker.addEventListener('message', function (e) {
+                    console.log(e.data);
+                    $("#liveValue").val('pH = ' + e.data);
+                }, false);
+
+                worker.postMessage({ 'cmd': 'start' });
+            });
+
+            $("#stopReading").click(function () {
+                $("#stopReading").prop('disabled', true);
+                $("#startReading").prop('disabled', false);
+
+                // Calling worker.terminate() from this script would also stop the worker.
+                worker.postMessage({ 'cmd': 'stop' });
+
+                $("#liveValue").val("");
             });
 
             jQuery('form#config').bind('submit', function (event) {
@@ -46,6 +69,7 @@
                 return true;
             });
         });
+
 
         function ConvertFormToGeneralSettings() {
             var phSensor = new Object();
@@ -78,16 +102,43 @@
                 <img src="../media/wb-ezo-hat.jpg" alt="Atlas Scientific EZO™ devices (pH, ORP and RTD) on the Whitebox carrier.">
             </div>
             <div class="uk-card-body">
-                <h2 class="uk-card-title">EZO&trade; RTD Circut - Calibration</h2>
+                <h2 class="uk-card-title">EZO&trade; pH Circut - Calibration</h2>
                 <div id="calState" class="uk-alert-danger" uk-alert>
-                    <p>The EZO&trade; RTD Circuit is currently not calibrated!</p>
+                    <p>The EZO&trade; pH Circuit is currently not calibrated!</p>
                 </div>
+                <h4>Continuous reading</h4>
+                <p>
+                    The most important part of calibration is watching the readings during the calibration process.
+                </p>
+                <form id="live" class="uk-grid-small uk-margin" uk-grid>
+                    <div class="uk-width-1-2@s">
+                        <input id="liveValue" class="uk-input" type="text" disabled>
+                    </div>
+                    <div class="uk-width-1-4@s">
+                        <input id="startReading" class="uk-button uk-button-secondary uk-width-1-1" type="button" value="Start">
+                    </div>
+                    <div class="uk-width-1-4@s">
+                        <input id="stopReading" class="uk-button uk-button-danger uk-width-1-1" type="button" value="Stop" disabled>
+                    </div>
+                </form>
                 <form id="config">
-                    <label id="refLabel">Reference Value:</label>
-                    <input class="uk-input" id="refValue" type="number" step="0.01" min="0" max="100">
-
+                    <div class="uk-margin">
+                        <label>Calibration Point:</label>
+                        <select class="uk-select" id="calPoint">
+                            <option value="Mid">Mid point (pH 7.00)</option>
+                            <option value="Low">Low point (pH 4.00)</option>
+                            <option value="High">High point (pH 10.00)</option>
+                        </select>
+                    </div>
+                    <div class="uk-margin">
+                        <label id="refLabel">Reference Value:</label>
+                        <input class="uk-input" id="refValue" type="number" step="0.01" min="0" max="100">
+                    </div>
                     <input class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Calibration">
                 </form>
+                <p>
+                    The first calibration point must be the Mid point (pH 7.00)
+                </p>
             </div>
         </div>
     </div>
