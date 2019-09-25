@@ -129,7 +129,6 @@
     </Compile>
     <Compile Include="Measurement\MeasData.cs" />
     <Compile Include="Measurement\SensorInfo.cs" />
-    <Compile Include="Measurement\TemperatureUnit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\FileExtensionAttribute.cs" />
     <Compile Include="Server\HttpResource.cs" />
