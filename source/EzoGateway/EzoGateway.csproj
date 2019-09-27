@@ -228,12 +228,9 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.3-beta1</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="EzoDeviceLib, Version=1.0.16.0, Culture=neutral, processorArchitecture=ARM">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Rca.EzoDeviceLib\Rca.EzoDeviceLib\bin\ARM\Debug\EzoDeviceLib.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Rca.EzoDeviceLib">
+      <Version>1.0.25</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="WindowsIoT, Version=10.0.17134.0">
