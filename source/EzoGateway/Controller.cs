@@ -222,7 +222,7 @@ namespace EzoGateway
             }
         }
 
-        SensorInfo GetSensorInfo(EzoBase ezoSensor, string description = "N/A")
+        private SensorInfo GetSensorInfo(EzoBase ezoSensor, string description = "N/A")
         {
             var devInfo = ezoSensor.GetDeviceInfo();
             var devStatus = ezoSensor.GetDeviceStatus();
@@ -273,7 +273,7 @@ namespace EzoGateway
             }
         }
 
-        void AddMeasDataInfo(int id, double? measValue, MeasDataInfo info)
+        private void AddMeasDataInfo(int id, double? measValue, MeasDataInfo info)
         {
             if (measValue is double value && info != null)
             {
@@ -318,6 +318,27 @@ namespace EzoGateway
             else
             {
                 errorMessage = $"EZO pH Circuit not initialized, calibration aborted.";
+                return false;
+            }
+        }
+
+        public bool CalOrpAddPoint(CalData data, out string errorMessage)
+        {
+            errorMessage = "";
+            if (!data.EzoDevice.Equals("ORP", StringComparison.OrdinalIgnoreCase))
+            {
+                errorMessage = $"Calibration data not for EZO ORP Circuit, calibration aborted.";
+                return false;
+            }
+
+            if (RedoxSensor != null)
+            {
+                RedoxSensor.SetCalibrationPoint((int)data.Value);
+                return true;
+            }
+            else
+            {
+                errorMessage = $"EZO ORP Circuit not initialized, calibration aborted.";
                 return false;
             }
         }

@@ -9,7 +9,7 @@
     <script src="../js/uikit-icons.min.js"></script>
     <script src="../js/jquery-3.4.1.min.js"></script>
     <script>
-        $(document).ready(function () {
+    $(document).ready(function () {
             $.ajaxSetup({ cache: false });
 
             var worker;
@@ -24,9 +24,7 @@
             }, false);
 
             worker.postMessage({ 'cmd': 'start' });
-        });
-
-    </script>
+        });</script>
 </head>
 <body>
     <div class="uk-section uk-section-secondary uk-padding-remove-vertical" uk-height-viewport="expand: true" style="padding: 13px">

@@ -160,7 +160,7 @@ namespace EzoGateway.Server
                         else if (request.Uri.Segments.Length >= 2 && request.Uri.Segments[1].Trim('/').Equals("API", StringComparison.OrdinalIgnoreCase))
                         {
                             //Check if requested resource is available via API (Uri) and accessible (Method).
-                            if (request.Method == HttpMethod.Get || request.Method == HttpMethod.Put)
+                            if (request.Method == HttpMethod.Get || request.Method == HttpMethod.Put || request.Method == HttpMethod.Delete)
                                 data = await ApiRequest(request);
                             else
                                 data = HttpResource.Error405;
@@ -298,10 +298,34 @@ namespace EzoGateway.Server
                             else
                                 return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, errorMessage));
                         }
+                        else if (request.Method == HttpMethod.Delete)
+                        {
+                            //Clear calibration
+                            m_Controller.PhSensor.ClearCalibration();
+                            return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration cleared added"));
+                        }
                     }
                     else if(request.Uri.Segments[3].Trim('/').Equals("ORP", StringComparison.OrdinalIgnoreCase))
                     {
-
+                        if (request.Method == HttpMethod.Get)
+                        {
+                            return HttpResource.CreateJsonResource(new { StoredCalibPoints = m_Controller.RedoxSensor.GetCalibrationInfo() });
+                        }
+                        else if (request.Method == HttpMethod.Put)
+                        {
+                            //Perform sensor calibration
+                            var calibData = JsonConvert.DeserializeObject<CalData>(request.Content);
+                            if (m_Controller.CalOrpAddPoint(calibData, out string errorMessage))
+                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration point successfully added"));
+                            else
+                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, errorMessage));
+                        }
+                        else if (request.Method == HttpMethod.Delete)
+                        {
+                            //Clear calibration
+                            m_Controller.RedoxSensor.ClearCalibration();
+                            return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration cleared added"));
+                        }
                     }
                     else if (request.Uri.Segments[3].Trim('/').Equals("RTD", StringComparison.OrdinalIgnoreCase))
                     {
@@ -321,6 +345,12 @@ namespace EzoGateway.Server
                                 return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration point successfully added"));
                             else
                                 return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, errorMessage));
+                        }
+                        else if (request.Method == HttpMethod.Delete)
+                        {
+                            //Clear calibration
+                            m_Controller.TempSensor.ClearCalibration();
+                            return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration cleared added"));
                         }
                     }
                 }

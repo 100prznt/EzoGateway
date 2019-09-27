@@ -8,6 +8,7 @@
     <script src="../js/uikit.min.js"></script>
     <script src="../js/uikit-icons.min.js"></script>
     <script src="../js/jquery-3.4.1.min.js"></script>
+    <script src="js/cal-data.js"></script>
     <script>
         $(document).ready(function () {
             $.ajaxSetup({ cache: false });
@@ -23,7 +24,34 @@
                     $("#calState").addClass("uk-alert-success");
                 }
 
-                $("#refLabel").text("Reference Value (in " + unitSymbol + "):");
+                $("#refLabel").text("Reference Value in " + unitSymbol + ":");
+
+                $("#clearCal").click(function () {
+                    console.log("clear");
+                    $.ajax({
+                        type: "DELETE",
+                        url: "../../api/cal/rtd"
+                    }).done(function () {
+                        console.log("success")
+                    }).fail(function () {
+                        console.log("error");
+                    });
+                });
+
+                $("#apply").click(function () {
+                    console.log("submit");
+                    var json = ConvertToCalData("rtd", null, $("#refValue"));
+                    $.ajax({
+                        type: "PUT",
+                        contentType: "application/json; charset=utf-8",
+                        url: "../../api/cal/rtd",
+                        data: JSON.stringify(json)
+                    }).done(function () {
+                        console.log("success")
+                    }).fail(function () {
+                        console.log("error");
+                    });
+                });
             });
         });
     </script>
@@ -75,11 +103,12 @@
                         <div id="calState" class="uk-alert-danger" uk-alert>
                             <p>The EZO&trade; RTD Circuit is currently not calibrated!</p>
                         </div>
-                        <form id="config">
+                        <form id="rtd">
                             <label id="refLabel">Reference Value:</label>
-                            <input class="uk-input" id="refValue" type="number" step="0.01" min="0" max="100">
+                            <input class="uk-input" id="refValue" type="number" step="0.01" min="0" max="110">
 
-                            <input class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Calibration">
+                            <input id="apply" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="button" value="Apply Calibration">
+                            <input id="clearCal" class="uk-button uk-button-danger uk-button-large uk-align-right uk-margin-large-top" type="button" value="Clear Calibration">
                         </form>
 
                     </div>

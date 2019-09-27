@@ -12,7 +12,7 @@
         $(document).ready(function () {
             $.ajaxSetup({ cache: false });
 
-            $.getJSON('../api/config', function (data) {
+            $.getJSON('../../api/config', function (data) {
                 console.log(data);
                 $('#ph-active').prop("checked", data["PhSensor"].Enabled);
                 $('#ph-address').val(data["PhSensor"].I2CAddress);
@@ -33,7 +33,7 @@
                 $.ajax({
                     type: "PUT",
                     contentType: "application/json; charset=utf-8",
-                    url: "../api/config",
+                    url: "../../api/config",
                     data: JSON.stringify(json)
                 }).done(function () {
                     console.log("success")
