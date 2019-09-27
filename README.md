@@ -13,6 +13,10 @@ Ideal for monitoring water quality in your pool.
 
 [![Bulid](https://img.shields.io/appveyor/ci/100prznt/ezogateway.svg?logo=appveyor&style=popout-square)](https://ci.appveyor.com/project/100prznt/ezogateway)   [![GitHub issues](https://img.shields.io/github/issues/100prznt/EzoGateway?logo=github&style=popout-square)](https://github.com/100prznt/EzoGateway/issues)   [![Code size](https://img.shields.io/github/languages/code-size/100prznt/EzoGateway.svg?logo=github&style=popout-square)](#) 
 
+## What can the EzoGateway do?
+My use case for the EzoGateway is the monitoring of the water values of my own pool. The EzoGateway provide a REST API, which (in my case) is called by the home automation system.
+The values can also be displayed directly via the web interface.
+
 ## How to install?
 TODO!
 
