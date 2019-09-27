@@ -8,25 +8,6 @@
     <script src="../js/uikit.min.js"></script>
     <script src="../js/uikit-icons.min.js"></script>
     <script src="../js/jquery-3.4.1.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $.ajaxSetup({ cache: false });
-
-            $.getJSON('../../api/cal/rtd', function (data) {
-                console.log(data);
-                var calPoints = data["StoredCalibPoints"];
-                var unitSymbol = data["UnitScale"];
-
-                if (calPoints > 0) {
-                    $("#calState p").html("The EZO&trade; RTD Circuit is currently calibrated.");
-                    $("#calState").removeClass("uk-alert-danger");
-                    $("#calState").addClass("uk-alert-success");
-                }
-
-                $("#refLabel").text("Reference Value (in " + unitSymbol + "):");
-            });
-        });
-    </script>
 </head>
 <body>
     <div class="uk-container">
@@ -39,23 +20,23 @@
                 <div class="uk-navbar-right">
                     <ul class="uk-navbar-nav">
                         <li><a href="../live.html">Live</a></li>
-                        <li class="uk-active">
+                        <li>
                             <a href="#">Calibration</a>
                             <div class="uk-navbar-dropdown">
                                 <ul class="uk-nav uk-navbar-dropdown-nav">
-                                    <li><a href="ph.html">pH Sensor</a></li>
-                                    <li><a href="orp.html">Redox Sensor</a></li>
-                                    <li class="uk-active"><a href="#">Temperature Sensor</a></li>
+                                    <li><a href="../cal/ph.html">pH Sensor</a></li>
+                                    <li><a href="../cal/orp.html">Redox Sensor</a></li>
+                                    <li><a href="../cal/rtd.html">Temperature Sensor</a></li>
                                 </ul>
                             </div>
                         </li>
-                        <li>
+                        <li class="uk-active">
                             <a href="#">System</a>
                             <div class="uk-navbar-dropdown">
                                 <ul class="uk-nav uk-navbar-dropdown-nav">
-                                    <li><a href="../sys/sensors.html">Sensors</a></li>
-                                    <li><a href="../sys/about.html">Settings</a></li>
-                                    <li><a href="../sys/about.html">About</a></li>
+                                    <li><a href="sensors.html">Sensors</a></li>
+                                    <li><a href="config.html">Settings</a></li>
+                                    <li class="uk-active"><a href="#">About</a></li>
                                 </ul>
                             </div>
                         </li>
@@ -66,22 +47,29 @@
 
         <!--  C O N T E N T  -->
         <div class="uk-section">
-            <div class="uk-container" uk-height-viewport="expand: true" id="content" >
+            <div class="uk-container" uk-height-viewport="expand: true" id="content">
 
                 <div uk-grid>
                     <div class="uk-width-expand">
-                        <h1 class="uk-heading-small uk-heading-divider">EZO&trade; RTD Circuit - Calibration</h1>
-
-                        <div id="calState" class="uk-alert-danger" uk-alert>
-                            <p>The EZO&trade; RTD Circuit is currently not calibrated!</p>
-                        </div>
-                        <form id="config">
-                            <label id="refLabel">Reference Value:</label>
-                            <input class="uk-input" id="refValue" type="number" step="0.01" min="0" max="100">
-
-                            <input class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Calibration">
-                        </form>
-
+                        <h1 class="uk-heading-small uk-heading-divider">About</h1>
+                        <p>
+                            Some words about EzoGateway.
+                        </p>
+                        <h4>Open Source Project Credits</h4>
+                        <ul class="uk-list uk-list-bullet">
+                            <li>
+                                <a href="https://github.com/100prznt/Rca.EzoDeviceLib" target="_blank">Rca.EzoDeviceLib</a> - UWP driver library for the Atlas Scientific EZO™ devices
+                            </li>
+                            <li>
+                                <a href="https://www.newtonsoft.com/json" target="_blank">Newtonsoft.Json</a> - Object serialization for REST API and local storage
+                            </li>
+                            <li>
+                                <a href="https://github.com/uikit/uikit" target="_blank">UIkit</a> - Style up the web interface
+                            </li>
+                            <li>
+                                <a href="https://github.com/jquery/jquery" target="_blank">jQuery</a> - Web interface data exchange
+                            </li>
+                        </ul>
                     </div>
                 </div>
 

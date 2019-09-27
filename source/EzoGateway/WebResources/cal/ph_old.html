@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>EzoGateway</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/uikit.min.css" />
+    <script src="../js/uikit.min.js"></script>
+    <script src="../js/uikit-icons.min.js"></script>
+    <script src="../js/jquery-3.4.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajaxSetup({ cache: false });
+
+            $.getJSON('../../api/cal/ph', function (data) {
+                //console.log(data);
+                var calPoints = data["StoredCalibPoints"];
+
+                if (calPoints > 0) {
+                    $("#calState p").html("The EZO&trade; pH Circuit is currently calibrated at <strong>" +
+                        calPoints + "</strong> point" + calPoints == 1 ? "." : "s.");
+                    $("#calState").removeClass("uk-alert-danger");
+                    $("#calState").addClass("uk-alert-success");
+                }
+            });
+
+            $("#continuousReadingPh").click(function () {
+                window.open("ph-live.html", "_blank", "toolbar=no,menubar=no,scrollbars=no,status=no,resizable=no,top=500,left=500,width=400,height=400");
+            });
+        });
+
+    </script>
+</head>
+<body>
+    <div class="uk-container">
+        <div class="uk-card uk-card-default">
+            <div class="uk-card-media-top">
+                <img src="../media/wb-ezo-hat.jpg" alt="Atlas Scientific EZO™ devices (pH, ORP and RTD) on the Whitebox carrier.">
+            </div>
+            <div class="uk-card-body">
+                <h2 class="uk-card-title">EZO&trade; pH Circut - Calibration</h2>
+                <div id="calState" class="uk-alert-danger" uk-alert>
+                    <p>The EZO&trade; pH Circuit is currently not calibrated!</p>
+                </div>
+                <h4>Continuous reading</h4>
+                <p>
+                    The most important part of calibration is watching the readings during the calibration process.
+                </p>
+                <form id="config">
+                    <div class="uk-margin">
+                        <label>Calibration Point:</label>
+                        <select class="uk-select" id="calPoint">
+                            <option value="Mid">Mid point (pH 7.00)</option>
+                            <option value="Low">Low point (pH 4.00)</option>
+                            <option value="High">High point (pH 10.00)</option>
+                        </select>
+                    </div>
+                    <div class="uk-margin">
+                        <label id="refLabel">Reference Value:</label>
+                        <input class="uk-input" id="refValue" type="number" step="0.01" min="0" max="100">
+                    </div>
+                    <input class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Calibration">
+                    <input id="continuousReadingPh" class="uk-button uk-button-large uk-align-right uk-margin-large-top" type="button" value="Continuous Reading Window">
+                </form>
+                <p>
+                    The first calibration point must be the Mid point (pH 7.00)
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

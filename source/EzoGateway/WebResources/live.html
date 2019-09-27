@@ -1,12 +1,12 @@
 ﻿<!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
+    <title>EzoGateway</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
-    <title>EzoGateway - live data</title>
-    <meta name="author" content="Ruemmler, Elias">
-    <link rel="stylesheet" type="text/css" href="css/dashboard.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/uikit.min.css" />
+    <script src="js/uikit.min.js"></script>
+    <script src="js/uikit-icons.js"></script>
     <script src="js/jquery-3.4.1.min.js"></script>
     <script>
         $(document).ready(function () {
@@ -22,28 +22,117 @@
                     var datetime = data[1].Timestamp.split("T")
                     var dateonly = datetime[0].split("-");
                     var formateddate = dateonly[2] + '.' + dateonly[1] + '.' + dateonly[0] + ' ' + datetime[1].split(".")[0];
-                    var metatext = 'Messwerte vom: ' + formateddate;
+                    var metatext = 'Measurement data acquired: ' + formateddate;
                     $('#meta').text(metatext);
                 });
             }, 2500);
         });
     </script>
 </head>
-
 <body>
-    <div class="title">live data<br><span>EzoGateway</span></div>
-    <div class="climatebox">
-        <div class="climate" style="color:#FFF347;"><div class="circle" id="temp">NaN</div></div>
-        <div class="climate" style="color:#FF2E64;"><div class="circle" id="ph">NaN</div></div>
-        <div class="climate" style="color:#109ECC;"><div class="circle" id="redox">NaN</div></div>
-    </div>
-    <div class="climatebox">
-        <div class="climate" style="color:#FFF347;"><div class="units">°C</div></div>
-        <div class="climate" style="color:#FF2E64;"><div class="units">pH</div></div>
-        <div class="climate" style="color:#109ECC;"><div class="units">mV</div></div>
-    </div>
+    <div class="uk-container">
+        <!--  N A V  -->
+        <div class="uk-section uk-section-muted uk-section-xsmall" id="nav">
+            <nav class="uk-navbar-container uk-width-1-1" uk-navbar>
+                <div class="uk-navbar-left">
+                    <a class="uk-navbar-item uk-logo">EzoGateway</a>
+                </div>
+                <div class="uk-navbar-right">
+                    <ul class="uk-navbar-nav">
+                        <li class="uk-active"><a href="#">Live</a></li>
+                        <li>
+                            <a href="#">Calibration</a>
+                            <div class="uk-navbar-dropdown">
+                                <ul class="uk-nav uk-navbar-dropdown-nav">
+                                    <li><a href="cal/ph.html">pH Sensor</a></li>
+                                    <li><a href="cal/orp.html">Redox Sensor</a></li>
+                                    <li><a href="cal/rtd.html">Temperature Sensor</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <a href="#">System</a>
+                            <div class="uk-navbar-dropdown">
+                                <ul class="uk-nav uk-navbar-dropdown-nav">
+                                    <li><a href="sys/sensors.html">Sensors</a></li>
+                                    <li><a href="sys/about.html">Settings</a></li>
+                                    <li><a href="sys/about.html">About</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
 
-    <div class="footer" id="meta">Daten werden geladen...</div>
+        <!--  C O N T E N T  -->
+        <div class="uk-section">
+            <div class="uk-container" uk-height-viewport="expand: true" id="content">
 
+                <div uk-grid>
+                    <div class="uk-width-expand">
+                        <h1 class="uk-heading-small uk-heading-divider">Measurement Data</h1>
+                    </div>
+                </div>
+                <div class="uk-grid-match uk-margin-medium" uk-grid>
+                    <div class="uk-width-1-3">
+                        <div class="uk-card uk-card-primary">
+                            <div class="uk-card-header">
+                                <h3 class="uk-card-title">
+                                    <!--see https://getuikit.com/docs/custom-icons -->
+                                    <span uk-icon="thermometer-half"></span> Temperature
+                                </h3>
+                            </div>
+                            <div class="uk-card-body uk-text-center">
+                                <h1 id="temp" class="uk-heading-xlarge">15.9</h1>
+                            </div>
+                            <div class="uk-card-footer uk-text-right">&deg;C</div>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-3">
+                        <div class="uk-card uk-card-primary">
+                            <div class="uk-card-header">
+                                <h3 class="uk-card-title">
+                                    <span uk-icon="flask"></span> pH
+                                </h3>
+                            </div>
+                            <div class="uk-card-body uk-text-center">
+                                <h1 id="ph" class="uk-heading-xlarge">7.41</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-3">
+                        <div class="uk-card uk-card-primary">
+                            <div class="uk-card-header">
+                                <h3 class="uk-card-title">
+                                    <span uk-icon="redox"></span> Redox Potential
+                                </h3>
+                            </div>
+                            <div class="uk-card-body uk-text-center">
+                                <h1 id="redox" class="uk-heading-xlarge">753</h1>
+                            </div>
+                            <div class="uk-card-footer uk-text-right">mV</div>
+                        </div>
+                    </div>
+                </div>
+                <div uk-grid>
+                    <div class="uk-width-expand">
+                        <div id="meta" class="uk-card uk-card-body uk-text-center">
+                            Measurement data acquired: 2019/09/26 16:31
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--  F O O T E R  -->
+        <div class="uk-section uk-section-muted">
+            <div class="uk-container uk-container-small" id="footer">
+                <h1 class="uk-h5 uk-text-muted uk-margin uk-text-center">
+                    Copyright &copy; 2019 Elias Ruemmler All Rights Reserved.
+                </h1>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

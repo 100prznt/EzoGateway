@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>EzoGateway</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/uikit.min.css" />
+    <script src="js/uikit.min.js"></script>
+    <script src="js/uikit-icons.min.js"></script>
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajaxSetup({ cache: false });
+            
+        });
+    </script>
+</head>
+<body>
+    <div class="uk-container">
+        <!--  N A V  -->
+        <div class="uk-section uk-section-muted uk-section-xsmall" id="nav">
+            <nav class="uk-navbar-container" uk-navbar>
+                <div class="uk-navbar-left">
+                    <a class="uk-navbar-item uk-logo">EzoGateway</a>
+                </div>
+                <div class="uk-navbar-right">
+                    <ul class="uk-navbar-nav">
+                        <li class="uk-active"><a href="live.html">Live</a></li>
+                        <li>
+                            <a href="#">Calibration</a>
+                            <div class="uk-navbar-dropdown">
+                                <ul class="uk-nav uk-navbar-dropdown-nav">
+                                    <li class="uk-active"><a href="cal/ph.html">pH Sensor</a></li>
+                                    <li><a href="cal/orp.html">Redox Sensor</a></li>
+                                    <li><a href="cal/rtd.html">Temperature Sensor</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <a href="#">System</a>
+                            <div class="uk-navbar-dropdown">
+                                <ul class="uk-nav uk-navbar-dropdown-nav">
+                                    <li class="uk-active"><a href="sys/sensors.html">Sensors</a></li>
+                                    <li><a href="config.html">Settings</a></li>
+                                    <li><a href="sys/about.html">About</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+        <!--  C O N T E N T  -->
+        <div class="uk-section">
+            <div class="uk-container uk-container-small" uk-height-viewport="expand: true" id="content">
+
+            </div>
+        </div>
+
+        <!--  F O O T E R  -->
+        <div class="uk-section uk-section-muted">
+            <div class="uk-container uk-container-small" id="footer">
+                footer
+            </div>
+        </div>
+    </div>
+</body>
+</html>

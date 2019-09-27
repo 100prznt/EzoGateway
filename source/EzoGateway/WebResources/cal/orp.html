@@ -12,20 +12,20 @@
         $(document).ready(function () {
             $.ajaxSetup({ cache: false });
 
-            $.getJSON('../../api/cal/ph', function (data) {
+            $.getJSON('../../api/cal/orp', function (data) {
                 //console.log(data);
                 var calPoints = data["StoredCalibPoints"];
 
                 if (calPoints > 0) {
-                    $("#calState p").html("The EZO&trade; pH Circuit is currently calibrated at <strong>" +
+                    $("#calState p").html("The EZO&trade; ORP Circuit is currently calibrated at <strong>" +
                         calPoints + "</strong> point" + calPoints == 1 ? "." : "s.");
                     $("#calState").removeClass("uk-alert-danger");
                     $("#calState").addClass("uk-alert-success");
                 }
             });
 
-            $("#continuousReadingPh").click(function () {
-                window.open("ph-live.html", "_blank", "toolbar=no,menubar=no,scrollbars=no,status=no,resizable=no,top=500,left=500,width=400,height=400");
+            $("#continuousReadingOrp").click(function () {
+                window.open("orp-live.html", "_blank", "toolbar=no,menubar=no,scrollbars=no,status=no,resizable=no,top=500,left=500,width=400,height=400");
             });
         });
 
@@ -46,8 +46,8 @@
                             <a href="#">Calibration</a>
                             <div class="uk-navbar-dropdown">
                                 <ul class="uk-nav uk-navbar-dropdown-nav">
-                                    <li class="uk-active"><a href="#">pH Sensor</a></li>
-                                    <li><a href="orp.html">Redox Sensor</a></li>
+                                    <li><a href="ph.html">pH Sensor</a></li>
+                                    <li class="uk-active"><a href="#">Redox Sensor</a></li>
                                     <li><a href="rtd.html">Temperature Sensor</a></li>
                                 </ul>
                             </div>
@@ -73,10 +73,10 @@
 
                 <div uk-grid>
                     <div class="uk-width-expand">
-                        <h1 class="uk-heading-small uk-heading-divider">EZO&trade; pH Circuit - Calibration</h1>
+                        <h1 class="uk-heading-small uk-heading-divider">EZO&trade; ORP Circuit - Calibration</h1>
 
                         <div id="calState" class="uk-alert-danger" uk-alert>
-                            <p>The EZO&trade; pH Circuit is currently not calibrated!</p>
+                            <p>The EZO&trade; ORP Circuit is currently not calibrated!</p>
                         </div>
                         <h4>Continuous reading</h4>
                         <p>
@@ -84,23 +84,12 @@
                         </p>
                         <form id="config">
                             <div class="uk-margin">
-                                <label>Calibration Point:</label>
-                                <select class="uk-select" id="calPoint">
-                                    <option value="Mid">Mid point (pH 7.00)</option>
-                                    <option value="Low">Low point (pH 4.00)</option>
-                                    <option value="High">High point (pH 10.00)</option>
-                                </select>
-                            </div>
-                            <div class="uk-margin">
                                 <label id="refLabel">Reference Value:</label>
                                 <input class="uk-input" id="refValue" type="number" step="0.01" min="0" max="100">
                             </div>
                             <input class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Calibration">
-                            <input id="continuousReadingPh" class="uk-button uk-button-large uk-align-right uk-margin-large-top" type="button" value="Continuous Reading Window">
+                            <input id="continuousReadingOrp" class="uk-button uk-button-large uk-align-right uk-margin-large-top" type="button" value="Continuous Reading Window">
                         </form>
-                        <p>
-                            The first calibration point must be the Mid point (pH 7.00)
-                        </p>
 
                     </div>
                 </div>
