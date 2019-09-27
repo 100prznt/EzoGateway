@@ -1,6 +1,6 @@
 ## Project under construction :construction:
 ```diff
-! This project is currently (2019/09/25) under construction, in a very early phase...
+! This project is currently (2019/09/27) under construction, in a very early phase...
 ```
 
 ---
@@ -22,6 +22,8 @@ TODO!
 Moved in the Wiki -> [API Reference](https://github.com/100prznt/EzoGateway/wiki/API-Reference)
 
 ### Web interface
+You found the web interface under: `http://<EzoGateway IP>/web/index.html`
+
 ![EzoGateway - live data](docu/img/web-interface-live-data.png "EzoGateway web interface shows live measurement data.")
 
 ## Hardware
