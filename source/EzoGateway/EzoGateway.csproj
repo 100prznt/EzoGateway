@@ -171,7 +171,7 @@
     <Content Include="WebResources\cal\js\ph-live.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="WebResources\index.html">
+    <Content Include="WebResources\template.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="WebResources\config_old.html">

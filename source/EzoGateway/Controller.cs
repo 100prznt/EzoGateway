@@ -245,7 +245,7 @@ namespace EzoGateway
         #endregion Hardware Init
 
         #region Measurement
-        public async Task<bool> SingleMeasurement()
+        public async Task<bool> SingleMeasurementAsync()
         {
             if (!IsInitialized)
                 throw new Exception("Hardware is not ininitialized.");

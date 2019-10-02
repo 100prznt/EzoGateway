@@ -220,6 +220,11 @@ namespace EzoGateway.Server
             return new HttpResource(file);
         }
 
+        /// <summary>
+        /// Processing an API call
+        /// </summary>
+        /// <param name="request">HTTP request</param>
+        /// <returns>HTTP response</returns>
         private async Task<HttpResource> ApiRequest(HttpServerRequest request)
         {
             if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("SENSORS", StringComparison.OrdinalIgnoreCase))
@@ -264,7 +269,7 @@ namespace EzoGateway.Server
             }
             else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("ACQ", StringComparison.OrdinalIgnoreCase))
             {
-                m_Controller.SingleMeasurement();
+                await m_Controller.SingleMeasurementAsync();
                 return HttpResource.JsonAccepted202("AcquireMeasdata");
             }
             else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("INIT", StringComparison.OrdinalIgnoreCase))
@@ -356,7 +361,7 @@ namespace EzoGateway.Server
                 }
             }
 
-            return null;
+            return null; //Unknown request
         }
 
         #endregion Internal services

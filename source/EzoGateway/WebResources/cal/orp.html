@@ -11,6 +11,7 @@
     <script src="js/cal-data.js"></script>
     <script>
         $(document).ready(function () {
+            $("#footer").load("../template.html #footer");
             $.ajaxSetup({ cache: false });
 
             $.getJSON('../../api/cal/orp', function (data) {
@@ -59,81 +60,73 @@
 
     </script>
 </head>
-<body>
-    <div class="uk-container">
-        <!--  N A V  -->
-        <div class="uk-section uk-section-muted uk-section-xsmall" id="nav">
-            <nav class="uk-navbar-container uk-width-1-1" uk-navbar>
-                <div class="uk-navbar-left">
-                    <a class="uk-navbar-item uk-logo">EzoGateway</a>
-                </div>
-                <div class="uk-navbar-right">
-                    <ul class="uk-navbar-nav">
-                        <li><a href="../live.html">Live</a></li>
-                        <li class="uk-active">
-                            <a href="#">Calibration</a>
-                            <div class="uk-navbar-dropdown">
-                                <ul class="uk-nav uk-navbar-dropdown-nav">
-                                    <li><a href="ph.html">pH Sensor</a></li>
-                                    <li class="uk-active"><a href="#">Redox Sensor</a></li>
-                                    <li><a href="rtd.html">Temperature Sensor</a></li>
-                                </ul>
-                            </div>
-                        </li>
-                        <li>
-                            <a href="#">System</a>
-                            <div class="uk-navbar-dropdown">
-                                <ul class="uk-nav uk-navbar-dropdown-nav">
-                                    <li><a href="../sys/sensors.html">Sensors</a></li>
-                                    <li><a href="../sys/about.html">Settings</a></li>
-                                    <li><a href="../sys/about.html">About</a></li>
-                                </ul>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </div>
-
-        <!--  C O N T E N T  -->
-        <div class="uk-section">
-            <div class="uk-container" uk-height-viewport="expand: true" id="content">
-
-                <div uk-grid>
-                    <div class="uk-width-expand">
-                        <h1 class="uk-heading-small uk-heading-divider">EZO&trade; ORP Circuit - Calibration</h1>
-
-                        <div id="calState" class="uk-alert-danger" uk-alert>
-                            <p>The EZO&trade; ORP Circuit is currently not calibrated!</p>
+<body class="uk-background-muted">
+    <!--  N A V  -->
+    <div class="uk-section uk-section-xsmall uk-background-primary" id="nav">
+        <nav class="uk-navbar-container uk-width-1-1 uk-navbar-transparent" uk-navbar>
+            <div class="uk-navbar-left uk-light">
+                <a class="uk-navbar-item uk-logo">EzoGateway</a>
+            </div>
+            <div class="uk-navbar-right uk-light">
+                <ul class="uk-navbar-nav">
+                    <li><a href="../live.html">Live</a></li>
+                    <li class="uk-active">
+                        <a href="#">Calibration</a>
+                        <div class="uk-navbar-dropdown">
+                            <ul class="uk-nav uk-navbar-dropdown-nav">
+                                <li><a href="ph.html">pH Sensor</a></li>
+                                <li class="uk-active"><a href="#">Redox Sensor</a></li>
+                                <li><a href="rtd.html">Temperature Sensor</a></li>
+                            </ul>
                         </div>
-                        <h4>Continuous reading</h4>
-                        <p>
-                            The most important part of calibration is watching the readings during the calibration process.
-                        </p>
-                        <form id="orp">
-                            <div class="uk-margin">
-                                <label id="refLabel">Reference Value in mV:</label>
-                                <input class="uk-input" id="refValue" type="number" min="0" max="1000">
-                            </div>
-                            <input id="apply" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="button" value="Apply Calibration">
-                            <input id="clearCal" class="uk-button uk-button-danger uk-button-large uk-align-right uk-margin-large-top" type="button" value="Clear Calibration">
-                            <input id="continuousReadingOrp" class="uk-button uk-button-large uk-align-right uk-margin-large-top" type="button" value="Continuous Reading Window" disabled>
-                        </form>
+                    </li>
+                    <li>
+                        <a href="#">System</a>
+                        <div class="uk-navbar-dropdown">
+                            <ul class="uk-nav uk-navbar-dropdown-nav">
+                                <li><a href="../sys/sensors.html">Sensors</a></li>
+                                <li><a href="../sys/about.html">Settings</a></li>
+                                <li><a href="../sys/about.html">About</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
 
+    <!--  C O N T E N T  -->
+    <div class="uk-section">
+        <div class="uk-container" uk-height-viewport="expand: true" id="content">
+
+            <div uk-grid>
+                <div class="uk-width-expand">
+                    <h1 class="uk-heading-small uk-heading-divider">EZO&trade; ORP Circuit - Calibration</h1>
+
+                    <div id="calState" class="uk-alert-danger" uk-alert>
+                        <p>The EZO&trade; ORP Circuit is currently not calibrated!</p>
                     </div>
+                    <h4>Continuous reading</h4>
+                    <p>
+                        The most important part of calibration is watching the readings during the calibration process.
+                    </p>
+                    <form id="orp">
+                        <div class="uk-margin">
+                            <label id="refLabel">Reference Value in mV:</label>
+                            <input class="uk-input" id="refValue" type="number" min="0" max="1000">
+                        </div>
+                        <input id="apply" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="button" value="Apply Calibration">
+                        <input id="clearCal" class="uk-button uk-button-danger uk-button-large uk-align-right uk-margin-large-top" type="button" value="Clear Calibration">
+                        <input id="continuousReadingOrp" class="uk-button uk-button-large uk-align-right uk-margin-large-top" type="button" value="Continuous Reading Window" disabled>
+                    </form>
+
                 </div>
-
             </div>
-        </div>
 
-        <!--  F O O T E R  -->
-        <div class="uk-section uk-section-muted">
-            <div class="uk-container uk-container-small" id="footer">
-                <h1 class="uk-h5 uk-text-muted uk-margin uk-text-center">
-                    Copyright &copy; 2019 Elias Ruemmler All Rights Reserved.
-                </h1>
-            </div>
         </div>
     </div>
+
+    <!--  F O O T E R -->
+    <div id="footer"></div>
 </body>
 </html>
