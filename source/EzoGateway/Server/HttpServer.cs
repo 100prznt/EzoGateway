@@ -165,6 +165,11 @@ namespace EzoGateway.Server
                             else
                                 data = HttpResource.Error405;
                         }
+                        //test
+                        else if (request.Uri.Segments.Length >= 2 && request.Uri.Segments[1].Trim('/').Equals("TEST", StringComparison.OrdinalIgnoreCase))
+                        {
+                            //some test code...
+                        }
                         //undefined
                         else
                         {
