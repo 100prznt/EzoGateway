@@ -169,6 +169,7 @@ namespace EzoGateway.Server
                         else if (request.Uri.Segments.Length >= 2 && request.Uri.Segments[1].Trim('/').Equals("TEST", StringComparison.OrdinalIgnoreCase))
                         {
                             //some test code...
+                            //m_Controller.SendValueToPlc(302, 725);
                         }
                         //undefined
                         else

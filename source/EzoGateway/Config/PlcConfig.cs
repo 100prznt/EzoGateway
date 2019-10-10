@@ -84,14 +84,14 @@ namespace EzoGateway.Config
         {
             switch (name.Trim().ToUpper())
             {
-                case "PH value":
+                case "PH VALUE":
                     return PhVmAddress;
-                case "Redox potential":
-                    return PhVmAddress;
-                case "Temperature":
-                    return PhVmAddress;
+                case "REDOX POTENTIAL":
+                    return RedoxVmAddress;
+                case "TEMPERATURE":
+                    return TemperatureVmAddress;
                 default:
-                    throw new ArgumentException("Invalid name (" + name + ").");
+                    throw new ArgumentException("GetVmAddressByName(name = " + name + ") Name is invalid.");
             }
         }
     }

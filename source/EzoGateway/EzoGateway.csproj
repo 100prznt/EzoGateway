@@ -131,6 +131,8 @@
     </Compile>
     <Compile Include="Measurement\MeasData.cs" />
     <Compile Include="Measurement\SensorInfo.cs" />
+    <Compile Include="Plc\PlcDbData.cs" />
+    <Compile Include="Plc\PlcWorker.cs" />
     <Compile Include="Plc\Sharp7.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\FileExtensionAttribute.cs" />
