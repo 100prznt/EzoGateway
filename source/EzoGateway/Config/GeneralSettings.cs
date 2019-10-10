@@ -44,6 +44,8 @@ namespace EzoGateway.Config
         [JsonConverter(typeof(StringEnumConverter))]
         public TemperatureScales TemperatureUnit { get; set; }
 
+        public PlcConfig LogoConnection { get; set; }
+
         /// <summary>
         /// Default settings
         /// </summary>
@@ -54,7 +56,8 @@ namespace EzoGateway.Config
                 RedoxSensor = new EzoConfig(EzoOrp.DEFAULT_ADDRESS),
                 TemperatureSensor = new EzoConfig(EzoRtd.DEFAULT_ADDRESS),
                 EnablePhTemperatureCompensation = true,
-                TemperatureUnit = TemperatureScales.Celsius
+                TemperatureUnit = TemperatureScales.Celsius,
+                LogoConnection = new PlcConfig("192.168.0.195", 106, 302, 304, 306, 300)
             };
 
         #endregion Properties
