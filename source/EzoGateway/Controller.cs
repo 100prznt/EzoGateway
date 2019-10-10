@@ -4,11 +4,14 @@ using EzoGateway.Helpers;
 using EzoGateway.Measurement;
 using Rca.EzoDeviceLib;
 using Rca.EzoDeviceLib.Specific.Ph;
+using Rca.EzoGateway.Plc.Sharp7;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Networking.Connectivity;
@@ -49,6 +52,12 @@ namespace EzoGateway
         public EzoRtd TempSensor { get; set; }
 
         #endregion Properties
+
+        #region Members
+        S7Client m_Plc;
+        Timer m_PlcTimer;
+        Int16 m_SecureCounter;
+        #endregion Members
 
         #region Constructor
         public Controller()
@@ -113,7 +122,7 @@ namespace EzoGateway
         {
             try
             {
-                DeleteConfigFile();
+                await DeleteConfigFile();
 
                 var localFolder = ApplicationData.Current.LocalFolder;
 
@@ -132,7 +141,7 @@ namespace EzoGateway
             }
         }
 
-        public async void DeleteConfigFile()
+        public async Task DeleteConfigFile()
         {
             try
             {
@@ -287,6 +296,17 @@ namespace EzoGateway
                 };
 
                 LatestMeasData[id] = data;
+
+                if (Configuration.LogoConnection != null && Configuration.LogoConnection.Enabled)
+                {
+                    int factor = 100;
+                    if (string.Equals(info.Name, "ph", StringComparison.OrdinalIgnoreCase))
+                    {
+                        factor = 1000;
+                    }
+
+                    SendValueToPlc(Configuration.LogoConnection.GetVmAddressByName(info.Name), (Int16)(value * factor));
+                }
             }
         }
 
@@ -391,5 +411,102 @@ namespace EzoGateway
         }
 
         #endregion System
+
+        #region Plc
+
+        public void InitPlc()
+        {
+            if (Configuration.LogoConnection != null && Configuration.LogoConnection.Enabled)
+            {
+                m_Plc = new S7Client();
+                m_Plc.SetConnectionParams(Configuration.LogoConnection.IpAddress, 0x0300, 0x0200);
+                if (m_Plc.Connect() != 0)
+                {
+                    Debug.WriteLine("Failed to open PLC connection.");
+                }
+                else
+                {
+                    // Create an AutoResetEvent to signal the timeout threshold in the timer callback has been reached.
+                    var autoEvent = new AutoResetEvent(false);
+
+                    var statusChecker = new PlcChecker(ref m_Plc, Configuration.LogoConnection.TriggerVmAddress);
+                    statusChecker.PlcTriggerEvent += StatusChecker_PlcTriggerEvent;
+                    m_PlcTimer = new Timer(statusChecker.CheckStatus, autoEvent, 10000, 250);
+                }
+            }
+        }
+
+        private void StatusChecker_PlcTriggerEvent()
+        {
+            Debug.WriteLine("trigger");
+        }
+
+        class PlcChecker
+        {
+            private int m_Address;
+            private S7Client m_Plc;
+
+            public PlcChecker(ref S7Client plc, int vmTriggerAddress)
+            {
+                m_Plc = plc;
+                m_Address = vmTriggerAddress;
+            }
+
+            // This method is called by the timer delegate.
+            public void CheckStatus(Object stateInfo)
+            {
+                AutoResetEvent autoEvent = (AutoResetEvent)stateInfo;
+
+                var buffer = new byte[1];
+                int readings = 0;
+                var result = m_Plc.ReadArea(0x84, 1, m_Address, 1, S7Consts.S7WLByte, buffer, ref readings);
+
+                if (result != 0)
+                    Debug.WriteLine("Error during read trigger signal from PLC.");
+
+                if (buffer[0] == 1)
+                    PlcTriggerEvent?.Invoke();
+
+                autoEvent.Set();
+            }
+
+            public event Action PlcTriggerEvent;
+        }
+
+        /// <summary>
+        /// Send a value to the connected PLC
+        /// </summary>
+        /// <param name="vmAddress">VM address</param>
+        /// <param name="value">value</param>
+        public void SendValueToPlc(int vmAddress, Int16 value, bool incrementSecureCounter = true)
+        {
+            if (Configuration.LogoConnection != null && Configuration.LogoConnection.Enabled)
+            {
+                if (vmAddress < 0 || vmAddress > 850)
+                    throw new Exception("Invalid VM-Address!");
+
+                if (m_Plc == null)
+                    InitPlc();
+
+                var data = BitConverter.GetBytes(value);
+
+                Array.Reverse(data);
+                m_Plc.WriteArea(S7Consts.S7AreaDB, 1, vmAddress, 1, S7Consts.S7WLWord, data);
+                if (incrementSecureCounter)
+                    IncrementSecureCounter();
+            }
+        }
+
+        private void IncrementSecureCounter()
+        {
+            if (m_SecureCounter == Int16.MaxValue)
+                m_SecureCounter = Int16.MinValue;
+            else
+                m_SecureCounter++;
+
+            SendValueToPlc(Configuration.LogoConnection.SecureCounterVmAddress, m_SecureCounter, false);
+        }
+        
+        #endregion Plc
     }
 }
