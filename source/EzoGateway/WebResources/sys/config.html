@@ -23,6 +23,15 @@
                 $('#rtd-address').val(data["TemperatureSensor"].I2CAddress);
                 $('#ph-tempcompensation').prop("checked", data.EnablePhTemperatureCompensation);
                 $('#temp-unit').val(data.TemperatureUnit);
+
+                $('#plc-active').prop("checked", data["LogoConnection"].Enabled);
+                $('#plc-ip').val(data["LogoConnection"].IpAddress);
+                $('#vm-ph').val(data["LogoConnection"].PhVmAddress);
+                $('#vm-orp').val(data["LogoConnection"].RedoxVmAddress);
+                $('#vm-rtd').val(data["LogoConnection"].TemperatureVmAddress);
+                $('#vm-trigger').val(data["LogoConnection"].TriggerVmAddress);
+                $('#vm-trigger-bit').val(data["LogoConnection"].TriggerVmAddressBit);
+                $('#vm-counter').val(data["LogoConnection"].SecureCounterVmAddress);
             });
 
             jQuery('form#config').bind('submit', function (event) {
@@ -69,12 +78,23 @@
             temperatureSensor.Enabled = $('#rtd-active').is(":checked");
             temperatureSensor.I2CAddress = $('#rtd-address').val();
 
+            var plc = new Object();
+            plc.Enabled = $('#plc-active').is(":checked");
+            plc.IpAddress = $('#plc-ip').val();
+            plc.TriggerVmAddress = $('#vm-trigger').val();
+            plc.TriggerVmAddressBit = $('#vm-trigger-bit').val();
+            plc.PhVmAddress = $('#vm-ph').val();
+            plc.RedoxVmAddress = $('#vm-orp').val();
+            plc.TemperatureVmAddress = $('#vm-rtd').val();
+            plc.SecureCounterVmAddress = $('#vm-counter').val();
+
             var settings = new Object();
             settings.PhSensor = phSensor;
             settings.RedoxSensor = redoxSensor;
             settings.TemperatureSensor = temperatureSensor;
             settings.EnablePhTemperatureCompensation = $('#ph-tempcompensation').is(":checked");
             settings.TemperatureUnit = $('#temp-unit').val();
+            settings.LogoConnection = plc;
 
             console.log(settings);
 
@@ -151,8 +171,47 @@
                             <option value="Fahrenheit">Fahrenheit (&deg;F)</option>
                         </select>
 
-                        <input id="saveConfig" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Settings">
-                    </form>
+                        <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="plc-active"> Siemens LOGO! Interface</legend>
+                        <p class="uk-margin-small">Send measurement data via ethernet to a connected Siemens LOGO! PLC.</p>
+                        <label>IP address of the Siemens LOGO! PLC:</label>
+                        <input class="uk-input" id="plc-ip">
+                        <div class="uk-grid-small uk-margin-top" uk-grid>
+                            <div class="uk-width-1-2">
+                                <label>VM address (dec) for digital trigger output and bit-position:</label>
+                            </div>
+                            <div class="uk-width-1-4">
+                                <input class="uk-input" type="number" id="vm-trigger" min="1" max="850">
+                            </div>
+                            <div class="uk-width-1-4">
+                                <input class="uk-input" type="number" id="vm-trigger-bit" min="0" max="7">
+                            </div>
+                            <div class="uk-width-1-2">
+                                <label>VM address (dec) for pH value analog input:</label>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <input class="uk-input" type="number" id="vm-ph" min="1" max="850">
+                            </div>
+                            <div class="uk-width-1-2">
+                                <label>VM address (dec) for redox value analog input:</label>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <input class="uk-input" type="number" id="vm-orp" min="1" max="850">
+                            </div>
+                            <div class="uk-width-1-2">
+                                <label>VM address (dec) for temperature value analog input:</label>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <input class="uk-input" type="number" id="vm-rtd" min="1" max="850">
+                            </div>
+                            <div class="uk-width-1-2">
+                                <label>VM address (dec) for secure counter analog input:</label>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <input class="uk-input" type="number" id="vm-counter" min="1" max="850">
+                            </div>
+                        </div>
+                            <input id="saveConfig" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Settings">
+</form>
                 </div>
             </div>
 
