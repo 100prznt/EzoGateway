@@ -1,6 +1,6 @@
-## Project under construction :construction:
+## Project in ALPHA state :construction:
 ```diff
-! This project is currently (2019/09/27) under construction, in a very early phase...
+! Productive use is not recommended!
 ```
 
 ---
@@ -15,7 +15,7 @@ Ideal for monitoring water quality in your pool.
 
 ## What can the EzoGateway do?
 My use case for the EzoGateway is the monitoring of the water values of my own pool. The EzoGateway provide a REST API, which (in my case) is called by the home automation system.
-The values can also be displayed directly via the web interface.
+The values can also be displayed directly via the web interface or transferred to a Siemens LOGO! PLC.
 
 ## How to install?
 TODO!
@@ -24,6 +24,9 @@ TODO!
 
 ### API Reference
 Moved in the Wiki -> [API Reference](https://github.com/100prznt/EzoGateway/wiki/API-Reference)
+
+### Siemens LOGO! interface
+The Siemens LOGO! interface can be activated and configured in the settings. The IP address of the LOGO! and the VM addresses of the corresponding blocks in the LOGO! program must be specified.
 
 ### Web interface
 You found the web interface under: `http://<EzoGateway IP>/web/index.html`
