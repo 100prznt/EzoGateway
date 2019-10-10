@@ -29,6 +29,7 @@ Moved in the Wiki -> [API Reference](https://github.com/100prznt/EzoGateway/wiki
 The Siemens LOGO! interface can be activated and configured in the settings. The IP address of the LOGO! and the VM addresses of the corresponding blocks in the LOGO! program must be specified.
 
 Example program on the Siemens LOGO! PLC which shows the measured data on the display.
+
 ![Display meas data on Siemens LOGO! PLC](docu/img/logo-screen.png "Display meas data on Siemens LOGO! PLC")
 
 ### Web interface
