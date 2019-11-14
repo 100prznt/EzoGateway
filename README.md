@@ -59,6 +59,7 @@ This app is made possible by contributions from:
 ### Open Source Project Credits
 
 * [Rca.EzoDeviceLib](https://github.com/100prznt/Rca.EzoDeviceLib) - UWP driver library for the Atlas Scientific EZO™ devices
+* [Sharp7](http://snap7.sourceforge.net/) C# implementation of the S7Protocol
 * [Newtonsoft.Json](https://www.newtonsoft.com/json) Object serialization for REST API and local storage
 * [UIkit](https://github.com/uikit/uikit) Style up the web interface
 * [jQuery](https://github.com/jquery/jquery) Web interface data exchange
