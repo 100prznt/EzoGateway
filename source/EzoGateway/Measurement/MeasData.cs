@@ -19,5 +19,12 @@ namespace EzoGateway.Measurement
         public string Unit { get; set; }
 
         public string Symbol { get; set; }
+
+        public string ToString(int decimals)
+        {
+            var value = Value.ToString($"F{decimals}");
+
+            return $"{value} {Symbol}";
+        }
     }
 }

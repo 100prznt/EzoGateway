@@ -44,6 +44,11 @@ namespace EzoGateway.Config
         [JsonConverter(typeof(StringEnumConverter))]
         public TemperatureScales TemperatureUnit { get; set; }
 
+        /// <summary>
+        /// Perform cyclic hardware readings. External triggers (REST and PLC) are disabled.
+        /// </summary>
+        public bool EnableCyclicUpdater { get; set; }
+
         public PlcConfig LogoConnection { get; set; }
 
         /// <summary>
@@ -57,6 +62,7 @@ namespace EzoGateway.Config
                 TemperatureSensor = new EzoConfig(EzoRtd.DEFAULT_ADDRESS),
                 EnablePhTemperatureCompensation = true,
                 TemperatureUnit = TemperatureScales.Celsius,
+                EnableCyclicUpdater = false,
                 LogoConnection = new PlcConfig("192.168.0.195", 106, 302, 304, 306, 300)
             };
 

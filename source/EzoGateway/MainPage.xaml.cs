@@ -37,6 +37,29 @@ namespace EzoGateway
 
             var svr = new HttpServer(ref m_Controller); //default port (80)
             svr.ServerInitialize();
+
+            m_Controller.PropertyChanged += Controller_PropertyChanged;
+
+            //Test GUI
+            tbl_Value1.Text = "pH Wert";
+            tbl_Value2.Text = "Redoxpotential";
+            tbl_Value3.Text = "Wassertemperatur";
+        }
+
+        private void Controller_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Controller.LatestMeasData))
+            {
+                if (m_Controller.LatestMeasData != null
+                    && m_Controller.LatestMeasData.ContainsKey(1)
+                    && m_Controller.LatestMeasData.ContainsKey(2)
+                    && m_Controller.LatestMeasData.ContainsKey(3))
+                {
+                    tbx_Value1.Text = m_Controller.LatestMeasData[2].ToString(2);
+                    tbx_Value2.Text = m_Controller.LatestMeasData[3].ToString(0);
+                    tbx_Value3.Text = m_Controller.LatestMeasData[1].ToString(1);
+                }
+            }
         }
     }
 }

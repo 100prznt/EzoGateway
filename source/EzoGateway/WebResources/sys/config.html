@@ -23,6 +23,7 @@
                 $('#rtd-address').val(data["TemperatureSensor"].I2CAddress);
                 $('#ph-tempcompensation').prop("checked", data.EnablePhTemperatureCompensation);
                 $('#temp-unit').val(data.TemperatureUnit);
+                $('#cyclic-update').prop("checked", data.EnableCyclicUpdate);
 
                 $('#plc-active').prop("checked", data["LogoConnection"].Enabled);
                 $('#plc-ip').val(data["LogoConnection"].IpAddress);
@@ -94,6 +95,7 @@
             settings.TemperatureSensor = temperatureSensor;
             settings.EnablePhTemperatureCompensation = $('#ph-tempcompensation').is(":checked");
             settings.TemperatureUnit = $('#temp-unit').val();
+            settings.EnableCyclicUpdate = $('#cyclic-update').is(":checked");
             settings.LogoConnection = plc;
 
             console.log(settings);
@@ -170,6 +172,9 @@
                             <option value="Kelvin">Kelvin (K)</option>
                             <option value="Fahrenheit">Fahrenheit (&deg;F)</option>
                         </select>
+                        <div class="uk-margin-small">
+                            <label><input class="uk-checkbox" type="checkbox" id="cyclic-update" /> Enable cyclic hardware readings. External triggers (REST and PLC) are disabled.</label>
+                        </div>
 
                         <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="plc-active"> Siemens LOGO! Interface</legend>
                         <p class="uk-margin-small">Send measurement data via ethernet to a connected Siemens LOGO! PLC.</p>
@@ -210,8 +215,8 @@
                                 <input class="uk-input" type="number" id="vm-counter" min="1" max="850">
                             </div>
                         </div>
-                            <input id="saveConfig" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Settings">
-</form>
+                        <input id="saveConfig" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Settings">
+                    </form>
                 </div>
             </div>
 

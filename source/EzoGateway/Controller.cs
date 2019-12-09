@@ -8,9 +8,11 @@ using Rca.EzoDeviceLib.Specific.Ph;
 using Rca.EzoGateway.Plc.Sharp7;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,14 +25,23 @@ namespace EzoGateway
     /// <summary>
     /// Main controller for EZO Gateway functionality
     /// </summary>
-    public class Controller
+    public class Controller : INotifyPropertyChanged
     {
         #region Properties
         public GeneralSettings Configuration { get; set; }
 
         public Dictionary<int, SensorInfo> SensorInfos { get; set; }
 
-        public Dictionary<int, MeasData> LatestMeasData { get; set; }
+        public Dictionary<int, MeasData> LatestMeasData
+        {
+            get => m_LatestMeasData;
+            set
+            {
+                m_LatestMeasData = value;
+                PropChanged();
+            }
+        }
+        Dictionary<int, MeasData> m_LatestMeasData;
 
         /// <summary>
         /// Hardware is initialized.
@@ -545,5 +556,23 @@ namespace EzoGateway
         }
 
         #endregion Plc
+
+        #region INotifyPropertyChanged
+
+        /// <summary>
+        /// Helpmethod, to call the <see cref="PropertyChanged"/> event
+        /// </summary>
+        /// <param name="propName">Name of changed property</param>
+        protected void PropChanged([CallerMemberName] string propName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+        }
+
+        /// <summary>
+        /// Updated property values available
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion INotifyPropertyChanged
     }
 }
