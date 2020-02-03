@@ -48,16 +48,50 @@ namespace EzoGateway
 
         private void Controller_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(Controller.LatestMeasData))
+            //TODO: Invoke auf GUI zusammen fassen. Einmal reicht, da eh alles aus dem selben Thread kommt.
+
+            if (m_Controller.LatestMeasData != null)
             {
-                if (m_Controller.LatestMeasData != null
-                    && m_Controller.LatestMeasData.ContainsKey(1)
-                    && m_Controller.LatestMeasData.ContainsKey(2)
-                    && m_Controller.LatestMeasData.ContainsKey(3))
+                if (m_Controller.LatestMeasData.TryGetValue(1, out var tempValue))
                 {
-                    tbx_Value1.Text = m_Controller.LatestMeasData[2].ToString(2);
-                    tbx_Value2.Text = m_Controller.LatestMeasData[3].ToString(0);
-                    tbx_Value3.Text = m_Controller.LatestMeasData[1].ToString(1);
+                    if (tbx_Value3.Dispatcher.HasThreadAccess)
+                        tbx_Value3.Text = tempValue.ToString(1);
+                    else
+                    {
+                        tbx_Value3.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            tbx_Value3.Text = tempValue.ToString(1);
+                        }
+                        );
+                    }
+                }
+
+                if (m_Controller.LatestMeasData.TryGetValue(2, out var phValue))
+                {
+                    if (tbx_Value1.Dispatcher.HasThreadAccess)
+                        tbx_Value1.Text = phValue.ToString(2);
+                    else
+                    {
+                        tbx_Value3.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            tbx_Value1.Text = phValue.ToString(2);
+                        }
+                        );
+                    }
+                }
+
+                if (m_Controller.LatestMeasData.TryGetValue(3, out var redoxValue))
+                {
+                    if (tbx_Value2.Dispatcher.HasThreadAccess)
+                        tbx_Value2.Text = redoxValue.ToString(0);
+                    else
+                    {
+                        tbx_Value3.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                        {
+                            tbx_Value2.Text = redoxValue.ToString(0);
+                        }
+                        );
+                    }
                 }
             }
         }

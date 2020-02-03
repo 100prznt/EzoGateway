@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Networking.Connectivity;
 using Windows.Storage;
+using Windows.System.Threading;
 
 namespace EzoGateway
 {
@@ -68,6 +69,16 @@ namespace EzoGateway
         #region Members
         private Int16 m_SecureCounter;
         private PlcWorker m_PlcWorker;
+
+        private static TimeSpan m_CyclicUpdatePeriod = new TimeSpan(0, 0, 30);
+        private static event Action CyclicUpdateEvent;
+        private bool m_CyclicUpdateEventIsAttached = false;
+        ThreadPoolTimer m_CyclicUpdateTimer = ThreadPoolTimer.CreatePeriodicTimer((source) =>
+        {
+            CyclicUpdateEvent?.Invoke();
+
+        }, m_CyclicUpdatePeriod);
+
 
         #endregion Members
 
@@ -180,6 +191,8 @@ namespace EzoGateway
         private void Controller_ConfigIsSavedEvent()
         {
             Debug.WriteLine("Controller_ConfigIsSavedEvent");
+
+            InitCyclicUpdater();
         }
 
         private void Controller_ConfigIsLoadedEvent()
@@ -188,6 +201,8 @@ namespace EzoGateway
 
             var t = Task.Run(() => InitHardware()); //Initialization in the current task fails. So, outsourcing to own task...
             t.Wait();
+
+            InitCyclicUpdater();
         }
 
         #region Events
@@ -276,6 +291,42 @@ namespace EzoGateway
 
         #endregion Hardware Init
 
+        #region CyclicUpdater
+
+        public async Task<bool> InitCyclicUpdater()
+        {
+            if (Configuration.EnableCyclicUpdater)
+            {
+                if (m_CyclicUpdateEventIsAttached)
+                {
+                    Debug.WriteLine("Cyclic updater already enabled.");
+                }
+                else
+                {
+                    Debug.WriteLine("Enable cyclic updater.");
+                    CyclicUpdateEvent += Controller_CyclicUpdateEvent;
+                    m_CyclicUpdateEventIsAttached = true;
+                }
+            }
+            else
+            {
+                Debug.WriteLine("Disable cyclic updater.");
+                CyclicUpdateEvent -= Controller_CyclicUpdateEvent;
+                m_CyclicUpdateEventIsAttached = false;
+            }
+
+            return true;
+        }
+
+        private void Controller_CyclicUpdateEvent()
+        {
+            SingleMeasurementAsync();
+        }
+
+
+
+        #endregion CyclicUpdater
+
         #region Measurement
         public async Task<bool> SingleMeasurementAsync()
         {
@@ -319,6 +370,8 @@ namespace EzoGateway
                 };
 
                 LatestMeasData[id] = data;
+
+                PropertyChanged(null, new PropertyChangedEventArgs(info.Name));
 
                 if (Configuration.LogoConnection != null && Configuration.LogoConnection.Enabled)
                 {
@@ -443,6 +496,12 @@ namespace EzoGateway
         private void M_PlcWorker_TriggerEvent()
         {
             Debug.WriteLine("PLC trigger detected.");
+
+            if (Configuration.EnableCyclicUpdater)
+            {
+                Debug.WriteLine("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.");
+                return;
+            }
 
             if (LatestMeasData == null || LatestMeasData.First().Value.Timestamp < DateTime.Now - TimeSpan.FromSeconds(15))
             {

@@ -275,8 +275,16 @@ namespace EzoGateway.Server
             }
             else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("ACQ", StringComparison.OrdinalIgnoreCase))
             {
-                await m_Controller.SingleMeasurementAsync();
-                return HttpResource.JsonAccepted202("AcquireMeasdata");
+                if (m_Controller.Configuration.EnableCyclicUpdater)
+                {
+                    Debug.WriteLine("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.");
+                    return HttpResource.JsonLocked423("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.");
+                }
+                else
+                {
+                    await m_Controller.SingleMeasurementAsync();
+                    return HttpResource.JsonAccepted202("AcquireMeasdata");
+                }
             }
             else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("INIT", StringComparison.OrdinalIgnoreCase))
             {
