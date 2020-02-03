@@ -23,7 +23,7 @@
                 $('#rtd-address').val(data["TemperatureSensor"].I2CAddress);
                 $('#ph-tempcompensation').prop("checked", data.EnablePhTemperatureCompensation);
                 $('#temp-unit').val(data.TemperatureUnit);
-                $('#cyclic-update').prop("checked", data.EnableCyclicUpdate);
+                $('#cyclic-updater').prop("checked", data.EnableCyclicUpdater);
 
                 $('#plc-active').prop("checked", data["LogoConnection"].Enabled);
                 $('#plc-ip').val(data["LogoConnection"].IpAddress);
@@ -95,7 +95,7 @@
             settings.TemperatureSensor = temperatureSensor;
             settings.EnablePhTemperatureCompensation = $('#ph-tempcompensation').is(":checked");
             settings.TemperatureUnit = $('#temp-unit').val();
-            settings.EnableCyclicUpdate = $('#cyclic-update').is(":checked");
+            settings.EnableCyclicUpdater = $('#cyclic-updater').is(":checked");
             settings.LogoConnection = plc;
 
             console.log(settings);
@@ -173,7 +173,7 @@
                             <option value="Fahrenheit">Fahrenheit (&deg;F)</option>
                         </select>
                         <div class="uk-margin-small">
-                            <label><input class="uk-checkbox" type="checkbox" id="cyclic-update" /> Enable cyclic hardware readings. External triggers (REST and PLC) are disabled.</label>
+                            <label><input class="uk-checkbox" type="checkbox" id="cyclic-updater" /> Enable cyclic hardware readings. External triggers (REST and PLC) are disabled.</label>
                         </div>
 
                         <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="plc-active"> Siemens LOGO! Interface</legend>
