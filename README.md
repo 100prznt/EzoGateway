@@ -40,6 +40,11 @@ You found the web interface under: `http://<EzoGateway IP>/web/index.html`
 
 ![EzoGateway - live data](docu/img/web-interface-live-data-1024x720.png "EzoGateway web interface shows live measurement data.")
 
+### Build-In GUI
+The application itself also has a grafic user interface that displays the current measurement data.
+
+![EzoGateway - live data](docu/img/built-in-gui.jpg "EzoGateway build-in GUI.")
+
 ## Hardware
 For fast hardware integration there is a cool project from [Whitebox](https://github.com/whitebox-labs). The [Tentacle T3 HAT](https://github.com/whitebox-labs/tentacle-raspi-oshw) accepts three Atlas Scientific EZO™ devices, two of them are electrically isolated.
 
