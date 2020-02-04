@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("EzoGateway")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("UWP App, to brings the Atlas Scientific EZO™ devices in the Internet of Things. Per REST API you can fetch live measdata and calibrate connected sensors. Ideal for monitoring water quality in the pool.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("RC-Art Solutions")]
 [assembly: AssemblyProduct("EzoGateway")]
-[assembly: AssemblyCopyright("Copyright © RC-Art Solutions 2019")]
+[assembly: AssemblyCopyright("Copyright © RC-Art Solutions 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
