@@ -69,7 +69,7 @@ namespace EzoGateway.Server
             await m_Listener.BindServiceNameAsync(Port.ToString());
             m_Listener.ConnectionReceived += async (sender, args) => HandleRequest(sender, args);
 
-            Debug.WriteLine("HTTP server is successfully initialized and listen for http requests.");
+            Logger.Write($"HTTP server is successfully initialized and listen for http requests under: http://{Ip}:{Port}/", SubSystem.HttpServer);
         }
 
         #endregion Services
@@ -84,7 +84,7 @@ namespace EzoGateway.Server
         {
             try
             {
-                Debug.WriteLine("Processing of a new HTTP request is started.");
+                Logger.Write("Processing of a new HTTP request is started.", SubSystem.HttpServer);
 
                 HttpServerRequest request = null;
 
@@ -94,12 +94,12 @@ namespace EzoGateway.Server
                     using (var input = args.Socket.InputStream)
                     {
                         request = await HttpServerRequest.Parse(input, m_ServerUri);
-                        Debug.WriteLine("Requested URL: " + request.Uri);
+                        Logger.Write("Requested URL: " + request.Uri, SubSystem.HttpServer);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine(ex.Message);
+                    Logger.Write(ex, SubSystem.HttpServer);
                 }
 
                 //write response
@@ -109,7 +109,7 @@ namespace EzoGateway.Server
                     {
                         if (request == null)
                         {
-                            Debug.WriteLine("Error, \"request\" is null.");
+                            Logger.Write("Error, \"request\" is null.", SubSystem.HttpServer, LoggerLevel.Warning);
                         }
 
                         var data = new HttpResource();
@@ -126,7 +126,7 @@ namespace EzoGateway.Server
                             }
                             catch (Exception ex)
                             {
-                                Debug.WriteLine(ex.Message);
+                                Logger.Write(ex.Message, SubSystem.HttpServer);
                             }
                         }
                         //WEB
@@ -144,6 +144,10 @@ namespace EzoGateway.Server
                                     {
                                         data = HttpResource.CreateHtmlResource("EzoGateway paths", m_Controller.GetLocalPaths());
                                     }
+                                    else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("LOGS", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        data = await GetWebResource(await Logger.GetCurrentLogFile());
+                                    }
                                     else
                                     {
                                         //Check if requested resource is available in the file system.
@@ -152,7 +156,7 @@ namespace EzoGateway.Server
                                 }
                                 catch (Exception ex)
                                 {
-                                    Debug.WriteLine(ex.Message);
+                                    Logger.Write(ex, SubSystem.HttpServer);
                                 }
                             }
                         }
@@ -174,7 +178,7 @@ namespace EzoGateway.Server
                         //undefined
                         else
                         {
-                            Debug.WriteLine("URL not supported!");
+                            Logger.Write("URL not supported!", SubSystem.HttpServer, LoggerLevel.Warning);
                             data = HttpResource.Error400;
                         }
 
@@ -207,8 +211,16 @@ namespace EzoGateway.Server
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Logger.Write(ex.Message, SubSystem.HttpServer);
             }
+        }
+
+        private async Task<HttpResource> GetWebResource(StorageFile file)
+        {
+            if (file == null)
+                return HttpResource.Error404;
+
+            return new HttpResource(file);
         }
 
         private async Task<HttpResource> GetWebResource(Uri uri)
@@ -277,7 +289,7 @@ namespace EzoGateway.Server
             {
                 if (m_Controller.Configuration.EnableCyclicUpdater)
                 {
-                    Debug.WriteLine("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.");
+                    Logger.Write("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.", SubSystem.RestApi);
                     return HttpResource.JsonLocked423("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.");
                 }
                 else

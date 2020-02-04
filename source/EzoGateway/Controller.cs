@@ -70,7 +70,7 @@ namespace EzoGateway
         private Int16 m_SecureCounter;
         private PlcWorker m_PlcWorker;
 
-        private static TimeSpan m_CyclicUpdatePeriod = new TimeSpan(0, 0, 30);
+        private static TimeSpan m_CyclicUpdatePeriod = new TimeSpan(0, 0, 5);
         private static event Action CyclicUpdateEvent;
         private bool m_CyclicUpdateEventIsAttached = false;
         ThreadPoolTimer m_CyclicUpdateTimer = ThreadPoolTimer.CreatePeriodicTimer((source) =>
@@ -85,6 +85,8 @@ namespace EzoGateway
         #region Constructor
         public Controller()
         {
+            Logger.Write("Init EzoGateway controller", SubSystem.App);
+
             ConfigIsLoadedEvent += Controller_ConfigIsLoadedEvent;
             ConfigIsSavedEvent += Controller_ConfigIsSavedEvent;
             ConfigIsDeletedEvent += Controller_ConfigIsDeletedEvent;
@@ -94,6 +96,7 @@ namespace EzoGateway
             LatestMeasData = new Dictionary<int, MeasData>();
 
 #if DEBUG //generating some measdata for testing
+            Logger.Write("Generate dummy meas data for testing. (Temperature = 18.86 °C, pH value = 7.03, Redox potential = 662 mV)", SubSystem.App);
             LatestMeasData.Add(1, new MeasData() { Value = 18.86, Timestamp = DateTime.Now });
             LatestMeasData.Add(2, new MeasData() { Value = 7.03 });
             LatestMeasData.Add(3, new MeasData() { Value = 662 });
@@ -109,6 +112,8 @@ namespace EzoGateway
         /// <returns>true: successful; false: can not load config, generate default config</returns>
         public async Task<bool> LoadConfig()
         {
+            Logger.Write("Start load config", SubSystem.Configuration);
+
             var localFolder = ApplicationData.Current.LocalFolder;
 
             var item = await localFolder.TryGetItemAsync("ezogateway.config.json");
@@ -120,7 +125,7 @@ namespace EzoGateway
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine(ex.Message);
+                    Logger.Write(ex, SubSystem.Configuration);
                 }
 
                 ConfigIsLoadedEvent?.Invoke();
@@ -128,6 +133,7 @@ namespace EzoGateway
             }
             else //Generate default
             {
+                Logger.Write("Configuration not found, genarate default config", SubSystem.Configuration, LoggerLevel.Warning);
                 Configuration = GeneralSettings.Default;
                 SaveConfig();
                 ConfigIsLoadedEvent?.Invoke();
@@ -137,12 +143,14 @@ namespace EzoGateway
 
         public void UpdateConfig(GeneralSettings settings)
         {
+            Logger.Write("Start update config", SubSystem.Configuration);
             Configuration = settings;
             SaveConfig();
         }
 
         public async void SaveConfig()
         {
+            Logger.Write("Start save config", SubSystem.Configuration);
             try
             {
                 await DeleteConfigFile();
@@ -160,12 +168,14 @@ namespace EzoGateway
             }
             catch (Exception ex)
             {
+                Logger.Write(ex, SubSystem.Configuration);
                 throw new ArgumentException("SaveConfig", ex);
             }
         }
 
         public async Task DeleteConfigFile()
         {
+            Logger.Write("Start delete config", SubSystem.Configuration);
             try
             {
                 var localFolder = ApplicationData.Current.LocalFolder;
@@ -179,25 +189,27 @@ namespace EzoGateway
             }
             catch (Exception ex)
             {
+                Logger.Write(ex, SubSystem.Configuration);
                 throw new ArgumentException("DeleteConfigFile", ex);
             }
         }
 
         private void Controller_ConfigIsDeletedEvent()
         {
-            Debug.WriteLine("Controller_ConfigIsDeletedEvent");
+            Logger.Write("Controller_ConfigIsDeletedEvent", SubSystem.Configuration);
         }
 
         private void Controller_ConfigIsSavedEvent()
         {
-            Debug.WriteLine("Controller_ConfigIsSavedEvent");
+            Logger.Write("Controller_ConfigIsSavedEvent", SubSystem.Configuration);
 
             InitCyclicUpdater();
         }
 
         private void Controller_ConfigIsLoadedEvent()
         {
-            Debug.WriteLine("Controller_ConfigIsLoadedEvent");
+            Logger.Write("Controller_ConfigIsLoadedEvent", SubSystem.Configuration);
+            Logger.Write("Configuration JSON (in the following lines)\n" + Configuration.ToJson(), SubSystem.Configuration);
 
             var t = Task.Run(() => InitHardware()); //Initialization in the current task fails. So, outsourcing to own task...
             t.Wait();
@@ -222,47 +234,58 @@ namespace EzoGateway
         /// <returns>true: success; false: failed</returns>
         public async Task<bool> InitHardware()
         {
+            Logger.Write("Start init hardware", SubSystem.LowLevel);
             try
             {
                 SensorInfos = new Dictionary<int, SensorInfo>();
 
                 if (Configuration.PhSensor.Enabled)
                 {
+                    Logger.Write("Start initialization of the Atlas Scientific EZO pH Circuit", SubSystem.LowLevel);
                     PhSensor = new EzoPh(Configuration.PhSensor.I2CAddress);
                     await PhSensor.InitSensorAsync();
+                    Logger.Write("Atlas Scientific EZO pH Circuit successfully initialized, FW: " + PhSensor.GetDeviceInfo().FirmwareVersion, SubSystem.LowLevel);
+                    
                     SensorInfos.Add(1, GetSensorInfo(PhSensor, "Atlas Scientific EZO pH Circuit")); //id for pH: 1
                 }
 
                 if (Configuration.RedoxSensor.Enabled)
                 {
+                    Logger.Write("Start initialization of the Atlas Scientific EZO ORP circuit", SubSystem.LowLevel);
                     RedoxSensor = new EzoOrp(Configuration.RedoxSensor.I2CAddress);
                     await RedoxSensor.InitSensorAsync();
+                    Logger.Write("Atlas Scientific EZO ORP circuit successfully initialized, FW: " + RedoxSensor.GetDeviceInfo().FirmwareVersion, SubSystem.LowLevel);
+                    
                     SensorInfos.Add(2, GetSensorInfo(RedoxSensor, "Atlas Scientific EZO ORP circuit")); //id for Redox: 2
                 }
 
                 if (Configuration.TemperatureSensor.Enabled)
                 {
+                    Logger.Write("Start initialization of the Atlas Scientific EZO RTD circuit", SubSystem.LowLevel);
                     TempSensor = new EzoRtd(Configuration.TemperatureSensor.I2CAddress);
                     await TempSensor.InitSensorAsync();
+                    Logger.Write("Atlas Scientific EZO RTD circuit successfully initialized, FW: " + TempSensor.GetDeviceInfo().FirmwareVersion, SubSystem.LowLevel);
+                    
                     SensorInfos.Add(3, GetSensorInfo(TempSensor, "Atlas Scientific EZO RTD circuit")); //id for Temperature: 3
                 }
 
                 //InitPlc();
                 if (Configuration.LogoConnection != null && Configuration.LogoConnection.Enabled)
                 {
+                    Logger.Write("Init Siemens LOGO! plc", SubSystem.Plc);
                     m_PlcWorker = new PlcWorker(Configuration.LogoConnection.IpAddress);
                     m_PlcWorker.SetUpTrigger(Configuration.LogoConnection.TriggerVmAddress, Configuration.LogoConnection.TriggerVmAddressBit);
                     m_PlcWorker.TriggerEvent += M_PlcWorker_TriggerEvent;
                     m_PlcWorker.Start();
                 }
 
-                Debug.WriteLine("Hardware successfully initialized.");
+                Logger.Write("Hardware successfully initialized.", SubSystem.LowLevel);
                 IsInitialized = true;
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Hardware initialization failed. Exception: " + ex);
+                Logger.Write("Hardware initialization failed with Exception: " + ex, SubSystem.LowLevel, LoggerLevel.Error);
                 return false;
             }
         }
@@ -292,25 +315,29 @@ namespace EzoGateway
         #endregion Hardware Init
 
         #region CyclicUpdater
-
+        /// <summary>
+        /// Init the cyclic updater, depending on the current configuration
+        /// </summary>
+        /// <returns>true: success; false: error</returns>
         public async Task<bool> InitCyclicUpdater()
         {
+            Logger.Write("Start init cyclic updater", SubSystem.App);
             if (Configuration.EnableCyclicUpdater)
             {
                 if (m_CyclicUpdateEventIsAttached)
                 {
-                    Debug.WriteLine("Cyclic updater already enabled.");
+                    Logger.Write("Cyclic updater already enabled.", SubSystem.App);
                 }
                 else
                 {
-                    Debug.WriteLine("Enable cyclic updater.");
+                    Logger.Write("Enable cyclic updater.", SubSystem.App);
                     CyclicUpdateEvent += Controller_CyclicUpdateEvent;
                     m_CyclicUpdateEventIsAttached = true;
                 }
             }
             else
             {
-                Debug.WriteLine("Disable cyclic updater.");
+                Logger.Write("Disable cyclic updater.", SubSystem.App);
                 CyclicUpdateEvent -= Controller_CyclicUpdateEvent;
                 m_CyclicUpdateEventIsAttached = false;
             }
@@ -328,10 +355,16 @@ namespace EzoGateway
         #endregion CyclicUpdater
 
         #region Measurement
+        /// <summary>
+        /// Get current measurement data of the active EZO modules.
+        /// </summary>
+        /// <returns>true: success; false: error</returns>
         public async Task<bool> SingleMeasurementAsync()
         {
+            Logger.Write("Perform single measurement", SubSystem.LowLevel);
+
             if (!IsInitialized)
-                throw new Exception("Hardware is not ininitialized.");
+                Logger.Write("Hardware is not ininitialized.", SubSystem.LowLevel, LoggerLevel.Error);
 
             try
             {
@@ -346,18 +379,20 @@ namespace EzoGateway
                 AddMeasDataInfo(2, ph, PhSensor?.ValueInfo);
                 AddMeasDataInfo(3, redox, RedoxSensor?.ValueInfo);
 
-                Debug.WriteLine("SingleMeasurementAsync() successfully.");
+                Logger.Write("Single measurement successfully", SubSystem.LowLevel);
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SingleMeasurementAsync() failed. Inner exception: " + ex);
+                Logger.Write("Single measurement failed with exception: " + ex, SubSystem.LowLevel);
                 return false;
             }
         }
 
         private void AddMeasDataInfo(int id, double? measValue, MeasDataInfo info)
         {
+            Logger.Write($"Add {info.Name} measdata to the latest-measdata-collection", SubSystem.App);
+
             if (measValue is double value && info != null)
             {
                 var data = new MeasData()
@@ -383,7 +418,7 @@ namespace EzoGateway
 
                     var scaledValue = value * factor;
                     if (scaledValue < Int16.MinValue || scaledValue > Int16.MaxValue)
-                        Debug.WriteLine("Value to large for DWORD");
+                        Logger.Write("Value to large for DWORD (plc interface)", SubSystem.Plc);
                     else
                         SendValueToPlc(Configuration.LogoConnection.GetVmAddressByName(info.Name), Convert.ToInt16(scaledValue));
                 }
@@ -398,7 +433,8 @@ namespace EzoGateway
             errorMessage = "";
             if (!data.EzoDevice.Equals("PH", StringComparison.OrdinalIgnoreCase))
             {
-                errorMessage = $"Calibration data not for EZO pH Circuit, calibration aborted.";
+                errorMessage = "Calibration data not for EZO pH Circuit, calibration aborted.";
+                Logger.Write(errorMessage, SubSystem.Logger, LoggerLevel.Warning);
                 return false;
             }
 
@@ -407,17 +443,20 @@ namespace EzoGateway
                 if (Enum.TryParse(data.CalibPointName, out CalPoint pnt))
                 {
                     PhSensor.SetCalibrationPoint(pnt, data.Value);
+                    Logger.Write($"Calibration point ({data.CalibPointName}) added successfully for pH sensor.", SubSystem.Logger);
                     return true;
                 }
                 else
                 {
                     errorMessage = $"Invalid name ({data.CalibPointName}) for the calibration range, calibration aborted.";
+                    Logger.Write(errorMessage, SubSystem.Logger, LoggerLevel.Warning);
                     return false;
                 }
             }
             else
             {
-                errorMessage = $"EZO pH Circuit not initialized, calibration aborted.";
+                errorMessage = "EZO pH Circuit not initialized, calibration aborted.";
+                Logger.Write(errorMessage, SubSystem.Logger, LoggerLevel.Warning);
                 return false;
             }
         }
@@ -428,17 +467,20 @@ namespace EzoGateway
             if (!data.EzoDevice.Equals("ORP", StringComparison.OrdinalIgnoreCase))
             {
                 errorMessage = $"Calibration data not for EZO ORP Circuit, calibration aborted.";
+                Logger.Write(errorMessage, SubSystem.Logger, LoggerLevel.Warning);
                 return false;
             }
 
             if (RedoxSensor != null)
             {
                 RedoxSensor.SetCalibrationPoint((int)data.Value);
+                Logger.Write($"Calibration point ({data.CalibPointName}) added successfully for ORP sensor.", SubSystem.Logger);
                 return true;
             }
             else
             {
                 errorMessage = $"EZO ORP Circuit not initialized, calibration aborted.";
+                Logger.Write(errorMessage, SubSystem.Logger, LoggerLevel.Warning);
                 return false;
             }
         }
@@ -449,17 +491,20 @@ namespace EzoGateway
             if (!data.EzoDevice.Equals("RTD", StringComparison.OrdinalIgnoreCase))
             {
                 errorMessage = $"Calibration data not for EZO RTD Circuit, calibration aborted.";
+                Logger.Write(errorMessage, SubSystem.Logger, LoggerLevel.Warning);
                 return false;
             }
 
             if (TempSensor != null)
             {
                 TempSensor.SetCalibrationPoint(data.Value);
+                Logger.Write($"Calibration point ({data.CalibPointName}) added successfully for Rtd sensor.", SubSystem.Logger);
                 return true;
             }
             else
             {
                 errorMessage = $"EZO pH Circuit not initialized, calibration aborted.";
+                Logger.Write(errorMessage, SubSystem.Logger, LoggerLevel.Warning);
                 return false;
             }
         }
@@ -469,23 +514,28 @@ namespace EzoGateway
         #region System
         public string GetLocalIp()
         {
-            List<string> IpAddress = new List<string>();
-            var Hosts = NetworkInformation.GetHostNames().ToList();
-            foreach (var Host in Hosts)
+            var ipAddresses = new List<string>();
+            var hosts = NetworkInformation.GetHostNames().ToList();
+            foreach (var host in hosts)
             {
-                string IP = Host.DisplayName;
-                IpAddress.Add(IP);
+                string ip = host.DisplayName;
+                ipAddresses.Add(ip);
             }
-            return IpAddress.Last(); //TODO: Ist es wirklich immer die letzte IP???
+
+            return ipAddresses.Last(); //TODO: Ist es wirklich immer die letzte IP???
         }
 
+        /// <summary>
+        /// Get the paths used by the application 
+        /// </summary>
+        /// <returns>Local paths (InstalledLocation and LocalFolder)</returns>
         public Dictionary<string, string> GetLocalPaths()
         {
             var paths = new Dictionary<string, string>();
             var installedLocation = Package.Current.InstalledLocation;
             var localFolder = ApplicationData.Current.LocalFolder;
-            paths.Add("InstalledLocation", Helpers.PathHelper.ToExternalPath(installedLocation.Path, @"\\192.168.0.191\c$")); //TODO: IP?
-            paths.Add("LocalFolder", Helpers.PathHelper.ToExternalPath(localFolder.Path, @"\\192.168.0.191\c$"));
+            paths.Add("InstalledLocation", Helpers.PathHelper.ToExternalPath(installedLocation.Path, $@"\\{GetLocalIp()}\c$"));
+            paths.Add("LocalFolder", Helpers.PathHelper.ToExternalPath(localFolder.Path, $@"\\{GetLocalIp()}\c$"));
 
             return paths;
         }
@@ -495,17 +545,17 @@ namespace EzoGateway
         #region Plc
         private void M_PlcWorker_TriggerEvent()
         {
-            Debug.WriteLine("PLC trigger detected.");
+            Logger.Write("PLC trigger detected.", SubSystem.Plc);
 
             if (Configuration.EnableCyclicUpdater)
             {
-                Debug.WriteLine("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.");
+                Logger.Write("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.", SubSystem.Plc, LoggerLevel.Warning);
                 return;
             }
 
             if (LatestMeasData == null || LatestMeasData.First().Value.Timestamp < DateTime.Now - TimeSpan.FromSeconds(15))
             {
-                Debug.WriteLine("PLC trigger has initiated a single measurement!");
+                Logger.Write("PLC trigger has initiated a single measurement", SubSystem.Plc);
                 SingleMeasurementAsync();
             }
         }
