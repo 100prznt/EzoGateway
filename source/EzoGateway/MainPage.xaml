@@ -7,15 +7,16 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+    
     <Grid>
-        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Padding="10,10,10,10">
-            <TextBlock x:Name="tbl_Value1" HorizontalAlignment="Left" Text="tbl_Value1" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="30"/>
-            <TextBox x:Name="tbx_Value1" HorizontalAlignment="Left" Text="tbx_Value1" VerticalAlignment="Top" Margin="0,5,0,10" FontSize="36" IsReadOnly="True"/>
-            <TextBlock x:Name="tbl_Value2" HorizontalAlignment="Left" Text="tbl_Value2" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="30"/>
-            <TextBox x:Name="tbx_Value2" HorizontalAlignment="Left" Text="tbx_Value2" VerticalAlignment="Top" Margin="0,5,0,10" FontSize="36" IsReadOnly="True"/>
-            <TextBlock x:Name="tbl_Value3" HorizontalAlignment="Left" Text="tbl_Value3" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="30"/>
-            <TextBox x:Name="tbx_Value3" HorizontalAlignment="Left" Text="tbx_Value3" VerticalAlignment="Top" Margin="0,5,0,10" FontSize="36" IsReadOnly="True"/>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Padding="10,10,10,10">
+            <TextBlock HorizontalAlignment="Center" Text="EzoGateway" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="32" Padding="0,0,0,20"/>
+            <TextBlock x:Name="tbl_Value1" HorizontalAlignment="Center" Text="tbl_Value1" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="26"/>
+            <TextBox x:Name="tbx_Value1" HorizontalAlignment="Center" Text="tbx_Value1" VerticalAlignment="Top" Margin="0,5,0,10" FontSize="44" IsReadOnly="True" TextAlignment="Center" Width="300"/>
+            <TextBlock x:Name="tbl_Value2" HorizontalAlignment="Center" Text="tbl_Value2" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="26"/>
+            <TextBox x:Name="tbx_Value2" HorizontalAlignment="Center" Text="tbx_Value2" VerticalAlignment="Top" Margin="0,5,0,10" FontSize="44" IsReadOnly="True" TextAlignment="Center" Width="300"/>
+            <TextBlock x:Name="tbl_Value3" HorizontalAlignment="Center" Text="tbl_Value3" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="26"/>
+            <TextBox x:Name="tbx_Value3" HorizontalAlignment="Center" Text="tbx_Value3" VerticalAlignment="Top" Margin="0,5,0,10" FontSize="44" IsReadOnly="True" TextAlignment="Center" Width="300"/>
         </StackPanel>
     </Grid>
 </Page>
