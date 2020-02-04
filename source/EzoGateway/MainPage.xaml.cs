@@ -38,6 +38,8 @@ namespace EzoGateway
             var svr = new HttpServer(ref m_Controller); //default port (80)
             svr.ServerInitialize();
 
+            Logger.LogWatermark();
+
             m_Controller.PropertyChanged += Controller_PropertyChanged;
 
             //Test GUI
