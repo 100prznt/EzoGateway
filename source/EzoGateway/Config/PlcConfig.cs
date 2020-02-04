@@ -70,7 +70,7 @@ namespace EzoGateway.Config
         /// <param name="vmCounter"></param>
         public PlcConfig(string ip, int vmTrigger, int vmPh, int vmRedox, int vmTemperature, int vmCounter)
         {
-            Enabled = true;
+            Enabled = false;
             IpAddress = ip;
             TriggerVmAddress = vmTrigger;
             TriggerVmAddressBit = 0;
