@@ -17,6 +17,9 @@ namespace EzoGateway.Server
 
         public RestStatus(OperationStatus status, string message)
         {
+            var level = status == OperationStatus.Error ? LoggerLevel.Error : LoggerLevel.Info;
+            Logger.Write(message, SubSystem.RestApi, level);
+
             Status = status;
             Message = message;
         }
