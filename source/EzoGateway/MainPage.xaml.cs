@@ -43,9 +43,9 @@ namespace EzoGateway
             m_Controller.PropertyChanged += Controller_PropertyChanged;
 
             //Test GUI
-            tbl_Value1.Text = "pH Wert";
-            tbl_Value2.Text = "Redoxpotential";
-            tbl_Value3.Text = "Wassertemperatur";
+            tbl_Value1.Text = "pH value";
+            tbl_Value2.Text = "Redox potential";
+            tbl_Value3.Text = "Water temperature";
         }
 
         private void Controller_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
