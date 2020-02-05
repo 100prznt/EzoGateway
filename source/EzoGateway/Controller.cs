@@ -85,6 +85,8 @@ namespace EzoGateway
         #region Constructor
         public Controller()
         {
+            //SetSystemTime(new DateTime(2020, 2, 5, 10, 12, 0));
+
             Logger.Write("Init EzoGateway controller", SubSystem.App);
 
             ConfigIsLoadedEvent += Controller_ConfigIsLoadedEvent;
@@ -512,6 +514,14 @@ namespace EzoGateway
         #endregion Calibration
 
         #region System
+
+        public void SetSystemTime(DateTime time)
+        {
+            var localTime = DateTime.SpecifyKind(time, DateTimeKind.Local);
+            DateTimeOffset dto = localTime;
+            Windows.System.DateTimeSettings.SetSystemDateTime(dto);
+        }
+
         public string GetLocalIp()
         {
             var ipAddresses = new List<string>();
@@ -634,6 +644,7 @@ namespace EzoGateway
         /// </summary>
         /// <param name="vmAddress">VM address</param>
         /// <param name="value">value</param>
+        /// 
         public void SendValueToPlc(int vmAddress, Int16 value, bool incrementSecureCounter = true)
         {
             if (Configuration.LogoConnection != null && Configuration.LogoConnection.Enabled)
