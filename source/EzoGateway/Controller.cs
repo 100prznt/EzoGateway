@@ -544,8 +544,9 @@ namespace EzoGateway
             var paths = new Dictionary<string, string>();
             var installedLocation = Package.Current.InstalledLocation;
             var localFolder = ApplicationData.Current.LocalFolder;
-            paths.Add("InstalledLocation", Helpers.PathHelper.ToExternalPath(installedLocation.Path, $@"\\{GetLocalIp()}\c$"));
-            paths.Add("LocalFolder", Helpers.PathHelper.ToExternalPath(localFolder.Path, $@"\\{GetLocalIp()}\c$"));
+            paths.Add("InstalledLocation", installedLocation.Path.ToExternalPath($@"\\{GetLocalIp()}\c$"));
+            paths.Add("LocalFolder", localFolder.Path.ToExternalPath($@"\\{GetLocalIp()}\c$"));
+            paths.Add("LogFolder", localFolder.Path.ToExternalPath($@"\\{GetLocalIp()}\c$") + $@"\{Logger.LOG_FOLDER}");
 
             return paths;
         }
