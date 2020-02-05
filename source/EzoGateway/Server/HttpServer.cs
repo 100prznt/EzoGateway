@@ -28,6 +28,7 @@ namespace EzoGateway.Server
         private StreamSocketListener m_Listener;
         private Uri m_ServerUri;
 
+
         #endregion Member
 
         #region Properties
@@ -40,6 +41,11 @@ namespace EzoGateway.Server
         /// Current IP of the server
         /// </summary>
         public string Ip { get => m_Controller.GetLocalIp(); }
+
+        /// <summary>
+        /// HTTP request counter
+        /// </summary>
+        public ulong RequestCounter { get; private set; }
 
         #endregion Properties
 
@@ -55,6 +61,8 @@ namespace EzoGateway.Server
             Port = (port == 0) ? 80 : port;
 
             m_ServerUri = new UriBuilder("HTTP", Ip, Port).Uri;
+
+            RequestCounter = 0;
         }
 
         #endregion Constructor
@@ -69,6 +77,9 @@ namespace EzoGateway.Server
             await m_Listener.BindServiceNameAsync(Port.ToString());
             m_Listener.ConnectionReceived += async (sender, args) => HandleRequest(sender, args);
 
+            //Zyklisch ablöschen?!
+            //m_Listener.CancelIOAsync();
+
             Logger.Write($"HTTP server is successfully initialized and listen for http requests under: http://{Ip}:{Port}/", SubSystem.HttpServer);
         }
 
@@ -82,6 +93,24 @@ namespace EzoGateway.Server
         /// <param name="args"></param>
         private async void HandleRequest(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
         {
+            try
+            {
+                if (RequestCounter == ulong.MaxValue) //Should "never" occur
+                {
+                    Logger.Write("Request counter overflow. Counter will be reset.", SubSystem.HttpServer, LoggerLevel.Warning);
+                    RequestCounter = 0;
+                }
+
+                RequestCounter++;
+
+                if (RequestCounter % 500 == 0)
+                    Logger.Write(RequestCounter + " HTTP requests processed.", SubSystem.HttpServer);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(ex, SubSystem.HttpServer);
+            }
+
             try
             {
                 Logger.Write("Processing of a new HTTP request is started.", SubSystem.HttpServer);
@@ -247,13 +276,15 @@ namespace EzoGateway.Server
         {
             if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("SENSORS", StringComparison.OrdinalIgnoreCase))
             {
+                Logger.Write("Request sensor info", SubSystem.RestApi);
                 return HttpResource.CreateJsonResource(m_Controller.SensorInfos);
             }
             else if (request.Uri.Segments.Length > 3 && request.Uri.Segments[2].Trim('/').Equals("SENSOR", StringComparison.OrdinalIgnoreCase))
             {
                 if (request.Uri.Segments.Length == 5 && request.Uri.Segments[4].Trim('/').Equals("LIVE", StringComparison.OrdinalIgnoreCase))
                 {
-                    if(request.Uri.Segments[3].Trim('/').Equals("1", StringComparison.OrdinalIgnoreCase))
+                    Logger.Write("Request live data from sensor no. " + request.Uri.Segments[3].Trim('/'), SubSystem.RestApi);
+                    if (request.Uri.Segments[3].Trim('/').Equals("1", StringComparison.OrdinalIgnoreCase))
                         return HttpResource.CreateJsonResource(new { measValue = m_Controller.PhSensor.GetMeasValue() });
                     else if (request.Uri.Segments[3].Trim('/').Equals("2", StringComparison.OrdinalIgnoreCase))
                         return HttpResource.CreateJsonResource(new { measValue = m_Controller.RedoxSensor.GetMeasValue() });
@@ -263,16 +294,21 @@ namespace EzoGateway.Server
             }
             else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("PATHS", StringComparison.OrdinalIgnoreCase))
             {
+                Logger.Write("Request local paths", SubSystem.RestApi);
                 return HttpResource.CreateJsonResource(m_Controller.GetLocalPaths());
             }
             else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("CONFIG", StringComparison.OrdinalIgnoreCase))
             {
                 if (request.Uri.Segments.Length == 3)
                     if (request.Method == HttpMethod.Get)
+                    {
+                        Logger.Write("Request configuration", SubSystem.RestApi);
                         return HttpResource.CreateJsonResource(m_Controller.Configuration);
+                    }
                     else if (request.Method == HttpMethod.Put)
                     {
                         //Update config
+                        Logger.Write("Update configuration", SubSystem.RestApi);
                         var settings = JsonConvert.DeserializeObject<GeneralSettings>(request.Content);
                         m_Controller.UpdateConfig(settings);
                     }
@@ -289,26 +325,34 @@ namespace EzoGateway.Server
             {
                 if (m_Controller.Configuration.EnableCyclicUpdater)
                 {
-                    Logger.Write("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.", SubSystem.RestApi);
+                    Logger.Write("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.", SubSystem.RestApi, LoggerLevel.Warning);
                     return HttpResource.JsonLocked423("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.");
                 }
                 else
                 {
+                    Logger.Write("Request a new data acquesition", SubSystem.RestApi);
                     await m_Controller.SingleMeasurementAsync();
                     return HttpResource.JsonAccepted202("AcquireMeasdata");
                 }
             }
             else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("INIT", StringComparison.OrdinalIgnoreCase))
             {
+                Logger.Write("Request a hardware init", SubSystem.RestApi);
                 m_Controller.InitHardware();
                 return HttpResource.JsonAccepted202("InitHardware");
             }
             else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("FETCH", StringComparison.OrdinalIgnoreCase))
             {
                 if (m_Controller.LatestMeasData == null || m_Controller.LatestMeasData.Count == 0)
+                {
+                    Logger.Write("Request latest measdata -> No measurement data acquired.", SubSystem.RestApi, LoggerLevel.Warning);
                     return HttpResource.JsonLocked423("No measurement data acquired.");
+                }
                 else
+                {
+                    Logger.Write("Request latest measdata", SubSystem.RestApi);
                     return HttpResource.CreateJsonResource(m_Controller.LatestMeasData);
+                }
             }
             else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("CAL", StringComparison.OrdinalIgnoreCase))
             {
@@ -318,10 +362,12 @@ namespace EzoGateway.Server
                     {
                         if (request.Method == HttpMethod.Get)
                         {
+                            Logger.Write("Request calibration data from PH sensor", SubSystem.RestApi);
                             return HttpResource.CreateJsonResource(new { StoredCalibPoints = m_Controller.PhSensor.GetCalibrationInfo() });
                         }
                         else if (request.Method == HttpMethod.Put)
                         {
+                            Logger.Write("Update calibration data for PH sensor", SubSystem.RestApi);
                             //Perform sensor calibration
                             var calibData = JsonConvert.DeserializeObject<CalData>(request.Content);
                             if (m_Controller.CalPhAddPoint(calibData, out string errorMessage))
@@ -331,19 +377,22 @@ namespace EzoGateway.Server
                         }
                         else if (request.Method == HttpMethod.Delete)
                         {
+                            Logger.Write("Delete calibration data from PH sensor", SubSystem.RestApi);
                             //Clear calibration
                             m_Controller.PhSensor.ClearCalibration();
-                            return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration cleared added"));
+                            return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration data cleared"));
                         }
                     }
-                    else if(request.Uri.Segments[3].Trim('/').Equals("ORP", StringComparison.OrdinalIgnoreCase))
+                    else if (request.Uri.Segments[3].Trim('/').Equals("ORP", StringComparison.OrdinalIgnoreCase))
                     {
                         if (request.Method == HttpMethod.Get)
                         {
+                            Logger.Write("Request calibration data from ORP sensor", SubSystem.RestApi);
                             return HttpResource.CreateJsonResource(new { StoredCalibPoints = m_Controller.RedoxSensor.GetCalibrationInfo() });
                         }
                         else if (request.Method == HttpMethod.Put)
                         {
+                            Logger.Write("Update calibration data for ORP sensor", SubSystem.RestApi);
                             //Perform sensor calibration
                             var calibData = JsonConvert.DeserializeObject<CalData>(request.Content);
                             if (m_Controller.CalOrpAddPoint(calibData, out string errorMessage))
@@ -353,23 +402,26 @@ namespace EzoGateway.Server
                         }
                         else if (request.Method == HttpMethod.Delete)
                         {
+                            Logger.Write("Delete calibration data from ORP sensor", SubSystem.RestApi);
                             //Clear calibration
                             m_Controller.RedoxSensor.ClearCalibration();
-                            return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration cleared added"));
+                            return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration data cleared"));
                         }
                     }
                     else if (request.Uri.Segments[3].Trim('/').Equals("RTD", StringComparison.OrdinalIgnoreCase))
                     {
                         if (request.Method == HttpMethod.Get)
                         {
+                            Logger.Write("Request calibration data from RTD sensor", SubSystem.RestApi);
                             return HttpResource.CreateJsonResource(new
                             {
                                 StoredCalibPoints = m_Controller.TempSensor.GetCalibrationInfo(),
-                                UnitScale =  m_Controller.Configuration.TemperatureUnit.GetSymbol()
-                                });
+                                UnitScale = m_Controller.Configuration.TemperatureUnit.GetSymbol()
+                            });
                         }
                         else if (request.Method == HttpMethod.Put)
                         {
+                            Logger.Write("Update calibration data for RTD sensor", SubSystem.RestApi);
                             //Perform sensor calibration
                             var calibData = JsonConvert.DeserializeObject<CalData>(request.Content);
                             if (m_Controller.CalRtdAddPoint(calibData, out string errorMessage))
@@ -379,9 +431,10 @@ namespace EzoGateway.Server
                         }
                         else if (request.Method == HttpMethod.Delete)
                         {
+                            Logger.Write("Delete calibration data from RTD sensor", SubSystem.RestApi);
                             //Clear calibration
                             m_Controller.TempSensor.ClearCalibration();
-                            return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration cleared added"));
+                            return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration data cleared"));
                         }
                     }
                 }
