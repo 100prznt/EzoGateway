@@ -32,6 +32,7 @@ namespace EzoGateway
         public MainPage()
         {
             this.InitializeComponent();
+            Logger.Write("Initialize built-in GUI", SubSystem.App);
 
             m_Controller = new Controller();
 
@@ -42,7 +43,7 @@ namespace EzoGateway
 
             m_Controller.PropertyChanged += Controller_PropertyChanged;
 
-            //Test GUI
+            //Apply labels
             tbl_Value1.Text = "pH value";
             tbl_Value2.Text = "Redox potential";
             tbl_Value3.Text = "Water temperature";
