@@ -14,7 +14,7 @@ namespace EzoGateway
 {
     public static class Logger
     {
-        const string LOG_FOLDER = "Log";
+        public const string LOG_FOLDER = "Log";
 
         static BackgroundWorker bw;
 
@@ -47,12 +47,35 @@ namespace EzoGateway
 
             m_MessageQueue.Enqueue(new LogMessage(message, level, source));
 
-            if (bw == null)
+            if (bw == null || !bw.IsBusy)
+                StartBackgroundWorker();
+        }
+
+        public static async void Flush()
+        {
+            if (bw != null && bw.IsBusy)
             {
-                bw = new BackgroundWorker();
-                bw.DoWork += Bw_DoWork;
-                bw.RunWorkerAsync();
+                bw.CancelAsync();
+                while (bw.IsBusy)
+                {
+                    await Task.Delay(100);
+                }
+
+                bw = null;
             }
+
+            await Task.Delay(500);
+
+            while (m_MessageQueue.Count > 0)
+            {
+                if (m_MessageQueue.TryDequeue(out var log))
+                {
+                    if (log != null)
+                        await WriteToFile(new LogMessage[1] { log });
+                }
+            }
+
+            StartBackgroundWorker();
         }
 
         /// <summary>
@@ -77,11 +100,31 @@ namespace EzoGateway
             Write(sb.ToString(), SubSystem.App, LoggerLevel.Info);
         }
 
+        private static void StartBackgroundWorker()
+        {
+            if (bw == null)
+            {
+                bw = new BackgroundWorker
+                {
+                    WorkerSupportsCancellation = true
+                };
+                bw.DoWork += Bw_DoWork;
+                bw.RunWorkerAsync();
+            }
+        }
+
         private static async void Bw_DoWork(object sender, DoWorkEventArgs e)
         {
+            BackgroundWorker worker = sender as BackgroundWorker;
+
             while (true)
             {
-                if (m_MessageQueue.TryDequeue(out var log))
+                if (worker.CancellationPending)
+                {
+                    e.Cancel = true;
+                    break;
+                }
+                else if (m_MessageQueue.TryDequeue(out var log))
                 {
                     if (log != null)
                         await WriteToFile(new LogMessage[1] { log });
@@ -111,9 +154,9 @@ namespace EzoGateway
 
         private static string GetCurrentLogFileName()
         {
-            if (m_LogFileCreationTime < DateTime.Now - TimeSpan.FromHours(24))
+            if (m_LogFileCreationTime.DayOfYear != DateTime.Now.DayOfYear) //New logfile for each day
                 m_LogFileCreationTime = DateTime.Now;
-            return $"{m_LogFileCreationTime.ToString("yyyyMMddHHmmss")}.log";
+            return $"{m_LogFileCreationTime.ToString("yyyyMMdd-HHmmss")}.log";
         }
 
         private static async Task WriteToFile(LogMessage[] logMessage)
@@ -144,8 +187,8 @@ namespace EzoGateway
     public class LogMessage
     {
         const int POS_LEVEL = 23;
-        const int POS_SUBSYSTEM = 31;
-        public const int POS_MESSAGE = 48;
+        const int POS_SUBSYSTEM = 38;
+        public const int POS_MESSAGE = 55;
 
         public string Message { get; set; }
 
