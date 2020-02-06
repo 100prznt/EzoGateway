@@ -11,6 +11,21 @@
     <script>
         $(document).ready(function () {
             $("#footer").load("../template.html #footer");
+            $.ajaxSetup({ cache: false });
+
+            $.getJSON('../../api/info', function (data) {
+                console.log(data);
+                var version = data["Version"];
+                var time = data["SystemTime"];
+                var runtime = data["SystemRuntime"];
+                var requests = data["RequestCounter"];
+
+                $("#version").text(version);
+                $("#time").text(time);
+                $("#runtime").text(runtime);
+                $("#requests").text(requests);
+
+            });
         });
     </script>
 </head>
@@ -61,6 +76,33 @@
                     <p>
                         is a open source UWP App, to brings the Atlas Scientific EZO™ devices in the Internet of Things. Per REST API you can fetch live measdata and calibrate connected sensors. Ideal for monitoring water quality in the pool.
                     </p>
+                    <h4>Systeminfo</h4>
+                    <table class="uk-table uk-table-hover uk-table-divider">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Ezo Gateway version</td>
+                                <td id="version">value</td>
+                            </tr>
+                            <tr>
+                                <td>System time</td>
+                                <td id="time">value</td>
+                            </tr>
+                            <tr>
+                                <td>Current system runtime</td>
+                                <td id="runtime">value</td>
+                            </tr>
+                            <tr>
+                                <td>HTTP request counter</td>
+                                <td id="requests">value</td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <h4>Open Source Project Credits</h4>
                     <ul class="uk-list uk-list-bullet">
                         <li>
