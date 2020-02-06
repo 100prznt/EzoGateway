@@ -12,16 +12,29 @@ using Windows.Storage;
 
 namespace EzoGateway
 {
+    /// <summary>
+    /// Lightweigth threadsafe logger
+    /// </summary>
     public static class Logger
     {
+        #region Constants
         public const string LOG_FOLDER = "Log";
 
-        static BackgroundWorker bw;
+        #endregion Constants
 
+        #region Members
+        static BackgroundWorker m_Worker;
         static DateTime m_LogFileCreationTime;
         static bool m_DequeuerIsActive = false;
         static ConcurrentQueue<LogMessage> m_MessageQueue;
 
+        #endregion Members
+
+        #region Services
+        /// <summary>
+        /// Gets the current log file as StorageFile
+        /// </summary>
+        /// <returns>The current log file</returns>
         public static async Task<StorageFile> GetCurrentLogFile()
         {
             var localFolder = ApplicationData.Current.LocalFolder;
@@ -33,11 +46,23 @@ namespace EzoGateway
             return (StorageFile)await logFolder.TryGetItemAsync(GetCurrentLogFileName());
         }
 
+        /// <summary>
+        /// Write a exception to the log file
+        /// </summary>
+        /// <param name="message">Exception</param>
+        /// <param name="source">Source (subsystem)</param>
+        /// <param name="level">Log-level</param>
         public static async void Write(Exception ex, SubSystem source, LoggerLevel level = LoggerLevel.Error)
         {
             Write(ex.Message, source, level);
         }
 
+        /// <summary>
+        /// Write a message to the log file
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <param name="source">Source (subsystem)</param>
+        /// <param name="level">Log-level</param>
         public static async void Write(string message, SubSystem source, LoggerLevel level = LoggerLevel.Info)
         {
             Debug.WriteLine(level.ToString() + ": " + message);
@@ -47,21 +72,21 @@ namespace EzoGateway
 
             m_MessageQueue.Enqueue(new LogMessage(message, level, source));
 
-            if (bw == null || !bw.IsBusy)
+            if (m_Worker == null || !m_Worker.IsBusy)
                 StartBackgroundWorker();
         }
 
         public static async void Flush()
         {
-            if (bw != null && bw.IsBusy)
+            if (m_Worker != null && m_Worker.IsBusy)
             {
-                bw.CancelAsync();
-                while (bw.IsBusy)
+                m_Worker.CancelAsync();
+                while (m_Worker.IsBusy)
                 {
                     await Task.Delay(100);
                 }
 
-                bw = null;
+                m_Worker = null;
             }
 
             await Task.Delay(500);
@@ -100,16 +125,19 @@ namespace EzoGateway
             Write(sb.ToString(), SubSystem.App, LoggerLevel.Info);
         }
 
+        #endregion Services
+
+        #region Internal services
         private static void StartBackgroundWorker()
         {
-            if (bw == null)
+            if (m_Worker == null)
             {
-                bw = new BackgroundWorker
+                m_Worker = new BackgroundWorker
                 {
                     WorkerSupportsCancellation = true
                 };
-                bw.DoWork += Bw_DoWork;
-                bw.RunWorkerAsync();
+                m_Worker.DoWork += Bw_DoWork;
+                m_Worker.RunWorkerAsync();
             }
         }
 
@@ -179,30 +207,64 @@ namespace EzoGateway
                 Write(ex, SubSystem.Logger);
             }
         }
+
+        #endregion Internal services
     }
 
     /// <summary>
-    /// Log message
+    /// Object to transport log-messages
     /// </summary>
     public class LogMessage
     {
+        #region Constants
         const int POS_LEVEL = 23;
         const int POS_SUBSYSTEM = 38;
         public const int POS_MESSAGE = 55;
 
+        #endregion Constants
+
+        #region Properties
+        /// <summary>
+        /// Log-message
+        /// </summary>
         public string Message { get; set; }
 
+        /// <summary>
+        /// Log-level
+        /// </summary>
         public LoggerLevel Level { get; set; }
 
+        /// <summary>
+        /// Source of the log entrie (describes also the subsystem)
+        /// </summary>
         public SubSystem Source { get; set; }
 
+        /// <summary>
+        /// Timestamp
+        /// </summary>
         public DateTime Timestamp { get; set; }
 
+        #endregion Properties
+
+        #region Constructors
+        /// <summary>
+        /// New LogMessage, obtain DateTime.Now as timestamp 
+        /// </summary>
+        /// <param name="message">Message to log</param>
+        /// <param name="level">Log-Level</param>
+        /// <param name="source">Source (subsystem)</param>
         public LogMessage(string message, LoggerLevel level, SubSystem source) : this(message, level, source, DateTime.Now)
         {
 
         }
 
+        /// <summary>
+        /// New LogMessage
+        /// </summary>
+        /// <param name="message">Message to log</param>
+        /// <param name="level">Log-Level</param>
+        /// <param name="source">Source (subsystem)</param>
+        /// <param name="timestamp">Timestamp</param>
         public LogMessage(string message, LoggerLevel level, SubSystem source, DateTime timestamp)
         {
             Message = message;
@@ -210,6 +272,8 @@ namespace EzoGateway
             Source = source;
             Timestamp = timestamp;
         }
+
+        #endregion Constructors
 
         public override string ToString()
         {
@@ -246,53 +310,54 @@ namespace EzoGateway
         /// <summary>
         /// Info message (e.g. debug messages etc.)
         /// </summary>
-        Info,
+        Info = 0,
         /// <summary>
         /// Message that reports an error that could be corrected (e.g. connection terminated)
         /// </summary>
-        Warning,
+        Warning = 10,
         /// <summary>
         /// Message reporting a bug that could not be fixed.
         /// </summary>
-        Error,
+        Error = 20,
         /// <summary>
         /// Message reporting an error that is critical and leads, for example, to the termination of the application. 
         /// </summary>
-        CriticalError
+        CriticalError = 30
     }
 
     /// <summary>
     /// Message source
     /// </summary>
+    [Flags]
     public enum SubSystem
     {
         /// <summary>
         /// General app
         /// </summary>
-        App,
+        App = 0x1,
         /// <summary>
         /// Built-in HTTP server
         /// </summary>
-        HttpServer,
+        HttpServer = 0x2,
         /// <summary>
         /// Configuration of the EzoGateway app
         /// </summary>
-        Configuration,
+        Configuration = 0x4,
         /// <summary>
         /// REST API
         /// </summary>
-        RestApi,
+        RestApi = 0x8,
         /// <summary>
         /// Plc interface (Siemens LOGO!)
         /// </summary>
-        Plc,
+        Plc = 0xA,
         /// <summary>
         /// Hardware (EZO module)
         /// </summary>
-        LowLevel,
+        LowLevel = 0x20,
         /// <summary>
-        /// This logger
+        /// The logger itself
         /// </summary>
-        Logger,
+        Logger = 0x40,
     }
 }
