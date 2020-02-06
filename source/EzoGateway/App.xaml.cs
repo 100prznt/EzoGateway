@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -31,18 +32,10 @@ namespace EzoGateway
             this.InitializeComponent();
 
             Logger.Write("Startup EzoGateway App", SubSystem.App);
-            Logger.Write(GetAppVersion(), SubSystem.App);
+            Logger.Write("Version " + typeof(App).GetTypeInfo().Assembly.GetName().Version.ToString(), SubSystem.App);
             this.UnhandledException += OnUnhandledException;
 
             this.Suspending += OnSuspending;
-
-        }
-
-        public string GetAppVersion()
-        {
-            var version = Package.Current.Id.Version;
-
-            return $"Version { version.Major}.{ version.Minor}.{ version.Build}.{ version.Revision}";
         }
 
         /// <summary>

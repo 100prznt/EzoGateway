@@ -18,6 +18,7 @@ using Windows.Networking.Sockets;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Rca.EzoDeviceLib.Specific.Rtd;
+using System.Reflection;
 
 namespace EzoGateway.Server
 {
@@ -443,10 +444,9 @@ namespace EzoGateway.Server
             {
                 Logger.Write("Request system info", SubSystem.RestApi);
 
-                var version = Package.Current.Id.Version;
-
                 var infos = new Dictionary<string, string>();
-                infos.Add("Version", $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}");
+                infos.Add("Version", typeof(App).GetTypeInfo().Assembly.GetName().Version.ToString());
+                infos.Add("App", typeof(HttpServer).GetType().AssemblyQualifiedName);
                 infos.Add("SystemTime", DateTime.Now.ToString());
                 infos.Add("SystemStartTime", m_Controller.SystemStartTime.ToString());
                 infos.Add("SystemRuntime", (DateTime.Now - m_Controller.SystemStartTime).ToString());
