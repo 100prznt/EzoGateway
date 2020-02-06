@@ -49,7 +49,20 @@ namespace EzoGateway.Config
         /// </summary>
         public bool EnableCyclicUpdater { get; set; }
 
+        /// <summary>
+        /// Polling interval for the cyclic updater [in s]
+        /// </summary>
+        public int UpdateInterval { get; set; }
+
+        /// <summary>
+        /// Simesn LOGO! interface configuration
+        /// </summary>
         public PlcConfig LogoConnection { get; set; }
+
+        /// <summary>
+        /// Appearance for build-in GUI and web-interface
+        /// </summary>
+        public UiConfig Appearance { get; set; }
 
         /// <summary>
         /// Default settings
@@ -63,7 +76,9 @@ namespace EzoGateway.Config
                 EnablePhTemperatureCompensation = true,
                 TemperatureUnit = TemperatureScales.Celsius,
                 EnableCyclicUpdater = false,
-                LogoConnection = new PlcConfig("192.168.0.195", 106, 302, 304, 306, 300)
+                UpdateInterval = 30,
+                LogoConnection = new PlcConfig("192.168.0.195", 106, 302, 304, 306, 300),
+                Appearance = new UiConfig() { DeviceName = "EzoGateway" }
             };
 
         #endregion Properties

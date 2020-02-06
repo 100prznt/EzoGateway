@@ -24,6 +24,7 @@
                 $('#ph-tempcompensation').prop("checked", data.EnablePhTemperatureCompensation);
                 $('#temp-unit').val(data.TemperatureUnit);
                 $('#cyclic-updater').prop("checked", data.EnableCyclicUpdater);
+                $('#update-interval').val(data["UpdateInterval"].I2CAddress);
 
                 $('#plc-active').prop("checked", data["LogoConnection"].Enabled);
                 $('#plc-ip').val(data["LogoConnection"].IpAddress);
@@ -96,6 +97,7 @@
             settings.EnablePhTemperatureCompensation = $('#ph-tempcompensation').is(":checked");
             settings.TemperatureUnit = $('#temp-unit').val();
             settings.EnableCyclicUpdater = $('#cyclic-updater').is(":checked");
+            settings.UpdateInterval = $('#update-interval').val();
             settings.LogoConnection = plc;
 
             console.log(settings);
@@ -173,9 +175,10 @@
                             <option value="Kelvin">Kelvin (K)</option>
                             <option value="Fahrenheit">Fahrenheit (&deg;F)</option>
                         </select>
-                        <div class="uk-margin-small">
-                            <label><input class="uk-checkbox" type="checkbox" id="cyclic-updater" /> Enable cyclic hardware readings. External triggers (REST and PLC) are disabled.</label>
-                        </div>
+                        <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="cyclic-updater"> Cyclic Updater</legend>
+                        <p class="uk-margin-small">Enable cyclic hardware readings. External triggers (REST and PLC) are disabled.</p>
+                        <label>Update interval:</label>
+                        <input class="uk-input" type="number" id="update-interval" min="10" max="3600">
 
                         <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="plc-active"> Siemens LOGO! Interface</legend>
                         <p class="uk-margin-small">Send measurement data via ethernet to a connected Siemens LOGO! PLC.</p>

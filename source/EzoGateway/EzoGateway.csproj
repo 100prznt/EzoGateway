@@ -123,6 +123,7 @@
     <Compile Include="Config\EzoConfig.cs" />
     <Compile Include="Config\GeneralSettings.cs" />
     <Compile Include="Config\PlcConfig.cs" />
+    <Compile Include="Config\UiConfig.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="Calibration\CalData.cs" />
     <Compile Include="Helpers\PathHelper.cs" />

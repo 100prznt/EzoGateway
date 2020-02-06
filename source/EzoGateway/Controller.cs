@@ -44,6 +44,8 @@ namespace EzoGateway
         }
         Dictionary<int, MeasData> m_LatestMeasData;
 
+        public DateTime SystemStartTime { get; set; }
+
         /// <summary>
         /// Hardware is initialized.
         /// </summary>
@@ -86,6 +88,8 @@ namespace EzoGateway
         public Controller()
         {
             //SetSystemTime(new DateTime(2020, 2, 5, 10, 12, 0));
+
+            SystemStartTime = DateTime.Now;
 
             Logger.Write("Init EzoGateway controller", SubSystem.App);
 
@@ -570,76 +574,7 @@ namespace EzoGateway
                 SingleMeasurementAsync();
             }
         }
-
-        //public void InitPlc()
-        //{
-        //    if (Configuration.LogoConnection != null && Configuration.LogoConnection.Enabled)
-        //    {
-        //        m_Plc = new S7Client();
-
-        //        lock (m_Plc)
-        //        {
-        //            m_Plc.SetConnectionParams(Configuration.LogoConnection.IpAddress, 0x0300, 0x0200);
-        //            if (m_Plc.Connect() != 0)
-        //            {
-        //                Debug.WriteLine("Failed to open PLC connection.");
-        //            }
-        //            else
-        //            {
-        //                // Create an AutoResetEvent to signal the timeout threshold in the timer callback has been reached.
-        //                var autoEvent = new AutoResetEvent(false);
-
-        //                var statusChecker = new PlcChecker(ref m_Plc,
-        //                    Configuration.LogoConnection.TriggerVmAddress,
-        //                    Configuration.LogoConnection.TriggerVmAddressBit);
-        //                statusChecker.PlcTriggerEvent += StatusChecker_PlcTriggerEvent;
-        //                m_PlcTimer = new Timer(statusChecker.CheckStatus, autoEvent, 10000, 250);
-        //                m_BlockPlcTrigger = false;
-
-        //                Debug.WriteLine("PLC successfully initialized.");
-        //            }
-        //        }
-        //    }
-        //}
-
-
-        //private class PlcChecker
-        //{
-        //    private int m_Address;
-        //    private int m_Bit;
-        //    private S7Client m_Plc;
-        //    private int m_ErrorCount;
-
-        //    public PlcChecker(ref S7Client plc, int vmTriggerAddress, int vmTriggerBit)
-        //    {
-        //        Debug.WriteLine("Init PLC status checker.");
-        //        m_Plc = plc;
-        //        m_Address = vmTriggerAddress;
-        //        m_Bit = vmTriggerBit;
-        //    }
-
-        //    // This method is called by the timer delegate.
-        //    public void CheckStatus(Object stateInfo)
-        //    {
-        //        AutoResetEvent autoEvent = (AutoResetEvent)stateInfo;
-
-        //        lock (m_Plc)
-        //        {
-        //            var buffer = new byte[1];
-        //            var result = m_Plc.ReadArea(0x84, 1, m_Address, 1, S7Consts.S7WLByte, buffer);
-        //            if (result != 0)
-        //                Debug.WriteLine("Error during read trigger signal from PLC.");
-
-        //            if ((buffer[0] & (1 << m_Bit)) != 0)
-        //                PlcTriggerEvent?.Invoke();
-        //        }
-
-        //        autoEvent.Set();
-        //    }
-
-        //    public event Action PlcTriggerEvent;
-        //}
-
+        
         /// <summary>
         /// Send a value to the connected PLC
         /// </summary>
