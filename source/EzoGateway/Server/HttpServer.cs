@@ -439,6 +439,21 @@ namespace EzoGateway.Server
                     }
                 }
             }
+            else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("INFO", StringComparison.OrdinalIgnoreCase))
+            {
+                Logger.Write("Request system info", SubSystem.RestApi);
+
+                var version = Package.Current.Id.Version;
+
+                var infos = new Dictionary<string, string>();
+                infos.Add("Version", $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}");
+                infos.Add("SystemTime", DateTime.Now.ToString());
+                infos.Add("SystemStartTime", m_Controller.SystemStartTime.ToString());
+                infos.Add("SystemRuntime", (DateTime.Now - m_Controller.SystemStartTime).ToString());
+                infos.Add("RequestCounter", RequestCounter.ToString());
+
+                return HttpResource.CreateJsonResource(infos);
+            }
 
             return null; //Unknown request
         }
