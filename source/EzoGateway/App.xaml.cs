@@ -40,13 +40,9 @@ namespace EzoGateway
 
         public string GetAppVersion()
         {
+            var version = Package.Current.Id.Version;
 
-            Package package = Package.Current;
-            PackageId packageId = package.Id;
-            PackageVersion version = packageId.Version;
-
-            return "Version " + string.Format($"{ version.Major}.{ version.Minor}.{ version.Build}.{ version.Revision}");
-
+            return $"Version { version.Major}.{ version.Minor}.{ version.Build}.{ version.Revision}";
         }
 
         /// <summary>
