@@ -75,11 +75,12 @@ namespace EzoGateway
         private static TimeSpan m_CyclicUpdatePeriod = new TimeSpan(0, 0, 5);
         private static event Action CyclicUpdateEvent;
         private bool m_CyclicUpdateEventIsAttached = false;
-        ThreadPoolTimer m_CyclicUpdateTimer = ThreadPoolTimer.CreatePeriodicTimer((source) =>
-        {
-            CyclicUpdateEvent?.Invoke();
+        ThreadPoolTimer m_CyclicUpdateTimer;
+        //ThreadPoolTimer m_CyclicUpdateTimer = ThreadPoolTimer.CreatePeriodicTimer((source) =>
+        //{
+        //    CyclicUpdateEvent?.Invoke();
 
-        }, m_CyclicUpdatePeriod);
+        //}, m_CyclicUpdatePeriod);
 
 
         #endregion Members
@@ -184,9 +185,9 @@ namespace EzoGateway
             Logger.Write("Start delete config", SubSystem.Configuration);
             try
             {
-                var localFolder = ApplicationData.Current.LocalFolder;
+                //var localFolder = ApplicationData.Current.LocalFolder;
 
-                var item = await localFolder.TryGetItemAsync("ezogateway.config.json");
+                var item = await ApplicationData.Current.LocalFolder.TryGetItemAsync("ezogateway.config.json");
                 if (item != null)
                 {
                     await item.DeleteAsync(StorageDeleteOption.PermanentDelete);
@@ -209,7 +210,7 @@ namespace EzoGateway
         {
             Logger.Write("Controller_ConfigIsSavedEvent", SubSystem.Configuration);
 
-            InitCyclicUpdater();
+            InitAfterConfigChange();
         }
 
         private void Controller_ConfigIsLoadedEvent()
@@ -219,6 +220,15 @@ namespace EzoGateway
 
             var t = Task.Run(() => InitHardware()); //Initialization in the current task fails. So, outsourcing to own task...
             t.Wait();
+
+            InitAfterConfigChange();
+        }
+
+        private void InitAfterConfigChange()
+        {
+
+            if (Configuration?.Logger != null)
+                Logger.ApplyConfig(Configuration.Logger.Enabled, Configuration.Logger.ExcludedSubSystems, Configuration.Logger.MinimumLogLevel);
 
             InitCyclicUpdater();
         }
@@ -332,14 +342,27 @@ namespace EzoGateway
             {
                 if (m_CyclicUpdateEventIsAttached)
                 {
-                    Logger.Write("Cyclic updater already enabled.", SubSystem.App);
+                    Logger.Write("Cyclic updater already enabled -> is restarted", SubSystem.App);
+                    CyclicUpdateEvent -= Controller_CyclicUpdateEvent;
+                    await Task.Delay(50);
                 }
-                else
+
+                m_CyclicUpdatePeriod = TimeSpan.FromSeconds(Configuration.UpdateInterval);
+
+                if (m_CyclicUpdateTimer != null)
+                    m_CyclicUpdateTimer.Cancel();
+
+                m_CyclicUpdateTimer = ThreadPoolTimer.CreatePeriodicTimer((source) =>
                 {
-                    Logger.Write("Enable cyclic updater.", SubSystem.App);
+                    CyclicUpdateEvent?.Invoke();
+
+                }, m_CyclicUpdatePeriod);
+                                
+
+                Logger.Write("Enable cyclic updater.", SubSystem.App);
                     CyclicUpdateEvent += Controller_CyclicUpdateEvent;
                     m_CyclicUpdateEventIsAttached = true;
-                }
+                
             }
             else
             {

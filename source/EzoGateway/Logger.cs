@@ -28,9 +28,40 @@ namespace EzoGateway
         static bool m_DequeuerIsActive = false;
         static ConcurrentQueue<LogMessage> m_MessageQueue;
 
+        /// <summary>
+        /// The logger is deactivated
+        /// </summary>
+        static bool m_LoggerIsDisabled = false;
+
+        /// <summary>
+        /// Subsystems which are excluded from logging
+        /// </summary>
+        static SubSystem m_ExcludedSubSystems;
+
+        /// <summary>
+        /// Log depth from which log messages are saved 
+        /// </summary>
+        static LoggerLevel m_MinimumLogLevel;
+
         #endregion Members
 
         #region Services
+        public static void ApplyConfig(bool isActive, SubSystem excludedSubSystems, LoggerLevel minimumLogLevel)
+        {
+            Write("Logger configuration changed!", SubSystem.Logger, LoggerLevel.Info);
+            if (isActive)
+                Write("Logger:                Enabled", SubSystem.Logger, LoggerLevel.Info);
+            else
+                Write("Logger:                Disabled", SubSystem.Logger, LoggerLevel.Info);
+            Write($"Excluded sub-systems: {excludedSubSystems}", SubSystem.Logger, LoggerLevel.Info);
+            Write($"Minimum loglevel:     {minimumLogLevel}", SubSystem.Logger, LoggerLevel.Info);
+
+            m_LoggerIsDisabled = !isActive;
+            m_ExcludedSubSystems = excludedSubSystems;
+            m_MinimumLogLevel = minimumLogLevel;
+        }
+
+
         /// <summary>
         /// Gets the current log file as StorageFile
         /// </summary>
@@ -67,13 +98,19 @@ namespace EzoGateway
         {
             Debug.WriteLine(level.ToString() + ": " + message);
 
-            if (m_MessageQueue == null)
-                m_MessageQueue = new ConcurrentQueue<LogMessage>();
+            if (!m_LoggerIsDisabled) //TODO: Testen was passiert wenn der Logger aus ist (SocketListener Problem!)
+            {
+                if (level >= m_MinimumLogLevel && !m_ExcludedSubSystems.HasFlag(source)) //Limit log depth
+                {
+                    if (m_MessageQueue == null)
+                        m_MessageQueue = new ConcurrentQueue<LogMessage>();
 
-            m_MessageQueue.Enqueue(new LogMessage(message, level, source));
+                    m_MessageQueue.Enqueue(new LogMessage(message, level, source));
 
-            if (m_Worker == null || !m_Worker.IsBusy)
-                StartBackgroundWorker();
+                    if (m_Worker == null || !m_Worker.IsBusy)
+                        StartBackgroundWorker();
+                }
+            }
         }
 
         public static async void Flush()
@@ -208,6 +245,15 @@ namespace EzoGateway
             }
         }
 
+        /// <summary>
+        /// Deleting old log files
+        /// </summary>
+        /// <param name="timeLimit">Time until which log files should be deleted</param>
+        private static async void CleanUpLogFolder(DateTime timeLimit)
+        {
+            throw new NotImplementedException(); //TODO:
+        }
+
         #endregion Internal services
     }
 
@@ -332,6 +378,10 @@ namespace EzoGateway
     public enum SubSystem
     {
         /// <summary>
+        /// Empty entrie, to exclude no subsystem
+        /// </summary>
+        None = 0x0,
+        /// <summary>
         /// General app
         /// </summary>
         App = 0x1,
@@ -350,7 +400,7 @@ namespace EzoGateway
         /// <summary>
         /// Plc interface (Siemens LOGO!)
         /// </summary>
-        Plc = 0xA,
+        Plc = 0x10,
         /// <summary>
         /// Hardware (EZO module)
         /// </summary>

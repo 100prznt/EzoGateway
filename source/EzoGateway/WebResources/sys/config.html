@@ -36,6 +36,49 @@
                 $('#vm-counter').val(data["LogoConnection"].SecureCounterVmAddress);
 
                 $('#ui-device-name').val(data["Appearance"].DeviceName);
+
+                $('#logger-active').prop("checked", data["Logger"].Enabled);
+                $('#logger-minimum-log-level').val(data["Logger"].MinimumLogLevel);
+                $('#logger-lifetime').val(data["Logger"].Lifetime);
+
+                var exclsyss = data["Logger"].ExcludedSubSystems;
+                if (exclsyss - 0x40 >= 0) {
+                    exclsyss -= 0x40;
+                } else {
+                    $('#logger-subsystem-logger').prop("checked", true);
+                }
+                if (exclsyss - 0x20 >= 0) {
+                    exclsyss -= 0x20;
+                } else {
+                    $('#logger-subsystem-lowlevel').prop("checked", true);
+                }
+                if (exclsyss - 0x10 >= 0) {
+                    exclsyss -= 0x10;
+                } else {
+                    $('#logger-subsystem-plc').prop("checked", true);
+                }
+                if (exclsyss - 0x8 >= 0) {
+                    exclsyss -= 0x8;
+                } else {
+                    $('#logger-subsystem-restapi').prop("checked", true);
+                }
+                if (exclsyss - 0x4 >= 0) {
+                    exclsyss -= 0x4;
+                } else {
+                    $('#logger-subsystem-configuration').prop("checked", true);
+                }
+                if (exclsyss - 0x2 >= 0) {
+                    exclsyss -= 0x2;
+                } else {
+                    $('#logger-subsystem-httpserver').prop("checked", true);
+                }
+                if (exclsyss - 0x1 >= 0) {
+                    exclsyss -= 0x1;
+                } else {
+                    $('#logger-subsystem-app').prop("checked", true);
+                }
+                if (exclsyss != 0)
+                    console.log("Invalid ExcludedSubSystems parameter: " + data["Logger"].ExcludedSubSystems);
             });
 
             jQuery('form#config').bind('submit', function (event) {
@@ -95,6 +138,28 @@
             var ui = new Object();
             ui.DeviceName = $('#ui-device-name').val();
 
+            var exclsyss = 0x80 - 0x1;
+            if ($('#logger-subsystem-app').is(":checked"))
+                exclsyss -= 0x1;
+            if ($('#logger-subsystem-httpserver').is(":checked"))
+                exclsyss -= 0x2;
+            if ($('#logger-subsystem-configuration').is(":checked"))
+                exclsyss -= 0x4;
+            if ($('#logger-subsystem-restapi').is(":checked"))
+                exclsyss -= 0x8;
+            if ($('#logger-subsystem-plc').is(":checked"))
+                exclsyss -= 0x10;
+            if ($('#logger-subsystem-lowlevel').is(":checked"))
+                exclsyss -= 0x20;
+            if ($('#logger-subsystem-logger').is(":checked"))
+                exclsyss -= 0x40;
+
+            var logger = new Object();
+            logger.Enabled = $('#logger-active').is(":checked");
+            logger.MinimumLogLevel = $('#logger-minimum-log-level').val();
+            logger.ExcludedSubSystems = exclsyss;
+            logger.Lifetime = $('#logger-lifetime').val();
+
             var settings = new Object();
             settings.PhSensor = phSensor;
             settings.RedoxSensor = redoxSensor;
@@ -105,6 +170,7 @@
             settings.UpdateInterval = $('#update-interval').val();
             settings.LogoConnection = plc;
             settings.Appearance = ui;
+            settings.Logger = logger;
 
             console.log(settings);
 
@@ -237,8 +303,43 @@
                             </div>
                         </div>
 
-                        <input id="saveConfig" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Settings">
-                    </form>
+                        <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-active"> Logger</legend>
+                        <p class="uk-margin-small">Log system events and errors to a log file. </p>
+                        <div class="uk-grid-small uk-margin-top" uk-grid>
+                            <div class="uk-width-1-2">
+                                <label>Minimum log-level:</label>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <select class="uk-select" id="logger-minimum-log-level">
+                                    <option value="0">Info</option>
+                                    <option value="10">Warning</option>
+                                    <option value="20">Error</option>
+                                    <option value="30">Critical error</option>
+                                </select>
+                            </div>
+
+                            <div class="uk-width-1-2">
+                                <label>Sub systems to log:</label>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-app"> Application</legend>
+                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-httpserver"> HTTP server</legend>
+                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-configuration"> Configuration</legend>
+                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-restapi"> REST API</legend>
+                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-plc"> Siemens LOGO! interface</legend>
+                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-lowlevel"> Hardware (I2C)</legend>
+                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-logger"> Logger</legend>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <label>Log file lifetime in days:</label>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <input class="uk-input" type="number" id="logger-lifetime" min="1" max="180">
+                            </div>
+                            </div>
+
+                            <input id="saveConfig" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Settings">
+</form>
                 </div>
             </div>
 

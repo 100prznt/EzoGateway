@@ -81,9 +81,10 @@ namespace EzoGateway.Config
                 EnablePhTemperatureCompensation = true,
                 TemperatureUnit = TemperatureScales.Celsius,
                 EnableCyclicUpdater = false,
-                UpdateInterval = 30,
+                UpdateInterval = 60,
                 LogoConnection = new PlcConfig("192.168.0.195", 106, 302, 304, 306, 300),
-                Appearance = new UiConfig() { DeviceName = "EzoGateway" }
+                Appearance = new UiConfig() { DeviceName = "EzoGateway" },
+                Logger = new LogConfig() { Enabled = true, ExcludedSubSystems = SubSystem.None, MinimumLogLevel = LoggerLevel.Info, Lifetime = 30}
             };
 
         #endregion Properties
