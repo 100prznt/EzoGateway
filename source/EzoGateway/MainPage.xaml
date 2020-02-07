@@ -10,7 +10,7 @@
     
     <Grid>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Padding="10,10,10,10">
-            <TextBlock HorizontalAlignment="Center" Text="EzoGateway" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="36" Padding="0,0,0,5" FontWeight="Bold"/>
+            <TextBlock x:Name="tbl_Headline" HorizontalAlignment="Center" Text="EzoGateway" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="36" Padding="0,0,0,5" FontWeight="Bold"/>
             <TextBlock x:Name="tbl_Value1" HorizontalAlignment="Center" Text="tbl_Value1" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,15,0,5" FontSize="26"/>
             <Border BorderThickness="2" BorderBrush="Gray">
                 <TextBlock x:Name="tbx_Value1" HorizontalAlignment="Center" Text="tbx_Value1" VerticalAlignment="Top" Margin="0,0,0,5" FontSize="44" TextAlignment="Center" Width="300"/>
@@ -24,6 +24,8 @@
                 <TextBlock x:Name="tbx_Value3" HorizontalAlignment="Center" Text="tbx_Value3" VerticalAlignment="Top" Margin="0,0,0,5" FontSize="44" TextAlignment="Center" Width="300"/>
             </Border>
         </StackPanel>
-        
+        <TextBlock x:Name="tbl_Version" HorizontalAlignment="Right" Text="tbl_Version" VerticalAlignment="Bottom" Margin="0,0,4,2" FontSize="18" Foreground="Gray"/>
+        <TextBlock HorizontalAlignment="Left" Text="EzoGateway" VerticalAlignment="Bottom" Margin="4,0,0,2" FontSize="18" Foreground="Gray"/>
+
     </Grid>
 </Page>

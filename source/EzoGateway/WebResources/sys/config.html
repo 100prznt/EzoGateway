@@ -24,7 +24,7 @@
                 $('#ph-tempcompensation').prop("checked", data.EnablePhTemperatureCompensation);
                 $('#temp-unit').val(data.TemperatureUnit);
                 $('#cyclic-updater').prop("checked", data.EnableCyclicUpdater);
-                $('#update-interval').val(data["UpdateInterval"].I2CAddress);
+                $('#update-interval').val(data.UpdateInterval);
 
                 $('#plc-active').prop("checked", data["LogoConnection"].Enabled);
                 $('#plc-ip').val(data["LogoConnection"].IpAddress);
@@ -34,6 +34,8 @@
                 $('#vm-trigger').val(data["LogoConnection"].TriggerVmAddress);
                 $('#vm-trigger-bit').val(data["LogoConnection"].TriggerVmAddressBit);
                 $('#vm-counter').val(data["LogoConnection"].SecureCounterVmAddress);
+
+                $('#ui-device-name').val(data["Appearance"].DeviceName);
             });
 
             jQuery('form#config').bind('submit', function (event) {
@@ -90,6 +92,9 @@
             plc.TemperatureVmAddress = $('#vm-rtd').val();
             plc.SecureCounterVmAddress = $('#vm-counter').val();
 
+            var ui = new Object();
+            ui.DeviceName = $('#ui-device-name').val();
+
             var settings = new Object();
             settings.PhSensor = phSensor;
             settings.RedoxSensor = redoxSensor;
@@ -99,6 +104,7 @@
             settings.EnableCyclicUpdater = $('#cyclic-updater').is(":checked");
             settings.UpdateInterval = $('#update-interval').val();
             settings.LogoConnection = plc;
+            settings.Appearance = ui;
 
             console.log(settings);
 
@@ -219,6 +225,18 @@
                                 <input class="uk-input" type="number" id="vm-counter" min="1" max="850">
                             </div>
                         </div>
+
+                        <legend class="uk-legend uk-margin-top">Appearance</legend>
+                        <p class="uk-margin-small">Settings to customize the appearance of the provided user interfaces (web and build-in).</p>
+                        <div class="uk-grid-small uk-margin-top" uk-grid>
+                            <div class="uk-width-1-2">
+                                <label>Device name:</label>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <input class="uk-input" type="text" id="ui-device-name">
+                            </div>
+                        </div>
+
                         <input id="saveConfig" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Settings">
                     </form>
                 </div>
