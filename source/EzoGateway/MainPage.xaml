@@ -24,8 +24,8 @@
                 <TextBlock x:Name="tbx_Value3" HorizontalAlignment="Center" Text="tbx_Value3" VerticalAlignment="Top" Margin="0,0,0,5" FontSize="44" TextAlignment="Center" Width="300"/>
             </Border>
         </StackPanel>
-        <TextBlock x:Name="tbl_Version" HorizontalAlignment="Right" Text="tbl_Version" VerticalAlignment="Bottom" Margin="0,0,4,2" FontSize="18" Foreground="Gray"/>
-        <TextBlock HorizontalAlignment="Left" Text="EzoGateway" VerticalAlignment="Bottom" Margin="4,0,0,2" FontSize="18" Foreground="Gray"/>
+        <TextBlock x:Name="tbl_Version" HorizontalAlignment="Right" Text="tbl_Version" VerticalAlignment="Bottom" Margin="0,0,5,2" FontSize="18" Foreground="Gray"/>
+        <TextBlock HorizontalAlignment="Left" Text="EzoGateway" VerticalAlignment="Bottom" Margin="5,0,0,2" FontSize="18" Foreground="Gray"/>
 
     </Grid>
 </Page>
