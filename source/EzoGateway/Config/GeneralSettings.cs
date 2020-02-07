@@ -65,6 +65,11 @@ namespace EzoGateway.Config
         public UiConfig Appearance { get; set; }
 
         /// <summary>
+        /// Configuration of the logger
+        /// </summary>
+        public LogConfig Logger { get; set; }
+
+        /// <summary>
         /// Default settings
         /// </summary>
         public static GeneralSettings Default =>
