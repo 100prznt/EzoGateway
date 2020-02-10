@@ -74,13 +74,19 @@ namespace EzoGateway.Server
         /// </summary>
         public async void ServerInitialize()
         {
+            //m_Listener = new StreamSocketListener();
+            //await m_Listener.BindServiceNameAsync(Port.ToString());
+            //m_Listener.ConnectionReceived += async (sender, args) => HandleRequest(sender, args);
+
+            //New implementation following the example of velsorange
+            //Source: https://raspberrypi.stackexchange.com/questions/74937/windows-iot-streamsocketlistener-stops-working
             m_Listener = new StreamSocketListener();
-            await m_Listener.BindServiceNameAsync(Port.ToString());
-            m_Listener.ConnectionReceived += async (sender, args) => HandleRequest(sender, args);
+            var currentSetting = m_Listener.Control.QualityOfService;
+            m_Listener.Control.QualityOfService = SocketQualityOfService.LowLatency;
+            m_Listener.ConnectionReceived += HandleRequest;
+            await m_Listener.BindServiceNameAsync("80");
 
-            //Zyklisch ablöschen?!
-            //m_Listener.CancelIOAsync();
-
+            
             Logger.Write($"HTTP server is successfully initialized and listen for http requests under: http://{Ip}:{Port}/", SubSystem.HttpServer);
         }
 
@@ -104,7 +110,7 @@ namespace EzoGateway.Server
 
                 RequestCounter++;
 
-                if (RequestCounter % 500 == 0)
+                if (RequestCounter % 100 == 0)
                     Logger.Write(RequestCounter + " HTTP requests processed.", SubSystem.HttpServer);
             }
             catch (Exception ex)
