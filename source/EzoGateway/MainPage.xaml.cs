@@ -27,7 +27,7 @@ namespace EzoGateway
     {
         #region Members
         Controller m_Controller;
-
+        HttpServer m_Server;
         #endregion Members
 
         public MainPage()
@@ -37,8 +37,8 @@ namespace EzoGateway
 
             m_Controller = new Controller();
 
-            var svr = new HttpServer(ref m_Controller); //default port (80)
-            svr.ServerInitialize();
+            m_Server = new HttpServer(ref m_Controller, 591); //default port (80)
+            m_Server.ServerInitialize();
 
             Logger.LogWatermark();
 
@@ -109,6 +109,20 @@ namespace EzoGateway
                     }
                 }
             }
+        }
+
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Logger.Write("Request server restart from build-in GUI", SubSystem.App, LoggerLevel.Warning);
+            if (m_Server != null)
+                Logger.Write("Server instance is still available.", SubSystem.HttpServer, LoggerLevel.Warning);
+            Logger.Write("HTTP request conter at: " + m_Server.RequestCounter, SubSystem.HttpServer);
+            Logger.Write($"HTTP host: {m_Server.Ip}:{m_Server.Port}", SubSystem.HttpServer);
+
+            await m_Server.DisposeAsync();
+
+            m_Server = new HttpServer(ref m_Controller, 591); //default port (80)
+            m_Server.ServerInitialize();
         }
     }
 }

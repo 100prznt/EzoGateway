@@ -7,8 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    
+
     <Grid>
+        <Button Content="Server restart" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,5,0,0" Click="Button_Click"/>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Padding="10,10,10,10">
             <TextBlock x:Name="tbl_Headline" HorizontalAlignment="Center" Text="EzoGateway" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="36" Padding="0,0,0,5" FontWeight="Bold"/>
             <TextBlock x:Name="tbl_Value1" HorizontalAlignment="Center" Text="tbl_Value1" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,15,0,5" FontSize="26"/>

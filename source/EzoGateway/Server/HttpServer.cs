@@ -22,7 +22,7 @@ using System.Reflection;
 
 namespace EzoGateway.Server
 {
-    public class HttpServer
+    public class HttpServer : IDisposable
     {
         #region Member
         private Controller m_Controller;
@@ -47,6 +47,7 @@ namespace EzoGateway.Server
         /// HTTP request counter
         /// </summary>
         public ulong RequestCounter { get; private set; }
+        
 
         #endregion Properties
 
@@ -84,10 +85,28 @@ namespace EzoGateway.Server
             var currentSetting = m_Listener.Control.QualityOfService;
             m_Listener.Control.QualityOfService = SocketQualityOfService.LowLatency;
             m_Listener.ConnectionReceived += HandleRequest;
-            await m_Listener.BindServiceNameAsync("80");
+            await m_Listener.BindServiceNameAsync(Port.ToString());
 
-            
             Logger.Write($"HTTP server is successfully initialized and listen for http requests under: http://{Ip}:{Port}/", SubSystem.HttpServer);
+        }
+        public async void Dispose()
+        {
+            m_Listener.ConnectionReceived -= HandleRequest;
+            await Task.Delay(500);
+            await m_Listener.CancelIOAsync();
+            m_Listener.Dispose();
+
+            await Task.Delay(500);
+        }
+
+        public async Task DisposeAsync()
+        {
+            m_Listener.ConnectionReceived -= HandleRequest;
+            await Task.Delay(500);
+            await m_Listener.CancelIOAsync();
+            m_Listener.Dispose();
+
+            await Task.Delay(500);
         }
 
         #endregion Services
@@ -111,7 +130,7 @@ namespace EzoGateway.Server
                 RequestCounter++;
 
                 if (RequestCounter % 100 == 0)
-                    Logger.Write(RequestCounter + " HTTP requests processed.", SubSystem.HttpServer);
+                    Logger.Write("###########" + RequestCounter + " HTTP requests processed. ###########", SubSystem.HttpServer);
             }
             catch (Exception ex)
             {
@@ -127,11 +146,16 @@ namespace EzoGateway.Server
                 try
                 {
                     //read request
-                    using (var input = args.Socket.InputStream)
-                    {
-                        request = await HttpServerRequest.Parse(input, m_ServerUri);
-                        Logger.Write("Requested URL: " + request.Uri, SubSystem.HttpServer);
-                    }
+                    if (args.Socket == null)
+                        Logger.Write("StreamSocked is null!", SubSystem.HttpServer, LoggerLevel.Warning);
+
+
+                    var input = args.Socket.InputStream;
+                    request = await HttpServerRequest.Parse(input, m_ServerUri);
+                    Logger.Write("Requested URL: " + request.Uri, SubSystem.HttpServer);
+
+                    input.Dispose();
+                    
                 }
                 catch (Exception ex)
                 {
@@ -253,25 +277,41 @@ namespace EzoGateway.Server
 
         private async Task<HttpResource> GetWebResource(StorageFile file)
         {
-            if (file == null)
-                return HttpResource.Error404;
+            try
+            {
+                if (file == null)
+                    return HttpResource.Error404;
 
-            return new HttpResource(file);
+                return new HttpResource(file);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(ex, SubSystem.HttpServer);
+                return HttpResource.Error404;
+            }
         }
 
         private async Task<HttpResource> GetWebResource(Uri uri)
         {
-            if (uri.Segments.Length < 2 | !uri.Segments[1].Trim('/').Equals("WEB", StringComparison.OrdinalIgnoreCase))
+            try
+            {
+                if (uri.Segments.Length < 2 | !uri.Segments[1].Trim('/').Equals("WEB", StringComparison.OrdinalIgnoreCase))
+                    return HttpResource.Error404;
+
+                var filePath = Package.Current.InstalledLocation.Path;
+                PathHelper.AppendSegment(ref filePath, "WebResources");
+                for (int i = 2; i < uri.Segments.Length; i++)
+                    PathHelper.AppendSegment(ref filePath, uri.Segments[i]);
+
+                var file = await StorageFile.GetFileFromPathAsync(filePath);
+
+                return new HttpResource(file);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(ex, SubSystem.HttpServer);
                 return HttpResource.Error404;
-
-            var filePath = Package.Current.InstalledLocation.Path;
-            PathHelper.AppendSegment(ref filePath, "WebResources");
-            for (int i = 2; i < uri.Segments.Length; i++)
-                PathHelper.AppendSegment(ref filePath, uri.Segments[i]);
-
-            var file = await StorageFile.GetFileFromPathAsync(filePath);
-
-            return new HttpResource(file);
+            }
         }
 
         /// <summary>
@@ -281,187 +321,195 @@ namespace EzoGateway.Server
         /// <returns>HTTP response</returns>
         private async Task<HttpResource> ApiRequest(HttpServerRequest request)
         {
-            if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("SENSORS", StringComparison.OrdinalIgnoreCase))
+            try
             {
-                Logger.Write("Request sensor info", SubSystem.RestApi);
-                return HttpResource.CreateJsonResource(m_Controller.SensorInfos);
-            }
-            else if (request.Uri.Segments.Length > 3 && request.Uri.Segments[2].Trim('/').Equals("SENSOR", StringComparison.OrdinalIgnoreCase))
-            {
-                if (request.Uri.Segments.Length == 5 && request.Uri.Segments[4].Trim('/').Equals("LIVE", StringComparison.OrdinalIgnoreCase))
+                if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("SENSORS", StringComparison.OrdinalIgnoreCase))
                 {
-                    Logger.Write("Request live data from sensor no. " + request.Uri.Segments[3].Trim('/'), SubSystem.RestApi);
-                    if (request.Uri.Segments[3].Trim('/').Equals("1", StringComparison.OrdinalIgnoreCase))
-                        return HttpResource.CreateJsonResource(new { measValue = m_Controller.PhSensor.GetMeasValue() });
-                    else if (request.Uri.Segments[3].Trim('/').Equals("2", StringComparison.OrdinalIgnoreCase))
-                        return HttpResource.CreateJsonResource(new { measValue = m_Controller.RedoxSensor.GetMeasValue() });
-                    else if (request.Uri.Segments[3].Trim('/').Equals("3", StringComparison.OrdinalIgnoreCase))
-                        return HttpResource.CreateJsonResource(new { measValue = await m_Controller.TempSensor.GetMeasValue() });
+                    Logger.Write("Request sensor info", SubSystem.RestApi);
+                    return HttpResource.CreateJsonResource(m_Controller.SensorInfos);
                 }
-            }
-            else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("PATHS", StringComparison.OrdinalIgnoreCase))
-            {
-                Logger.Write("Request local paths", SubSystem.RestApi);
-                return HttpResource.CreateJsonResource(m_Controller.GetLocalPaths());
-            }
-            else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("CONFIG", StringComparison.OrdinalIgnoreCase))
-            {
-                if (request.Uri.Segments.Length == 3)
-                    if (request.Method == HttpMethod.Get)
+                else if (request.Uri.Segments.Length > 3 && request.Uri.Segments[2].Trim('/').Equals("SENSOR", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (request.Uri.Segments.Length == 5 && request.Uri.Segments[4].Trim('/').Equals("LIVE", StringComparison.OrdinalIgnoreCase))
                     {
-                        Logger.Write("Request configuration", SubSystem.RestApi);
-                        return HttpResource.CreateJsonResource(m_Controller.Configuration);
+                        Logger.Write("Request live data from sensor no. " + request.Uri.Segments[3].Trim('/'), SubSystem.RestApi);
+                        if (request.Uri.Segments[3].Trim('/').Equals("1", StringComparison.OrdinalIgnoreCase))
+                            return HttpResource.CreateJsonResource(new { measValue = m_Controller.PhSensor.GetMeasValue() });
+                        else if (request.Uri.Segments[3].Trim('/').Equals("2", StringComparison.OrdinalIgnoreCase))
+                            return HttpResource.CreateJsonResource(new { measValue = m_Controller.RedoxSensor.GetMeasValue() });
+                        else if (request.Uri.Segments[3].Trim('/').Equals("3", StringComparison.OrdinalIgnoreCase))
+                            return HttpResource.CreateJsonResource(new { measValue = await m_Controller.TempSensor.GetMeasValue() });
                     }
-                    else if (request.Method == HttpMethod.Put)
-                    {
-                        //Update config
-                        Logger.Write("Update configuration", SubSystem.RestApi);
-                        var settings = JsonConvert.DeserializeObject<GeneralSettings>(request.Content);
-                        m_Controller.UpdateConfig(settings);
-                    }
-                //else if (request.Uri.Segments.Length == 4 && request.Uri.Segments[3].Trim('/').Equals("TIME", StringComparison.OrdinalIgnoreCase))
-                //{
-                //    var dt = new DateTime(2015, 05, 25, 16, 45, 05);
-                //    var o = new TimeSpan(-2, 0, 0);
-                //    var dto = new DateTimeOffset(dt, o);
+                }
+                else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("PATHS", StringComparison.OrdinalIgnoreCase))
+                {
+                    Logger.Write("Request local paths", SubSystem.RestApi);
+                    return HttpResource.CreateJsonResource(m_Controller.GetLocalPaths());
+                }
+                else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("CONFIG", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (request.Uri.Segments.Length == 3)
+                        if (request.Method == HttpMethod.Get)
+                        {
+                            Logger.Write("Request configuration", SubSystem.RestApi);
+                            return HttpResource.CreateJsonResource(m_Controller.Configuration);
+                        }
+                        else if (request.Method == HttpMethod.Put)
+                        {
+                            //Update config
+                            Logger.Write("Update configuration", SubSystem.RestApi);
+                            var settings = JsonConvert.DeserializeObject<GeneralSettings>(request.Content);
+                            m_Controller.UpdateConfig(settings);
+                        }
+                    //else if (request.Uri.Segments.Length == 4 && request.Uri.Segments[3].Trim('/').Equals("TIME", StringComparison.OrdinalIgnoreCase))
+                    //{
+                    //    var dt = new DateTime(2015, 05, 25, 16, 45, 05);
+                    //    var o = new TimeSpan(-2, 0, 0);
+                    //    var dto = new DateTimeOffset(dt, o);
 
-                //    Windows.System.DateTimeSettings.SetSystemDateTime(dto);
-                //}
-            }
-            else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("ACQ", StringComparison.OrdinalIgnoreCase))
-            {
-                if (m_Controller.Configuration.EnableCyclicUpdater)
-                {
-                    Logger.Write("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.", SubSystem.RestApi, LoggerLevel.Warning);
-                    return HttpResource.JsonLocked423("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.");
+                    //    Windows.System.DateTimeSettings.SetSystemDateTime(dto);
+                    //}
                 }
-                else
+                else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("ACQ", StringComparison.OrdinalIgnoreCase))
                 {
-                    Logger.Write("Request a new data acquesition", SubSystem.RestApi);
-                    await m_Controller.SingleMeasurementAsync();
-                    return HttpResource.JsonAccepted202("AcquireMeasdata");
-                }
-            }
-            else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("INIT", StringComparison.OrdinalIgnoreCase))
-            {
-                Logger.Write("Request a hardware init", SubSystem.RestApi);
-                m_Controller.InitHardware();
-                return HttpResource.JsonAccepted202("InitHardware");
-            }
-            else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("FETCH", StringComparison.OrdinalIgnoreCase))
-            {
-                if (m_Controller.LatestMeasData == null || m_Controller.LatestMeasData.Count == 0)
-                {
-                    Logger.Write("Request latest measdata -> No measurement data acquired.", SubSystem.RestApi, LoggerLevel.Warning);
-                    return HttpResource.JsonLocked423("No measurement data acquired.");
-                }
-                else
-                {
-                    Logger.Write("Request latest measdata", SubSystem.RestApi);
-                    return HttpResource.CreateJsonResource(m_Controller.LatestMeasData);
-                }
-            }
-            else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("CAL", StringComparison.OrdinalIgnoreCase))
-            {
-                if (request.Uri.Segments.Length == 4)
-                {
-                    if (request.Uri.Segments[3].Trim('/').Equals("PH", StringComparison.OrdinalIgnoreCase))
+                    if (m_Controller.Configuration.EnableCyclicUpdater)
                     {
-                        if (request.Method == HttpMethod.Get)
-                        {
-                            Logger.Write("Request calibration data from PH sensor", SubSystem.RestApi);
-                            return HttpResource.CreateJsonResource(new { StoredCalibPoints = m_Controller.PhSensor.GetCalibrationInfo() });
-                        }
-                        else if (request.Method == HttpMethod.Put)
-                        {
-                            Logger.Write("Update calibration data for PH sensor", SubSystem.RestApi);
-                            //Perform sensor calibration
-                            var calibData = JsonConvert.DeserializeObject<CalData>(request.Content);
-                            if (m_Controller.CalPhAddPoint(calibData, out string errorMessage))
-                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration point successfully added"));
-                            else
-                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, errorMessage));
-                        }
-                        else if (request.Method == HttpMethod.Delete)
-                        {
-                            Logger.Write("Delete calibration data from PH sensor", SubSystem.RestApi);
-                            //Clear calibration
-                            m_Controller.PhSensor.ClearCalibration();
-                            return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration data cleared"));
-                        }
+                        Logger.Write("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.", SubSystem.RestApi, LoggerLevel.Warning);
+                        return HttpResource.JsonLocked423("The execution of an externally triggered acquisition is not possible, because the automatic cyclic updater is active.");
                     }
-                    else if (request.Uri.Segments[3].Trim('/').Equals("ORP", StringComparison.OrdinalIgnoreCase))
+                    else
                     {
-                        if (request.Method == HttpMethod.Get)
-                        {
-                            Logger.Write("Request calibration data from ORP sensor", SubSystem.RestApi);
-                            return HttpResource.CreateJsonResource(new { StoredCalibPoints = m_Controller.RedoxSensor.GetCalibrationInfo() });
-                        }
-                        else if (request.Method == HttpMethod.Put)
-                        {
-                            Logger.Write("Update calibration data for ORP sensor", SubSystem.RestApi);
-                            //Perform sensor calibration
-                            var calibData = JsonConvert.DeserializeObject<CalData>(request.Content);
-                            if (m_Controller.CalOrpAddPoint(calibData, out string errorMessage))
-                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration point successfully added"));
-                            else
-                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, errorMessage));
-                        }
-                        else if (request.Method == HttpMethod.Delete)
-                        {
-                            Logger.Write("Delete calibration data from ORP sensor", SubSystem.RestApi);
-                            //Clear calibration
-                            m_Controller.RedoxSensor.ClearCalibration();
-                            return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration data cleared"));
-                        }
+                        Logger.Write("Request a new data acquesition", SubSystem.RestApi);
+                        await m_Controller.SingleMeasurementAsync();
+                        return HttpResource.JsonAccepted202("AcquireMeasdata");
                     }
-                    else if (request.Uri.Segments[3].Trim('/').Equals("RTD", StringComparison.OrdinalIgnoreCase))
+                }
+                else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("INIT", StringComparison.OrdinalIgnoreCase))
+                {
+                    Logger.Write("Request a hardware init", SubSystem.RestApi);
+                    m_Controller.InitHardware();
+                    return HttpResource.JsonAccepted202("InitHardware");
+                }
+                else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("FETCH", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (m_Controller.LatestMeasData == null || m_Controller.LatestMeasData.Count == 0)
                     {
-                        if (request.Method == HttpMethod.Get)
+                        Logger.Write("Request latest measdata -> No measurement data acquired.", SubSystem.RestApi, LoggerLevel.Warning);
+                        return HttpResource.JsonLocked423("No measurement data acquired.");
+                    }
+                    else
+                    {
+                        Logger.Write("Request latest measdata", SubSystem.RestApi);
+                        return HttpResource.CreateJsonResource(m_Controller.LatestMeasData);
+                    }
+                }
+                else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("CAL", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (request.Uri.Segments.Length == 4)
+                    {
+                        if (request.Uri.Segments[3].Trim('/').Equals("PH", StringComparison.OrdinalIgnoreCase))
                         {
-                            Logger.Write("Request calibration data from RTD sensor", SubSystem.RestApi);
-                            return HttpResource.CreateJsonResource(new
+                            if (request.Method == HttpMethod.Get)
                             {
-                                StoredCalibPoints = m_Controller.TempSensor.GetCalibrationInfo(),
-                                UnitScale = m_Controller.Configuration.TemperatureUnit.GetSymbol()
-                            });
+                                Logger.Write("Request calibration data from PH sensor", SubSystem.RestApi);
+                                return HttpResource.CreateJsonResource(new { StoredCalibPoints = m_Controller.PhSensor.GetCalibrationInfo() });
+                            }
+                            else if (request.Method == HttpMethod.Put)
+                            {
+                                Logger.Write("Update calibration data for PH sensor", SubSystem.RestApi);
+                                //Perform sensor calibration
+                                var calibData = JsonConvert.DeserializeObject<CalData>(request.Content);
+                                if (m_Controller.CalPhAddPoint(calibData, out string errorMessage))
+                                    return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration point successfully added"));
+                                else
+                                    return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, errorMessage));
+                            }
+                            else if (request.Method == HttpMethod.Delete)
+                            {
+                                Logger.Write("Delete calibration data from PH sensor", SubSystem.RestApi);
+                                //Clear calibration
+                                m_Controller.PhSensor.ClearCalibration();
+                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration data cleared"));
+                            }
                         }
-                        else if (request.Method == HttpMethod.Put)
+                        else if (request.Uri.Segments[3].Trim('/').Equals("ORP", StringComparison.OrdinalIgnoreCase))
                         {
-                            Logger.Write("Update calibration data for RTD sensor", SubSystem.RestApi);
-                            //Perform sensor calibration
-                            var calibData = JsonConvert.DeserializeObject<CalData>(request.Content);
-                            if (m_Controller.CalRtdAddPoint(calibData, out string errorMessage))
-                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration point successfully added"));
-                            else
-                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, errorMessage));
+                            if (request.Method == HttpMethod.Get)
+                            {
+                                Logger.Write("Request calibration data from ORP sensor", SubSystem.RestApi);
+                                return HttpResource.CreateJsonResource(new { StoredCalibPoints = m_Controller.RedoxSensor.GetCalibrationInfo() });
+                            }
+                            else if (request.Method == HttpMethod.Put)
+                            {
+                                Logger.Write("Update calibration data for ORP sensor", SubSystem.RestApi);
+                                //Perform sensor calibration
+                                var calibData = JsonConvert.DeserializeObject<CalData>(request.Content);
+                                if (m_Controller.CalOrpAddPoint(calibData, out string errorMessage))
+                                    return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration point successfully added"));
+                                else
+                                    return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, errorMessage));
+                            }
+                            else if (request.Method == HttpMethod.Delete)
+                            {
+                                Logger.Write("Delete calibration data from ORP sensor", SubSystem.RestApi);
+                                //Clear calibration
+                                m_Controller.RedoxSensor.ClearCalibration();
+                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration data cleared"));
+                            }
                         }
-                        else if (request.Method == HttpMethod.Delete)
+                        else if (request.Uri.Segments[3].Trim('/').Equals("RTD", StringComparison.OrdinalIgnoreCase))
                         {
-                            Logger.Write("Delete calibration data from RTD sensor", SubSystem.RestApi);
-                            //Clear calibration
-                            m_Controller.TempSensor.ClearCalibration();
-                            return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration data cleared"));
+                            if (request.Method == HttpMethod.Get)
+                            {
+                                Logger.Write("Request calibration data from RTD sensor", SubSystem.RestApi);
+                                return HttpResource.CreateJsonResource(new
+                                {
+                                    StoredCalibPoints = m_Controller.TempSensor.GetCalibrationInfo(),
+                                    UnitScale = m_Controller.Configuration.TemperatureUnit.GetSymbol()
+                                });
+                            }
+                            else if (request.Method == HttpMethod.Put)
+                            {
+                                Logger.Write("Update calibration data for RTD sensor", SubSystem.RestApi);
+                                //Perform sensor calibration
+                                var calibData = JsonConvert.DeserializeObject<CalData>(request.Content);
+                                if (m_Controller.CalRtdAddPoint(calibData, out string errorMessage))
+                                    return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration point successfully added"));
+                                else
+                                    return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, errorMessage));
+                            }
+                            else if (request.Method == HttpMethod.Delete)
+                            {
+                                Logger.Write("Delete calibration data from RTD sensor", SubSystem.RestApi);
+                                //Clear calibration
+                                m_Controller.TempSensor.ClearCalibration();
+                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Calibration data cleared"));
+                            }
                         }
                     }
                 }
+                else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("INFO", StringComparison.OrdinalIgnoreCase))
+                {
+                    Logger.Write("Request system info", SubSystem.RestApi);
+
+                    var infos = new Dictionary<string, string>();
+                    infos.Add("Version", typeof(App).GetTypeInfo().Assembly.GetName().Version.ToString());
+                    infos.Add("App", typeof(HttpServer).GetType().AssemblyQualifiedName);
+                    infos.Add("SystemTime", DateTime.Now.ToString());
+                    infos.Add("SystemStartTime", m_Controller.SystemStartTime.ToString());
+                    infos.Add("SystemRuntime", (DateTime.Now - m_Controller.SystemStartTime).ToString());
+                    infos.Add("RequestCounter", RequestCounter.ToString());
+
+                    return HttpResource.CreateJsonResource(infos);
+                }
+
+                return HttpResource.Error400;
             }
-            else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("INFO", StringComparison.OrdinalIgnoreCase))
+            catch (Exception ex)
             {
-                Logger.Write("Request system info", SubSystem.RestApi);
-
-                var infos = new Dictionary<string, string>();
-                infos.Add("Version", typeof(App).GetTypeInfo().Assembly.GetName().Version.ToString());
-                infos.Add("App", typeof(HttpServer).GetType().AssemblyQualifiedName);
-                infos.Add("SystemTime", DateTime.Now.ToString());
-                infos.Add("SystemStartTime", m_Controller.SystemStartTime.ToString());
-                infos.Add("SystemRuntime", (DateTime.Now - m_Controller.SystemStartTime).ToString());
-                infos.Add("RequestCounter", RequestCounter.ToString());
-
-                return HttpResource.CreateJsonResource(infos);
+                Logger.Write(ex, SubSystem.HttpServer);
+                return HttpResource.Error400;
             }
-
-            return null; //Unknown request
         }
 
         #endregion Internal services
