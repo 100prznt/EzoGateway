@@ -84,14 +84,15 @@ namespace EzoGateway.Server
             m_Listener = new StreamSocketListener();
             var currentSetting = m_Listener.Control.QualityOfService;
             m_Listener.Control.QualityOfService = SocketQualityOfService.LowLatency;
-            m_Listener.ConnectionReceived += HandleRequest;
+            //m_Listener.ConnectionReceived += HandleRequest;
+            m_Listener.ConnectionReceived += (s, e) => HandleRequestAsync(e.Socket);
             await m_Listener.BindServiceNameAsync(Port.ToString());
 
             Logger.Write($"HTTP server is successfully initialized and listen for http requests under: http://{Ip}:{Port}/", SubSystem.HttpServer);
         }
         public async void Dispose()
         {
-            m_Listener.ConnectionReceived -= HandleRequest;
+            m_Listener.ConnectionReceived -= (s, e) => HandleRequestAsync(e.Socket);
             await Task.Delay(500);
             await m_Listener.CancelIOAsync();
             m_Listener.Dispose();
@@ -101,7 +102,7 @@ namespace EzoGateway.Server
 
         public async Task DisposeAsync()
         {
-            m_Listener.ConnectionReceived -= HandleRequest;
+            m_Listener.ConnectionReceived -= (s, e) => HandleRequestAsync(e.Socket);
             await Task.Delay(500);
             await m_Listener.CancelIOAsync();
             m_Listener.Dispose();
@@ -117,7 +118,9 @@ namespace EzoGateway.Server
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        private async void HandleRequest(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
+
+        private async void HandleRequestAsync(StreamSocket socket)
+        //private async void HandleRequest(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
         {
             try
             {
@@ -130,7 +133,7 @@ namespace EzoGateway.Server
                 RequestCounter++;
 
                 if (RequestCounter % 100 == 0)
-                    Logger.Write("###########" + RequestCounter + " HTTP requests processed. ###########", SubSystem.HttpServer);
+                    Logger.Write("########### " + RequestCounter + " HTTP requests processed. ###########", SubSystem.HttpServer);
             }
             catch (Exception ex)
             {
@@ -146,11 +149,13 @@ namespace EzoGateway.Server
                 try
                 {
                     //read request
-                    if (args.Socket == null)
+                    //if (args.Socket == null)
+                    if (socket == null)
                         Logger.Write("StreamSocked is null!", SubSystem.HttpServer, LoggerLevel.Warning);
 
 
-                    var input = args.Socket.InputStream;
+                    //var input = args.Socket.InputStream;
+                    var input = socket.InputStream;
                     request = await HttpServerRequest.Parse(input, m_ServerUri);
                     Logger.Write("Requested URL: " + request.Uri, SubSystem.HttpServer);
 
@@ -163,7 +168,8 @@ namespace EzoGateway.Server
                 }
 
                 //write response
-                using (IOutputStream output = args.Socket.OutputStream)
+                //using (IOutputStream output = args.Socket.OutputStream)
+                using (IOutputStream output = socket.OutputStream)
                 {
                     using (Stream response = output.AsStreamForWrite())
                     {
@@ -206,12 +212,12 @@ namespace EzoGateway.Server
                                     }
                                     else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("LOGS", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        data = await GetWebResource(await Logger.GetCurrentLogFile());
+                                        data = await GetWebResourceAsync(await Logger.GetCurrentLogFile());
                                     }
                                     else
                                     {
                                         //Check if requested resource is available in the file system.
-                                        data = await GetWebResource(request.Uri);
+                                        data = await GetWebResourceAsync(request.Uri);
                                     }
                                 }
                                 catch (Exception ex)
@@ -225,7 +231,7 @@ namespace EzoGateway.Server
                         {
                             //Check if requested resource is available via API (Uri) and accessible (Method).
                             if (request.Method == HttpMethod.Get || request.Method == HttpMethod.Put || request.Method == HttpMethod.Delete)
-                                data = await ApiRequest(request);
+                                data = await ApiRequestAsync(request);
                             else
                                 data = HttpResource.Error405;
                         }
@@ -275,7 +281,7 @@ namespace EzoGateway.Server
             }
         }
 
-        private async Task<HttpResource> GetWebResource(StorageFile file)
+        private async Task<HttpResource> GetWebResourceAsync(StorageFile file)
         {
             try
             {
@@ -291,7 +297,7 @@ namespace EzoGateway.Server
             }
         }
 
-        private async Task<HttpResource> GetWebResource(Uri uri)
+        private async Task<HttpResource> GetWebResourceAsync(Uri uri)
         {
             try
             {
@@ -319,7 +325,7 @@ namespace EzoGateway.Server
         /// </summary>
         /// <param name="request">HTTP request</param>
         /// <returns>HTTP response</returns>
-        private async Task<HttpResource> ApiRequest(HttpServerRequest request)
+        private async Task<HttpResource> ApiRequestAsync(HttpServerRequest request)
         {
             try
             {
