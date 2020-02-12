@@ -82,7 +82,7 @@ namespace EzoGateway
         /// <param name="message">Exception</param>
         /// <param name="source">Source (subsystem)</param>
         /// <param name="level">Log-level</param>
-        public static async void Write(Exception ex, SubSystem source, LoggerLevel level = LoggerLevel.Error)
+        public static void Write(Exception ex, SubSystem source, LoggerLevel level = LoggerLevel.Error)
         {
             Write(ex.Message, source, level);
         }
@@ -93,7 +93,7 @@ namespace EzoGateway
         /// <param name="message">Message</param>
         /// <param name="source">Source (subsystem)</param>
         /// <param name="level">Log-level</param>
-        public static async void Write(string message, SubSystem source, LoggerLevel level = LoggerLevel.Info)
+        public static void Write(string message, SubSystem source, LoggerLevel level = LoggerLevel.Info)
         {
             Debug.WriteLine(level.ToString() + ": " + message);
 
@@ -244,7 +244,7 @@ namespace EzoGateway
         /// Deleting old log files
         /// </summary>
         /// <param name="timeLimit">Time until which log files should be deleted</param>
-        private static async void CleanUpLogFolder(DateTime timeLimit)
+        private static void CleanUpLogFolder(DateTime timeLimit)
         {
             throw new NotImplementedException(); //TODO:
         }

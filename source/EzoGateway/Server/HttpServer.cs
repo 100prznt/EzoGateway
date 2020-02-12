@@ -212,7 +212,7 @@ namespace EzoGateway.Server
                                     }
                                     else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("LOGS", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        data = await GetWebResourceAsync(await Logger.GetCurrentLogFile());
+                                        data = GetWebResourceAsync(await Logger.GetCurrentLogFile());
                                     }
                                     else
                                     {
@@ -281,7 +281,7 @@ namespace EzoGateway.Server
             }
         }
 
-        private async Task<HttpResource> GetWebResourceAsync(StorageFile file)
+        private HttpResource GetWebResourceAsync(StorageFile file)
         {
             try
             {

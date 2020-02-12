@@ -18,7 +18,7 @@ My use case for the EzoGateway is the monitoring of the water values of my own p
 The values can also be displayed directly via the web interface or transferred to a Siemens LOGO! PLC.
 
 ## How to install?
-1. Downlaod the latest release from the [release feed](https://github.com/100prznt/EzoGateway/releases/latest) (You need the \*.appx file)
+1. Downlaod the latest release from the [release feed](https://github.com/100prznt/EzoGateway/releases/latest) (You need the \*.appx file, find unter __Assets__)
 2. Open the __Windows Device Portal__, by default you found it under port 8080 (e.g. `http://<IP of your RaspberryPi>:8080`)
 3. Navigate to __Apps__ -> __Apps Manager__
 4. Select the downloaded application package (from step 1) and click __Install__ Before doing so, make sure that no old version of EzoGateway is running or installed!
