@@ -110,19 +110,5 @@ namespace EzoGateway
                 }
             }
         }
-
-        private async void Button_Click(object sender, RoutedEventArgs e)
-        {
-            Logger.Write("Request server restart from build-in GUI", SubSystem.App, LoggerLevel.Warning);
-            if (m_Server != null)
-                Logger.Write("Server instance is still available.", SubSystem.HttpServer, LoggerLevel.Warning);
-            Logger.Write("HTTP request conter at: " + m_Server.RequestCounter, SubSystem.HttpServer);
-            Logger.Write($"HTTP host: {m_Server.Ip}:{m_Server.Port}", SubSystem.HttpServer);
-
-            await m_Server.DisposeAsync();
-
-            m_Server = new HttpServer(ref m_Controller, 591); //default port (80)
-            m_Server.ServerInitialize();
-        }
     }
 }
