@@ -32,6 +32,17 @@ The values can also be displayed directly via the web interface or transferred t
 ### API Reference
 * Wiki: [API Reference](https://github.com/100prznt/EzoGateway/wiki/API-Reference)
 
+### Build-In GUI
+The application itself has a grafic user interface that displays the current measurement data.
+
+![EzoGateway - live data](docu/img/built-in-gui.jpg "EzoGateway build-in GUI.")
+
+### Web interface
+You found the web interface under: `http://<EzoGateway IP>:591/web/live.html`
+This interface allow you to show live measdata, configure the EzoGateway and perform calibrations.
+
+![EzoGateway - live data](docu/img/web-interface-live-data-1024x720.png "EzoGateway web interface shows live measurement data.")
+
 ### Siemens LOGO! interface
 The Siemens LOGO! interface can be activated and configured in the settings. The IP address of the LOGO! and the VM addresses of the corresponding blocks in the LOGO! program must be specified.
 
@@ -42,15 +53,6 @@ Example program on the Siemens LOGO! PLC which shows the measured data on the di
 
 ![Display meas data on Siemens LOGO! PLC](docu/img/logo-screen.png "Display meas data on Siemens LOGO! PLC")
 
-### Web interface
-You found the web interface under: `http://<EzoGateway IP>:591/web/live.html`
-
-![EzoGateway - live data](docu/img/web-interface-live-data-1024x720.png "EzoGateway web interface shows live measurement data.")
-
-### Build-In GUI
-The application itself also has a grafic user interface that displays the current measurement data.
-
-![EzoGateway - live data](docu/img/built-in-gui.jpg "EzoGateway build-in GUI.")
 
 ## Hardware
 For fast hardware integration there is a cool project from [Whitebox](https://github.com/whitebox-labs). The [Tentacle T3 HAT](https://github.com/whitebox-labs/tentacle-raspi-oshw) accepts three Atlas Scientific EZO™ devices, two of them are electrically isolated.
