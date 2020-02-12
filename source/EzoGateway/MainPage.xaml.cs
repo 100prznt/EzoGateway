@@ -53,6 +53,16 @@ namespace EzoGateway
             tbl_Value3.Text = "Water temperature";
 
             tbl_Version.Text = typeof(App).GetTypeInfo().Assembly.GetName().Version.ToString();
+
+            //Init up for layout-test
+            if (true)
+            {
+                tbx_Value1.Text = "7,03";
+                tbx_Value2.Text = "647 mV";
+                tbx_Value3.Text = "21,8 °C";
+                tbl_Version.Text = "0.4.9-dev";
+            }
+
         }
 
         private void Controller_ConfigIsLoadedEvent()
