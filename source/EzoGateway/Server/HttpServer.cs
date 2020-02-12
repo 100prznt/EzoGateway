@@ -120,7 +120,6 @@ namespace EzoGateway.Server
         /// <param name="args"></param>
 
         private async void HandleRequestAsync(StreamSocket socket)
-        //private async void HandleRequest(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
         {
             try
             {
@@ -355,6 +354,7 @@ namespace EzoGateway.Server
                 else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("CONFIG", StringComparison.OrdinalIgnoreCase))
                 {
                     if (request.Uri.Segments.Length == 3)
+                    {
                         if (request.Method == HttpMethod.Get)
                         {
                             Logger.Write("Request configuration", SubSystem.RestApi);
@@ -367,14 +367,26 @@ namespace EzoGateway.Server
                             var settings = JsonConvert.DeserializeObject<GeneralSettings>(request.Content);
                             m_Controller.UpdateConfig(settings);
                         }
-                    //else if (request.Uri.Segments.Length == 4 && request.Uri.Segments[3].Trim('/').Equals("TIME", StringComparison.OrdinalIgnoreCase))
-                    //{
-                    //    var dt = new DateTime(2015, 05, 25, 16, 45, 05);
-                    //    var o = new TimeSpan(-2, 0, 0);
-                    //    var dto = new DateTimeOffset(dt, o);
+                    }
+                    else if (request.Uri.Segments.Length == 4 && request.Uri.Segments[3].Trim('/').Equals("TIME", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (request.Method == HttpMethod.Get) //Request time
+                        {
+                            Logger.Write("Request time", SubSystem.RestApi);
+                            return HttpResource.CreateJsonResource(DateTime.Now);
+                        }
+                        else if (request.Method == HttpMethod.Put) // Set time
+                        {
+                            Logger.Write("Set time", SubSystem.RestApi);
 
-                    //    Windows.System.DateTimeSettings.SetSystemDateTime(dto);
-                    //}
+                            //TODO: noch zu implementieren!
+                            var time = request.Content;
+
+                            m_Controller.SetSystemTime(new DateTime(2020, 01, 01, 12, 0, 0));
+
+                            return HttpResource.Error400;
+                        }
+                    }
                 }
                 else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("ACQ", StringComparison.OrdinalIgnoreCase))
                 {

@@ -2,6 +2,7 @@ version: 0.4.{build}-beta
 branches:
   only:
   - master
+skip_tags: true
 image: Visual Studio 2019
 configuration: Release
 platform: ARM
