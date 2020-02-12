@@ -25,7 +25,6 @@ namespace EzoGateway
         #region Members
         static BackgroundWorker m_Worker;
         static DateTime m_LogFileCreationTime;
-        static bool m_DequeuerIsActive = false;
         static ConcurrentQueue<LogMessage> m_MessageQueue;
 
         /// <summary>
@@ -199,8 +198,6 @@ namespace EzoGateway
 
         private static async void DequeueMessages()
         {
-            m_DequeuerIsActive = true;
-
             var logMessages = new List<LogMessage>();
 
             while (!m_MessageQueue.IsEmpty)
@@ -213,8 +210,6 @@ namespace EzoGateway
 
             if (!m_MessageQueue.IsEmpty)
                 DequeueMessages();
-
-            m_DequeuerIsActive = false;
         }
 
         private static string GetCurrentLogFileName()
