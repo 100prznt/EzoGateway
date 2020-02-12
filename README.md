@@ -1,4 +1,4 @@
-## Project in ALPHA state :construction:
+## Project in BETA state :construction:
 ```diff
 ! Productive use is not recommended!
 ```
@@ -18,7 +18,14 @@ My use case for the EzoGateway is the monitoring of the water values of my own p
 The values can also be displayed directly via the web interface or transferred to a Siemens LOGO! PLC.
 
 ## How to install?
-TODO!
+1. Downlaod the latest release from the [release feed](https://github.com/100prznt/EzoGateway/releases/latest) (You need the \*.appx file)
+2. Open the __Windows Device Portal__, by default you found it under port 8080 (e.g. `http://<IP of your RaspberryPi>:8080`)
+3. Navigate to __Apps__ -> __Apps Manager__
+4. Select the downloaded application package (from step 1) and click __Install__ Before doing so, make sure that no old version of EzoGateway is running or installed!
+5. Mark the EzoGateway App to default Startup app (maybe you must reload the Apps manager page, to see the EzoGateway in the list)
+6. If the EzoGateway App not starts automaticaly click __Action__ -> __Start__
+7. Wait a few seconds and go to the __EzoGateway - Settings__ page, located under `http://<IP of your RaspberryPi>:591/web/sys/config.html`
+8. Apply your preferred settings and enjoy... :rocket:
 
 ## How to use?
 
@@ -36,7 +43,7 @@ Example program on the Siemens LOGO! PLC which shows the measured data on the di
 ![Display meas data on Siemens LOGO! PLC](docu/img/logo-screen.png "Display meas data on Siemens LOGO! PLC")
 
 ### Web interface
-You found the web interface under: `http://<EzoGateway IP>/web/index.html`
+You found the web interface under: `http://<EzoGateway IP>:591/web/live.html`
 
 ![EzoGateway - live data](docu/img/web-interface-live-data-1024x720.png "EzoGateway web interface shows live measurement data.")
 
