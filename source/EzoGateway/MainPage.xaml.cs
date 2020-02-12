@@ -60,7 +60,8 @@ namespace EzoGateway
                 tbx_Value1.Text = "7,03";
                 tbx_Value2.Text = "647 mV";
                 tbx_Value3.Text = "21,8 °C";
-                tbl_Version.Text = "0.4.9-dev";
+                if (tbl_Version.Text == "0.0.0.0")
+                    tbl_Version.Text = "0.4.9-dev";
             }
 
         }
