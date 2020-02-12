@@ -36,12 +36,12 @@ namespace EzoGateway
         /// <summary>
         /// Subsystems which are excluded from logging
         /// </summary>
-        static SubSystem m_ExcludedSubSystems;
+        static SubSystem m_ExcludedSubSystems = SubSystem.None;
 
         /// <summary>
         /// Log depth from which log messages are saved 
         /// </summary>
-        static LoggerLevel m_MinimumLogLevel;
+        static LoggerLevel m_MinimumLogLevel = LoggerLevel.Info;
 
         #endregion Members
 

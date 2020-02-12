@@ -175,14 +175,28 @@ namespace EzoGateway.Server
             return CreateHtmlResource(title, body.ToString(), style.ToString());
         }
 
-        public static HttpResource CreateJsonResource(object data) =>
-            new HttpResource()
+        public static HttpResource CreateJsonResource(object data)
+        {
+            try
             {
-                StatusCode = "200 OK",
-                Mime = InternetMediaType.ApplicationJson,
-                BodyTextContent = JsonConvert.SerializeObject(data ,Formatting.Indented, new JsonSerializerSettings() { StringEscapeHandling = StringEscapeHandling.EscapeNonAscii })
-            };
-
+                return new HttpResource()
+                {
+                    StatusCode = "200 OK",
+                    Mime = InternetMediaType.ApplicationJson,
+                    BodyTextContent = JsonConvert.SerializeObject(data, Formatting.Indented, new JsonSerializerSettings() { StringEscapeHandling = StringEscapeHandling.EscapeNonAscii })
+                };
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(ex, SubSystem.App, LoggerLevel.Error);
+                return new HttpResource()
+                {
+                    StatusCode = "500 Internal Server Error",
+                    Mime = InternetMediaType.TextPlain,
+                    BodyTextContent = ex.Message + "\n" + ex.StackTrace + "\n" + ex.InnerException.Message
+                };
+            }
+        }
         public static HttpResource JsonAccepted202(string jobName) =>
             new HttpResource()
             {
