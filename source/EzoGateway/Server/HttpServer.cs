@@ -393,7 +393,7 @@ namespace EzoGateway.Server
                 else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("INIT", StringComparison.OrdinalIgnoreCase))
                 {
                     Logger.Write("Request a hardware init", SubSystem.RestApi);
-                    m_Controller.InitHardware();
+                    await m_Controller.InitHardware();
                     return HttpResource.JsonAccepted202("InitHardware");
                 }
                 else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("FETCH", StringComparison.OrdinalIgnoreCase))
