@@ -1,0 +1,37 @@
+version: 0.4.{build}-beta
+branches:
+  only:
+  - master
+image: Visual Studio 2019
+configuration: Release
+platform: ARM
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+only_commits:
+  message: /\[ci\]/
+skip_commits:
+  files:
+    - docu/
+    - '**/*.md'
+    - '*.txt'
+    - appveyor.yml
+    - '.gitignor'
+before_build:
+- cmd: nuget restore source
+build:
+  verbosity: minimal
+after_build:
+- cmd: rename C:\projects\ezogateway\source\EzoGateway\bin\ARM\Release\EzoGateway_0.0.0.0_ARM.appx EzoGateway_%APPVEYOR_BUILD_VERSION%_ARM.appx
+artifacts:
+- path: source\EzoGateway\bin\ARM\Release\EzoGateway_$(APPVEYOR_BUILD_VERSION)_ARM.appx
+  name: EzoGateway_ARM.appx
+deploy:
+- provider: GitHub
+  description: The application included in the release (EzoGateway_%APPVEYOR_BUILD_VERSION%_ARM.appx) can be installed in the Windows Device Portal via the App Manager. Before doing so, make sure that no old version of EzoGateway is running or installed.
+  auth_token:
+    secure: gmAjx1bn6j1O5AdQgLhZUoORFevYT/raUu8c+6NMalg2qNQXEZgGV2iQbs45Q0jC
+  prerelease: true
