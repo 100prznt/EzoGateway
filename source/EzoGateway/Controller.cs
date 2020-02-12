@@ -395,6 +395,8 @@ namespace EzoGateway
             if (!IsInitialized)
                 Logger.Write("Hardware is not ininitialized.", SubSystem.LowLevel, LoggerLevel.Error);
 
+            //TODO: Check for valide values and wire cuts
+
             try
             {
                 double? ph = null;
