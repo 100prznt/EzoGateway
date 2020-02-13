@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>EzoGateway - Live</title>
+    <title>EzoGateway - Measurement Data</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="css/uikit.min.css" />
@@ -11,11 +11,17 @@
     <script>
         $(document).ready(function () {
             $("#footer").load("template.html #footer");
+
+            $.getJSON('../api/config', function (conf) {
+                document.title = conf["Appearance"].DeviceName + " - Measurement Data";
+                $('#device-name').text(conf["Appearance"].DeviceName);
+            });
+
             console.log("ready");
             $.ajaxSetup({ cache: false });
             setInterval(function () {
                 $.getJSON('../api/fetch', function (data) {
-                    console.log(data);
+                    //console.log(data);
                     $('#temp').text(data[1].Value.toFixed(1));
                     $('#ph').text(data[2].Value.toFixed(2));
                     $('#redox').text(data[3].Value.toFixed(0));
@@ -35,7 +41,7 @@
     <div class="uk-section uk-section-xsmall uk-background-primary" id="nav">
         <nav class="uk-navbar-container uk-width-1-1 uk-navbar-transparent" uk-navbar>
             <div class="uk-navbar-left uk-light">
-                <a class="uk-navbar-item uk-logo">EzoGateway</a>
+                <a class="uk-navbar-item uk-logo" id="device-name">EzoGateway</a>
             </div>
             <div class="uk-navbar-right uk-light">
                 <ul class="uk-navbar-nav">

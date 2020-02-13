@@ -19,34 +19,50 @@
                 var orp = data[2];
                 var rtd = data[3];
 
-                console.log(ph);
+                if (typeof ph === 'undefined') {
+                    $("#ph-version").text("inactive");
+                    $("#ezo-ph").attr("style", "filter:grayscale(100%)");
+                } else {
+                    $("#ph-version").text("Firmware version: " + ph.FirmwareVersion);
+                    $("#ph-name").text(ph.Name);
+                    $("#ph-desc").text(ph.Description);
+                    $("#ph-interface").text(ph.Interface);
+                    $("#ph-address").text(ph.Address);
+                    $("#ph-serial").text(ph.Serial);
+                    $("#ph-voltage").text(ph.SupplyVoltage + " V");
 
-                $("#ph-version").text("Firmware version: " + ph.FirmwareVersion);
-                $("#ph-name").text(ph.Name);
-                $("#ph-desc").text(ph.Description);
-                $("#ph-interface").text(ph.Interface);
-                $("#ph-address").text(ph.Address);
-                $("#ph-serial").text(ph.Serial);
-                $("#ph-voltage").text(ph.SupplyVoltage + " V");
+                    $("#package").text(rtd.Package);
+                }
 
-                $("#orp-version").text("Firmware version: " + orp.FirmwareVersion);
-                $("#orp-name").text(orp.Name);
-                $("#orp-desc").text(orp.Description);
-                $("#orp-interface").text(orp.Interface);
-                $("#orp-address").text(orp.Address);
-                $("#orp-serial").text(orp.Serial);
-                $("#orp-voltage").text(orp.SupplyVoltage + " V");
+                if (typeof orp === 'undefined') {
+                    $("#orp-version").text("inactive");
+                    $("#ezo-orp").attr("style", "filter:grayscale(100%)");
+                } else {
+                    $("#orp-version").text("Firmware version: " + orp.FirmwareVersion);
+                    $("#orp-name").text(orp.Name);
+                    $("#orp-desc").text(orp.Description);
+                    $("#orp-interface").text(orp.Interface);
+                    $("#orp-address").text(orp.Address);
+                    $("#orp-serial").text(orp.Serial);
+                    $("#orp-voltage").text(orp.SupplyVoltage + " V");
 
-                $("#rtd-version").text("Firmware version: " + rtd.FirmwareVersion);
-                $("#rtd-name").text(rtd.Name);
-                $("#rtd-desc").text(rtd.Description);
-                $("#rtd-interface").text(rtd.Interface);
-                $("#rtd-address").text(rtd.Address);
-                $("#rtd-serial").text(rtd.Serial);
-                $("#rtd-voltage").text(rtd.SupplyVoltage + " V");
+                    $("#package").text(rtd.Package);
+                }
 
-                $("#package").text(rtd.Package);
-                
+                if (typeof rtd === 'undefined') {
+                    $("#rtd-version").text("inactive");
+                    $("#ezo-rtd").attr("style", "filter:grayscale(100%)");
+                } else {
+                    $("#rtd-version").text("Firmware version: " + rtd.FirmwareVersion);
+                    $("#rtd-name").text(rtd.Name);
+                    $("#rtd-desc").text(rtd.Description);
+                    $("#rtd-interface").text(rtd.Interface);
+                    $("#rtd-address").text(rtd.Address);
+                    $("#rtd-serial").text(rtd.Serial);
+                    $("#rtd-voltage").text(rtd.SupplyVoltage + " V");
+
+                    $("#package").text(rtd.Package);
+                }
             });
         });
     </script>
@@ -101,7 +117,7 @@
                         <div class="uk-card-header">
                             <div class="uk-grid-small uk-flex-middle" uk-grid>
                                 <div class="uk-width-auto">
-                                    <img class="uk-border-rounded" width="50" height="50" src="../media/ezo-ph.jpg">
+                                    <img class="uk-border-rounded" width="50" height="50" id="ezo-ph" src="../media/ezo-ph.jpg">
                                 </div>
                                 <div class="uk-width-expand">
                                     <h3 class="uk-card-title uk-margin-remove-bottom">EZO™ pH Circuit</h3>
@@ -111,36 +127,30 @@
                         </div>
                         <div class="uk-card-body">
                             <table class="uk-table uk-table-hover uk-table-small">
-                                <thead>
-                                    <tr>
-                                        <th>Parameter</th>
-                                        <th>Value</th>
-                                    </tr>
-                                </thead>
                                 <tbody>
                                     <tr>
-                                        <td>Name</td>
-                                        <td id="ph-name">value</td>
+                                        <td class="uk-text-muted">Name</td>
+                                        <td id="ph-name"></td>
                                     </tr>
                                     <tr>
-                                        <td>Description</td>
-                                        <td id="ph-desc">value</td>
+                                        <td class="uk-text-muted">Description</td>
+                                        <td id="ph-desc"></td>
                                     </tr>
                                     <tr>
-                                        <td>Interface</td>
-                                        <td id="ph-interface">value</td>
+                                        <td class="uk-text-muted">Interface</td>
+                                        <td id="ph-interface"></td>
                                     </tr>
                                     <tr>
-                                        <td>Address</td>
-                                        <td id="ph-address">value</td>
+                                        <td class="uk-text-muted">Address</td>
+                                        <td id="ph-address"></td>
                                     </tr>
                                     <tr>
-                                        <td>Serial</td>
-                                        <td id="ph-serial">value</td>
+                                        <td class="uk-text-muted">Serial</td>
+                                        <td id="ph-serial"></td>
                                     </tr>
                                     <tr>
-                                        <td>Supply voltage</td>
-                                        <td id="ph-voltage">value</td>
+                                        <td class="uk-text-muted">Supply voltage</td>
+                                        <td id="ph-voltage"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -155,7 +165,7 @@
                         <div class="uk-card-header">
                             <div class="uk-grid-small uk-flex-middle" uk-grid>
                                 <div class="uk-width-auto">
-                                    <img class="uk-border-rounded" width="50" height="50" src="../media/ezo-orp.png">
+                                    <img class="uk-border-rounded" width="50" height="50" id="ezo-orp" src="../media/ezo-orp.png">
                                 </div>
                                 <div class="uk-width-expand">
                                     <h3 class="uk-card-title uk-margin-remove-bottom">EZO™ O.R.P. Circuit</h3>
@@ -165,36 +175,30 @@
                         </div>
                         <div class="uk-card-body">
                             <table class="uk-table uk-table-hover uk-table-small">
-                                <thead>
-                                    <tr>
-                                        <th>Parameter</th>
-                                        <th>Value</th>
-                                    </tr>
-                                </thead>
                                 <tbody>
                                     <tr>
-                                        <td>Name</td>
-                                        <td id="orp-name">value</td>
+                                        <td class="uk-text-muted">Name</td>
+                                        <td id="orp-name"></td>
                                     </tr>
                                     <tr>
-                                        <td>Description</td>
-                                        <td id="orp-desc">value</td>
+                                        <td class="uk-text-muted">Description</td>
+                                        <td id="orp-desc"></td>
                                     </tr>
                                     <tr>
-                                        <td>Interface</td>
-                                        <td id="orp-interface">value</td>
+                                        <td class="uk-text-muted">Interface</td>
+                                        <td id="orp-interface"></td>
                                     </tr>
                                     <tr>
-                                        <td>Address</td>
-                                        <td id="orp-address">value</td>
+                                        <td class="uk-text-muted">Address</td>
+                                        <td id="orp-address"></td>
                                     </tr>
                                     <tr>
-                                        <td>Serial</td>
-                                        <td id="orp-serial">value</td>
+                                        <td class="uk-text-muted">Serial</td>
+                                        <td id="orp-serial"></td>
                                     </tr>
                                     <tr>
-                                        <td>Supply voltage</td>
-                                        <td id="orp-voltage">value</td>
+                                        <td class="uk-text-muted">Supply voltage</td>
+                                        <td id="orp-voltage"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -209,7 +213,7 @@
                         <div class="uk-card-header">
                             <div class="uk-grid-small uk-flex-middle" uk-grid>
                                 <div class="uk-width-auto">
-                                    <img class="uk-border-rounded" width="50" height="50" src="../media/ezo-rtd.png">
+                                    <img class="uk-border-rounded" width="50" height="50" id="ezo-rtd" src="../media/ezo-rtd.png">
                                 </div>
                                 <div class="uk-width-expand">
                                     <h3 class="uk-card-title uk-margin-remove-bottom">EZO™ RTD Circuit</h3>
@@ -219,36 +223,30 @@
                         </div>
                         <div class="uk-card-body">
                             <table class="uk-table uk-table-hover uk-table-small">
-                                <thead>
-                                    <tr>
-                                        <th>Parameter</th>
-                                        <th>Value</th>
-                                    </tr>
-                                </thead>
                                 <tbody>
                                     <tr>
-                                        <td>Name</td>
-                                        <td id="rtd-name">value</td>
+                                        <td class="uk-text-muted">Name</td>
+                                        <td id="rtd-name"></td>
                                     </tr>
                                     <tr>
-                                        <td>Description</td>
-                                        <td id="rtd-desc">value</td>
+                                        <td class="uk-text-muted">Description</td>
+                                        <td id="rtd-desc"></td>
                                     </tr>
                                     <tr>
-                                        <td>Interface</td>
-                                        <td id="rtd-interface">value</td>
+                                        <td class="uk-text-muted">Interface</td>
+                                        <td id="rtd-interface"></td>
                                     </tr>
                                     <tr>
-                                        <td>Address</td>
-                                        <td id="rtd-address">value</td>
+                                        <td class="uk-text-muted">Address</td>
+                                        <td id="rtd-address"></td>
                                     </tr>
                                     <tr>
-                                        <td>Serial</td>
-                                        <td id="rtd-serial">value</td>
+                                        <td class="uk-text-muted">Serial</td>
+                                        <td id="rtd-serial"></td>
                                     </tr>
                                     <tr>
-                                        <td>Supply voltage</td>
-                                        <td id="rtd-voltage">value</td>
+                                        <td class="uk-text-muted">Supply voltage</td>
+                                        <td id="rtd-voltage"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -262,7 +260,7 @@
             <div uk-grid>
                 <div class="uk-width-expand">
                     <div  class="uk-card uk-card-body uk-text-center">
-                        Low level driver: <span class="uk-text-bold" id="package"></span>
+                        <span class="uk-text-muted">Low level driver: </span><a href="https://www.nuget.org/packages/Rca.EzoDeviceLib/" target="_blank" id="package"></a>
                     </div>
                 </div>
             </div>
