@@ -71,8 +71,8 @@ This app is made possible by contributions from:
 * [Elias Rümmler](http://www.100prznt.de) ([@rmmlr](https://github.com/rmmlr)) - core contributor
 
 ## Community
-Found this project on the german [https://www.poolpowershop-forum.de/](Poolpowershop-Forum).
-* [https://www.poolpowershop-forum.de/wasserpflege-poolpflege-hilfe-bei-wasserproblemen-im-pool/48401-wasserwerte-mit-raspberry-pi-messsen-rest-api-siemens-logo.html](Wasserwerte mit Raspberry Pi messsen (REST API, Siemens LOGO!))
+Found this project on the german [Poolpowershop-Forum](https://www.poolpowershop-forum.de/).
+* [Wasserwerte mit Raspberry Pi messsen (REST API, Siemens LOGO!)](https://www.poolpowershop-forum.de/wasserpflege-poolpflege-hilfe-bei-wasserproblemen-im-pool/48401-wasserwerte-mit-raspberry-pi-messsen-rest-api-siemens-logo.html)
 
 ### Open Source Project Credits
 
