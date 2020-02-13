@@ -69,7 +69,13 @@ namespace EzoGateway
         private void Controller_ConfigIsLoadedEvent()
         {
             if (m_Controller.Configuration != null && m_Controller.Configuration.Appearance != null)
-                tbl_Headline.Text = m_Controller.Configuration.Appearance.DeviceName;
+            {
+                tbl_Headline.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    tbl_Headline.Text = m_Controller.Configuration.Appearance.DeviceName;
+                }
+                );
+            }
         }
 
         private void Controller_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
