@@ -66,6 +66,10 @@ This project build on the continuous integration (CI) platform [AppVeyor](https:
 [![GitHub Release](https://img.shields.io/github/release/100prznt/EzoGateway.svg?logo=github&style=popout-square)](https://github.com/100prznt/EzoGateway/releases/latest)  
 [![GitHub (Pre-)Release](https://img.shields.io/github/release/100prznt/EzoGateway/all.svg?logo=github&style=popout-square)](https://github.com/100prznt/EzoGateway/releases) (Pre-)Release
 
+## Community
+Found this project on the german [Poolpowershop-Forum](https://www.poolpowershop-forum.de/).
+* [Wasserwerte mit Raspberry Pi messsen (REST API, Siemens LOGO!)](https://www.poolpowershop-forum.de/wasserpflege-poolpflege-hilfe-bei-wasserproblemen-im-pool/48401-wasserwerte-mit-raspberry-pi-messsen-rest-api-siemens-logo.html)
+
 ## Credits
 This app is made possible by contributions from:
 * [Elias Rümmler](http://www.100prznt.de) ([@rmmlr](https://github.com/rmmlr)) - core contributor
