@@ -6,11 +6,11 @@ For a better usability of the EzoGateway a custom PCB was designed, which replac
 ## Features
 
 | Count | Feature                   | Connector                           | Description                 |
-|-------|---------------------------|-------------------------------------|-----------------------------|
+|:-----:|---------------------------|-------------------------------------|-----------------------------|
 |       | wide range power supply   | Wago MCS or coaxial power connector | 9 - 36 VDC (min. 5 W)       |
 | 2     | isolated EZO sockets      | BNC                                 | for pH and O.R.P. circuit   |
 | 1     | non-isolated EZO sockets  | BNC                                 | for RTD circuit             |
-| 2/3   | external 1-wire channels  | Wago MCS                            | for digital temp. sensors   |
+| 2/4   | external 1-wire channels  | Wago MCS                            | for digital temp. sensors   |
 | 1     | on-board temp. sensor     |                                     | on seperate int. 1-wire ch. |
 |       | expansion port (I2C, SPI) | .10" pin header                     |                             |
 | 4     | status LEDs               |                                     |                             |
@@ -27,4 +27,3 @@ Top and bottom view of the first PCB manufactured. In production since 20.02.202
 [![Creative Commons License](https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png "Creative Commons License")](http://creativecommons.org/licenses/by-nc-nd/4.0/)
 
 The EzoGateway PCB is licensed under a [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License](http://creativecommons.org/licenses/by-nc-nd/4.0/).
-
