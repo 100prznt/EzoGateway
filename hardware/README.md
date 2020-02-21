@@ -12,7 +12,7 @@ For a better usability of the EzoGateway a custom PCB was designed, which replac
 | 1     | non-isolated EZO sockets  | BNC                                 | for RTD circuit             |
 | 2/3   | external 1-wire channels  | Wago MCS                            | for digital temp. sensors   |
 | 1     | on-board temp. sensor     |                                     | on seperate int. 1-wire ch. |
-|       | expansion port (I2C, SPI) | .10" header                         |                             |
+|       | expansion port (I2C, SPI) | .10" pin header                     |                             |
 |       | fits for ALUBOS 1000      |                                     |                             |
 
 ## PCB design
@@ -23,7 +23,6 @@ Top and bottom view of the first PCB manufactured. In production since 20.02.202
 ![PCB of EzoGateway with 1-wire bridge (v01.1)](img/rpi_opc_v01.1_bot_pink.png "PCB of EzoGateway with 1-wire bridge (v01.1)")
   
 ## License
-The EzoGateway App is licensed under [MIT](http://www.opensource.org/licenses/mit-license.php "Read more about the MIT license form"). Refer to [LICENSE.txt](https://github.com/100prznt/EzoGateway/blob/master/LICENSE.txt) for more information.
+[![Creative Commons License](https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png "Creative Commons License")](http://creativecommons.org/licenses/by-nc-nd/4.0/)
 
-## Contributions
-Contributions are welcome. Fork this repository and send a pull request if you have something useful to add.
+The EzoGateway PCB is licensed under a [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License](http://creativecommons.org/licenses/by-nc-nd/4.0/).
