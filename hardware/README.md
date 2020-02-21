@@ -23,6 +23,7 @@ Top and bottom view of the first PCB manufactured. In production since 20.02.202
 ![PCB of EzoGateway with 1-wire bridge (v01.1)](img/rpi_opc_v01.1_bot_pink.png "PCB of EzoGateway with 1-wire bridge (v01.1)")
   
 ## License
-[![Creative Commons License](https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png "Creative Commons License")](http://creativecommons.org/licenses/by-nc-nd/4.0/)
+[![Creative Commons License](https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png "Creative Commons License")](http://creativecommons.org/licenses/by-nc-nd/4.0/)
 
 The EzoGateway PCB is licensed under a [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License](http://creativecommons.org/licenses/by-nc-nd/4.0/).
+
