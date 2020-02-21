@@ -13,6 +13,7 @@ For a better usability of the EzoGateway a custom PCB was designed, which replac
 | 2/3   | external 1-wire channels  | Wago MCS                            | for digital temp. sensors   |
 | 1     | on-board temp. sensor     |                                     | on seperate int. 1-wire ch. |
 |       | expansion port (I2C, SPI) | .10" pin header                     |                             |
+| 4     | status LEDs               |                                     |                             |
 |       | fits for ALUBOS 1000      |                                     |                             |
 
 ## PCB design
