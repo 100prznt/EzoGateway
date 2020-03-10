@@ -1,4 +1,4 @@
-"Part";"Value";"Device";"Package";"Description";"MF";"MPN";"OC_FARNELL";"OC_NEWARK";"POPULARITY";"SPICEPREFIX";"VALUE";
+Part;Value;Device;Package;Description;MF;MPN;OC_FARNELL;OC_NEWARK;POPULARITY;SPICEPREFIX;VALUE;
 "C1";"1u/50V";"C-EUC1210K";"C1210K";"CAPACITOR, European symbol";"";"";"";"";"0";"C";"";
 "C2";"1000p/2KV";"C-EUC1206K";"C1206K";"CAPACITOR, European symbol";"";"";"";"";"13";"C";"";
 "C3";"1000p/2KV";"C-EUC1206K";"C1206K";"CAPACITOR, European symbol";"";"";"";"";"13";"C";"";
