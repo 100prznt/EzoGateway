@@ -5,7 +5,7 @@
 
 ---
 
-![EZO Devices on the Whitebox carrier](docu/img/wb-ezo-hat.jpg "Atlas Scientific EZO™ devices (pH, ORP and RTD) on the Whitebox carrier.")
+![EzoGateway PCB equipped with RaspberryPi and EZO™ devices (pH, ORP and RTD)](hardware/img/assembly_sn001_side_ws.jpg "EzoGateway PCB equipped with RaspberryPi and EZO™ devices (pH, ORP and RTD)")
 # EzoGateway
 Open source UWP App, to brings the Atlas Scientific EZO™ devices in the __Internet of Things__. Per __REST API__ you can fetch live measdata and calibrate connected sensors.
 Ideal for monitoring water quality in your pool.
