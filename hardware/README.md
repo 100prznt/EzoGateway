@@ -34,7 +34,7 @@ First built up "EzoGateway" from 12.03.2020. Equipped with RaspberryPi and EZOâ„
 ### Front LED
 
 | LED          | Description    | Behavior                                               |
-|:------------:|----------------|--------------------------------------------------------|
+|:------------:|:---------------|:-------------------------------------------------------|
 | :red_circle: | Power/Alive    | Blinks when the EzoGateway app is running              |
 | :red_circle: | Cyclic updater | Blinks when the cyclic updater is running              |
 | :red_circle: | HTTP request   | Flashing on each HTTP request                          |
