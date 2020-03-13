@@ -1,0 +1,286 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>EzoGateway - 1-Wire Configuration</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/uikit.min.css" />
+    <script src="../js/uikit.min.js"></script>
+    <script src="../js/uikit-icons.min.js"></script>
+    <script src="../js/jquery-3.4.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#footer").load("../template.html #footer");
+            $.ajaxSetup({ cache: false });
+
+            $.getJSON('../../api/config', function (data) {
+                console.log(data);
+                $('#ph-active').prop("checked", data["PhSensor"].Enabled);
+                $('#ph-address').val(data["PhSensor"].I2CAddress);
+                $('#orp-active').prop("checked", data["RedoxSensor"].Enabled);
+                $('#orp-address').val(data["RedoxSensor"].I2CAddress);
+                $('#rtd-active').prop("checked", data["TemperatureSensor"].Enabled);
+                $('#rtd-address').val(data["TemperatureSensor"].I2CAddress);
+                $('#ph-tempcompensation').prop("checked", data.EnablePhTemperatureCompensation);
+                $('#temp-unit').val(data.TemperatureUnit);
+                $('#cyclic-updater').prop("checked", data.EnableCyclicUpdater);
+                $('#update-interval').val(data.UpdateInterval);
+
+                $('#plc-active').prop("checked", data["LogoConnection"].Enabled);
+                $('#plc-ip').val(data["LogoConnection"].IpAddress);
+                $('#vm-ph').val(data["LogoConnection"].PhVmAddress);
+                $('#vm-orp').val(data["LogoConnection"].RedoxVmAddress);
+                $('#vm-rtd').val(data["LogoConnection"].TemperatureVmAddress);
+                $('#vm-trigger').val(data["LogoConnection"].TriggerVmAddress);
+                $('#vm-trigger-bit').val(data["LogoConnection"].TriggerVmAddressBit);
+                $('#vm-counter').val(data["LogoConnection"].SecureCounterVmAddress);
+
+                $('#ui-device-name').val(data["Appearance"].DeviceName);
+
+                $('#logger-active').prop("checked", data["Logger"].Enabled);
+                $('#logger-minimum-log-level').val(data["Logger"].MinimumLogLevel);
+                $('#logger-lifetime').val(data["Logger"].Lifetime);
+
+                var exclsyss = data["Logger"].ExcludedSubSystems;
+                if (exclsyss - 0x40 >= 0) {
+                    exclsyss -= 0x40;
+                } else {
+                    $('#logger-subsystem-logger').prop("checked", true);
+                }
+                if (exclsyss - 0x20 >= 0) {
+                    exclsyss -= 0x20;
+                } else {
+                    $('#logger-subsystem-lowlevel').prop("checked", true);
+                }
+                if (exclsyss - 0x10 >= 0) {
+                    exclsyss -= 0x10;
+                } else {
+                    $('#logger-subsystem-plc').prop("checked", true);
+                }
+                if (exclsyss - 0x8 >= 0) {
+                    exclsyss -= 0x8;
+                } else {
+                    $('#logger-subsystem-restapi').prop("checked", true);
+                }
+                if (exclsyss - 0x4 >= 0) {
+                    exclsyss -= 0x4;
+                } else {
+                    $('#logger-subsystem-configuration').prop("checked", true);
+                }
+                if (exclsyss - 0x2 >= 0) {
+                    exclsyss -= 0x2;
+                } else {
+                    $('#logger-subsystem-httpserver').prop("checked", true);
+                }
+                if (exclsyss - 0x1 >= 0) {
+                    exclsyss -= 0x1;
+                } else {
+                    $('#logger-subsystem-app').prop("checked", true);
+                }
+                if (exclsyss != 0)
+                    console.log("Invalid ExcludedSubSystems parameter: " + data["Logger"].ExcludedSubSystems);
+            });
+
+            jQuery('form#config').bind('submit', function (event) {
+                console.log("submit");
+                event.preventDefault();
+
+                var form = this;
+                var json = ConvertFormToGeneralSettings(form);
+                $.ajax({
+                    type: "PUT",
+                    contentType: "application/json; charset=utf-8",
+                    url: "../../api/config",
+                    data: JSON.stringify(json)
+                }).done(function () {
+                    console.log("success")
+                }).fail(function () {
+                    console.log("error");
+                });
+
+                return true;
+            });
+        });
+
+        function ConvertFormToJSON(form) {
+            var array = jQuery(form).serializeArray();
+            var json = {};
+
+            jQuery.each(array, function () {
+                json[this.name] = this.value || '';
+            });
+
+            console.log(json);
+            return json;
+        }
+
+        function ConvertFormToGeneralSettings() {
+            var phSensor = new Object();
+            phSensor.Enabled = $('#ph-active').is(":checked");
+            phSensor.I2CAddress = $('#ph-address').val();
+            var redoxSensor = new Object();
+            redoxSensor.Enabled = $('#orp-active').is(":checked");
+            redoxSensor.I2CAddress = $('#orp-address').val();
+            var temperatureSensor = new Object();
+            temperatureSensor.Enabled = $('#rtd-active').is(":checked");
+            temperatureSensor.I2CAddress = $('#rtd-address').val();
+
+            var plc = new Object();
+            plc.Enabled = $('#plc-active').is(":checked");
+            plc.IpAddress = $('#plc-ip').val();
+            plc.TriggerVmAddress = $('#vm-trigger').val();
+            plc.TriggerVmAddressBit = $('#vm-trigger-bit').val();
+            plc.PhVmAddress = $('#vm-ph').val();
+            plc.RedoxVmAddress = $('#vm-orp').val();
+            plc.TemperatureVmAddress = $('#vm-rtd').val();
+            plc.SecureCounterVmAddress = $('#vm-counter').val();
+
+            var ui = new Object();
+            ui.DeviceName = $('#ui-device-name').val();
+
+            var exclsyss = 0x80 - 0x1;
+            if ($('#logger-subsystem-app').is(":checked"))
+                exclsyss -= 0x1;
+            if ($('#logger-subsystem-httpserver').is(":checked"))
+                exclsyss -= 0x2;
+            if ($('#logger-subsystem-configuration').is(":checked"))
+                exclsyss -= 0x4;
+            if ($('#logger-subsystem-restapi').is(":checked"))
+                exclsyss -= 0x8;
+            if ($('#logger-subsystem-plc').is(":checked"))
+                exclsyss -= 0x10;
+            if ($('#logger-subsystem-lowlevel').is(":checked"))
+                exclsyss -= 0x20;
+            if ($('#logger-subsystem-logger').is(":checked"))
+                exclsyss -= 0x40;
+
+            var logger = new Object();
+            logger.Enabled = $('#logger-active').is(":checked");
+            logger.MinimumLogLevel = $('#logger-minimum-log-level').val();
+            logger.ExcludedSubSystems = exclsyss;
+            logger.Lifetime = $('#logger-lifetime').val();
+
+            var settings = new Object();
+            settings.PhSensor = phSensor;
+            settings.RedoxSensor = redoxSensor;
+            settings.TemperatureSensor = temperatureSensor;
+            settings.EnablePhTemperatureCompensation = $('#ph-tempcompensation').is(":checked");
+            settings.TemperatureUnit = $('#temp-unit').val();
+            settings.EnableCyclicUpdater = $('#cyclic-updater').is(":checked");
+            settings.UpdateInterval = $('#update-interval').val();
+            settings.LogoConnection = plc;
+            settings.Appearance = ui;
+            settings.Logger = logger;
+
+            console.log(settings);
+
+            return settings;
+        }
+    </script>
+</head>
+<body class="uk-background-muted">
+    <!--  N A V  -->
+    <div class="uk-section uk-section-xsmall uk-background-primary" id="nav">
+        <nav class="uk-navbar-container uk-width-1-1 uk-navbar-transparent" uk-navbar>
+            <div class="uk-navbar-left uk-light">
+                <a class="uk-navbar-item uk-logo">EzoGateway</a>
+            </div>
+            <div class="uk-navbar-right uk-light">
+                <ul class="uk-navbar-nav">
+                    <li><a href="../live.html">Live</a></li>
+                    <li>
+                        <a href="#">Calibration</a>
+                        <div class="uk-navbar-dropdown">
+                            <ul class="uk-nav uk-navbar-dropdown-nav">
+                                <li><a href="../cal/ph.html">pH Sensor</a></li>
+                                <li><a href="../cal/orp.html">Redox Sensor</a></li>
+                                <li><a href="../cal/rtd.html">Temperature Sensor</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="uk-active">
+                        <a href="#">System</a>
+                        <div class="uk-navbar-dropdown">
+                            <ul class="uk-nav uk-navbar-dropdown-nav">
+                                <li><a href="sensors.html">Sensors</a></li>
+                                <li><a href="config.html">Settings</a></li>
+                                <li class="uk-active"><a href="#">1-Wire Configuration</a></li>
+                                <li><a href="../logs" target="_blank">Log</a></li>
+                                <li><a href="about.html">About</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!--  C O N T E N T  -->
+    <div class="uk-section">
+        <div class="uk-container" uk-height-viewport="expand: true" id="content">
+
+            <div uk-grid>
+                <div class="uk-width-expand">
+                    <h1 class="uk-heading-small uk-heading-divider">1-Wire Configuration</h1>
+                </div>
+            </div>
+            <!-- Show all sensors with edit and delete button -->
+            <div class="uk-margin-medium" uk-grid>
+                <div class="uk-width-1-1">
+                    <div class="uk-card uk-card-body uk-card-default uk-margin">
+                        <div class="uk-card-badge uk-label">Temp. compensation sensor</div>
+                        <h3 class="uk-card-title">DS18B20</h3>
+                        <p>The DS18B20 digital thermometer provides 9-bit to 12-bit celsius temperature measurements, in a range from -55 °C to +125 °C (-67 °F to +257 °F) with a ±0.5 °C accuracy from -10°C to +85 °C.</p>
+                        <table class="uk-table uk-table-hover uk-table-divider">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Master channel</td>
+                                    <td id="channel">value</td>
+                                </tr>
+                                <tr>
+                                    <td>Sensor address</td>
+                                    <td id="address">value</td>
+                                </tr>
+                                <tr>
+                                    <td>Custom ID</td>
+                                    <td id="cid">value</td>
+                                </tr>
+                                <tr>
+                                    <td>Custom name</td>
+                                    <td id="cname">value</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="uk-align-right">
+                            <a class="uk-button uk-button-danger" uk-icon="trash" href="" uk-tooltip="title: Delete this sensor; pos: bottom-right"></a>
+                            <a class="uk-button uk-button-default" uk-icon="file-edit" href="" uk-tooltip="title: Configure this sensor; pos: bottom-right"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-width-1-1">
+                    <div class="uk-card uk-card-body uk-card-default uk-margin">
+                        <div uk-grid>
+                            <div class="uk-width-1-2">
+                                <h3 class="uk-card-title">Add new sensor...</h3>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <a class="uk-button uk-button-default uk-align-right" uk-icon="plus" uk-tooltip="title: Add and configure a new sensor; pos: bottom-right"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  F O O T E R -->
+    <div id="footer"></div>
+
+</body>
+</html>

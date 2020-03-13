@@ -514,13 +514,16 @@ namespace EzoGateway.Server
                 {
                     Logger.Write("Request system info", SubSystem.RestApi);
 
-                    var infos = new Dictionary<string, string>();
-                    infos.Add("Version", typeof(App).GetTypeInfo().Assembly.GetName().Version.ToString());
-                    infos.Add("App", typeof(HttpServer).GetType().AssemblyQualifiedName);
-                    infos.Add("SystemTime", DateTime.Now.ToString());
-                    infos.Add("SystemStartTime", m_Controller.SystemStartTime.ToString());
-                    infos.Add("SystemRuntime", (DateTime.Now - m_Controller.SystemStartTime).ToString());
-                    infos.Add("RequestCounter", RequestCounter.ToString());
+                    var infos = new Dictionary<string, string>
+                    {
+                        { "Version", typeof(App).GetTypeInfo().Assembly.GetName().Version.ToString() },
+                        { "App", typeof(HttpServer).GetType().AssemblyQualifiedName },
+                        { "SystemTime", DateTime.Now.ToString() },
+                        { "SystemStartTime", m_Controller.SystemStartTime.ToString() },
+                        { "SystemRuntime", (DateTime.Now - m_Controller.SystemStartTime).ToString() },
+                        { "RequestCounter", RequestCounter.ToString() }
+                    };
+
                     var temperature = m_Controller.GetOnBoardTemperature();
                     if (double.IsNaN(temperature))
                         infos.Add("OnboardTemperature", "Only available on <a href=\"https://github.com/100prznt/EzoGateway/tree/master/hardware\" target=\"_blank\">EzoGateway hardware/PCB</a>");

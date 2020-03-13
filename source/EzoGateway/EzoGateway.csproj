@@ -130,6 +130,8 @@
     </Compile>
     <Compile Include="Config\EzoConfig.cs" />
     <Compile Include="Config\GeneralSettings.cs" />
+    <Compile Include="Config\OneWireConfig.cs" />
+    <Compile Include="Config\OneWireSensor.cs" />
     <Compile Include="Config\PlcConfig.cs" />
     <Compile Include="Config\LogConfig.cs" />
     <Compile Include="Config\UiConfig.cs" />
@@ -199,6 +201,9 @@
     <Content Include="WebResources\js\uikit-icons.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="WebResources\media\ds18b20.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="WebResources\media\ezo-orp.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -206,6 +211,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="WebResources\media\ezo-ph.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WebResources\sys\onewire-config.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="WebResources\template.html">
@@ -266,7 +274,7 @@
       <Version>1.0.25</Version>
     </PackageReference>
     <PackageReference Include="Rca.OneWireLib">
-      <Version>1.0.2</Version>
+      <Version>1.0.4</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
