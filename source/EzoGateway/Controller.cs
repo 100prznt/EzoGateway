@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.Devices.Gpio;
 using Windows.Networking.Connectivity;
 using Windows.Storage;
 using Windows.System.Threading;
@@ -28,6 +29,7 @@ namespace EzoGateway
     /// </summary>
     public class Controller : INotifyPropertyChanged
     {
+
         #region Properties
         public GeneralSettings Configuration { get; set; }
 
@@ -66,6 +68,8 @@ namespace EzoGateway
         /// </summary>
         public EzoRtd TempSensor { get; set; }
 
+        public IoDispatcher Io { get; set; }
+
         #endregion Properties
 
         #region Members
@@ -82,7 +86,6 @@ namespace EzoGateway
 
         //}, m_CyclicUpdatePeriod);
 
-
         #endregion Members
 
         #region Constructor
@@ -93,6 +96,8 @@ namespace EzoGateway
             SystemStartTime = DateTime.Now;
 
             Logger.Write("Init EzoGateway controller", SubSystem.App);
+
+            Io = new IoDispatcher();
 
             ConfigIsLoadedEvent += Controller_ConfigIsLoadedEvent;
             ConfigIsSavedEvent += Controller_ConfigIsSavedEvent;
@@ -338,6 +343,8 @@ namespace EzoGateway
         public async Task<bool> InitCyclicUpdater()
         {
             Logger.Write("Start init cyclic updater", SubSystem.App);
+
+            Io.SetCyclicUpdaterState(Configuration.EnableCyclicUpdater);
             if (Configuration.EnableCyclicUpdater)
             {
                 if (m_CyclicUpdateEventIsAttached)
@@ -396,6 +403,8 @@ namespace EzoGateway
                 Logger.Write("Hardware is not ininitialized.", SubSystem.LowLevel, LoggerLevel.Error);
 
             //TODO: Check for valide values and wire cuts
+
+            Io.IndicateMeasurement();
 
             try
             {

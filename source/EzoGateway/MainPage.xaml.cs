@@ -37,7 +37,7 @@ namespace EzoGateway
 
             m_Controller = new Controller();
 
-            m_Server = new HttpServer(ref m_Controller, 591); //default port (80)
+            m_Server = new HttpServer(ref m_Controller, 80); //default port (80)
             m_Server.ServerInitialize();
 
             Logger.LogWatermark();

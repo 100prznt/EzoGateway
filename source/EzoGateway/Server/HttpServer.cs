@@ -89,6 +89,8 @@ namespace EzoGateway.Server
             await m_Listener.BindServiceNameAsync(Port.ToString());
 
             Logger.Write($"HTTP server is successfully initialized and listen for http requests under: http://{Ip}:{Port}/", SubSystem.HttpServer);
+
+            m_Controller.Io.SetAliveState(true);
         }
         public async void Dispose()
         {
@@ -142,6 +144,8 @@ namespace EzoGateway.Server
             try
             {
                 Logger.Write("Processing of a new HTTP request is started.", SubSystem.HttpServer);
+
+                m_Controller.Io.IndicateHttpRequest();
 
                 HttpServerRequest request = null;
 
