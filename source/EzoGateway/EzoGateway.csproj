@@ -265,6 +265,9 @@
     <PackageReference Include="Rca.EzoDeviceLib">
       <Version>1.0.25</Version>
     </PackageReference>
+    <PackageReference Include="Rca.OneWireLib">
+      <Version>1.0.2</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="WindowsIoT, Version=10.0.17134.0">

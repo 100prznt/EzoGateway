@@ -19,11 +19,13 @@
                 var time = data["SystemTime"];
                 var runtime = data["SystemRuntime"];
                 var requests = data["RequestCounter"];
+                var temperature = data["OnboardTemperature"];
 
                 $("#version").text(version);
                 $("#time").text(time);
                 $("#runtime").text(runtime);
                 $("#requests").text(requests);
+                $("#temperature").text(temperature);
 
             });
         });
@@ -101,12 +103,19 @@
                                 <td>HTTP request counter</td>
                                 <td id="requests">value</td>
                             </tr>
+                            <tr>
+                                <td>Onboard/PCB temperature</td>
+                                <td id="temperature">value</td>
+                            </tr>
                         </tbody>
                     </table>
                     <h4>Open Source Project Credits</h4>
                     <ul class="uk-list uk-list-bullet">
                         <li>
                             <a href="https://github.com/100prznt/Rca.EzoDeviceLib" target="_blank">Rca.EzoDeviceLib</a> - UWP driver library for the Atlas Scientific EZO™ devices
+                        </li>
+                        <li>
+                            <a href="https://github.com/100prznt/Rca.OneWireLib" target="_blank">Rca.OneWireLib</a> - UWP 1-Wire® library. Supports I2C single and eight channel masters (DS2482) and various slaves like thermometer, I2C-bridge, EEPROM, etc.
                         </li>
                         <li>
                             <a href="http://snap7.sourceforge.net/" target="_blank">Sharp7</a> - C# implementation of the S7Protocol, to communicate with the Siemens LOGO! PLC

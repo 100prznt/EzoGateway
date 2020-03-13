@@ -6,6 +6,9 @@ using EzoGateway.Plc;
 using Rca.EzoDeviceLib;
 using Rca.EzoDeviceLib.Specific.Ph;
 using Rca.EzoGateway.Plc.Sharp7;
+using Rca.OneWireLib;
+using Rca.OneWireLib.Masters;
+using Rca.OneWireLib.Slaves;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -44,7 +47,8 @@ namespace EzoGateway
                 PropChanged();
             }
         }
-        Dictionary<int, MeasData> m_LatestMeasData;
+
+        private Dictionary<int, MeasData> m_LatestMeasData;
 
         public DateTime SystemStartTime { get; set; }
 
@@ -75,11 +79,13 @@ namespace EzoGateway
         #region Members
         private Int16 m_SecureCounter;
         private PlcWorker m_PlcWorker;
+        private OneWireController m_OneWireController;
+        private DS18B20 m_OnBoardThermometer;
 
         private static TimeSpan m_CyclicUpdatePeriod = new TimeSpan(0, 0, 5);
         private static event Action CyclicUpdateEvent;
         private bool m_CyclicUpdateEventIsAttached = false;
-        ThreadPoolTimer m_CyclicUpdateTimer;
+        private ThreadPoolTimer m_CyclicUpdateTimer;
         //ThreadPoolTimer m_CyclicUpdateTimer = ThreadPoolTimer.CreatePeriodicTimer((source) =>
         //{
         //    CyclicUpdateEvent?.Invoke();
@@ -266,7 +272,7 @@ namespace EzoGateway
                     PhSensor = new EzoPh(Configuration.PhSensor.I2CAddress);
                     await PhSensor.InitSensorAsync();
                     Logger.Write("Atlas Scientific EZO pH Circuit successfully initialized, FW: " + PhSensor.GetDeviceInfo().FirmwareVersion, SubSystem.LowLevel);
-                    
+
                     SensorInfos.Add(1, GetSensorInfo(PhSensor, "Atlas Scientific EZO pH Circuit")); //id for pH: 1
                 }
 
@@ -276,7 +282,7 @@ namespace EzoGateway
                     RedoxSensor = new EzoOrp(Configuration.RedoxSensor.I2CAddress);
                     await RedoxSensor.InitSensorAsync();
                     Logger.Write("Atlas Scientific EZO ORP circuit successfully initialized, FW: " + RedoxSensor.GetDeviceInfo().FirmwareVersion, SubSystem.LowLevel);
-                    
+
                     SensorInfos.Add(2, GetSensorInfo(RedoxSensor, "Atlas Scientific EZO ORP circuit")); //id for Redox: 2
                 }
 
@@ -286,9 +292,20 @@ namespace EzoGateway
                     TempSensor = new EzoRtd(Configuration.TemperatureSensor.I2CAddress);
                     await TempSensor.InitSensorAsync();
                     Logger.Write("Atlas Scientific EZO RTD circuit successfully initialized, FW: " + TempSensor.GetDeviceInfo().FirmwareVersion, SubSystem.LowLevel);
-                    
+
                     SensorInfos.Add(3, GetSensorInfo(TempSensor, "Atlas Scientific EZO RTD circuit")); //id for Temperature: 3
                 }
+
+#if EZOGW_HW
+                m_OneWireController = new OneWireController();
+                m_OneWireController.InitMaster<DS2482_100>(0x18, "I2C1");
+                m_OneWireController.SearchSlaves();
+
+                GetOnBoardTemperature();
+
+#endif
+
+
 
                 //InitPlc();
                 if (Configuration.LogoConnection != null && Configuration.LogoConnection.Enabled)
@@ -311,7 +328,7 @@ namespace EzoGateway
             }
         }
 
-        
+
 
         private SensorInfo GetSensorInfo(EzoBase ezoSensor, string description = "N/A")
         {
@@ -364,12 +381,12 @@ namespace EzoGateway
                     CyclicUpdateEvent?.Invoke();
 
                 }, m_CyclicUpdatePeriod);
-                                
+
 
                 Logger.Write("Enable cyclic updater.", SubSystem.App);
-                    CyclicUpdateEvent += Controller_CyclicUpdateEvent;
-                    m_CyclicUpdateEventIsAttached = true;
-                
+                CyclicUpdateEvent += Controller_CyclicUpdateEvent;
+                m_CyclicUpdateEventIsAttached = true;
+
             }
             else
             {
@@ -466,6 +483,34 @@ namespace EzoGateway
         }
 
         #endregion Measurement
+
+        #region 1-wire
+        public double GetOnBoardTemperature()
+        {
+            if (m_OneWireController == null)
+                return double.NaN;
+
+            if (m_OnBoardThermometer == null) //init thermometer
+            {
+                var infos = m_OneWireController.GetSlaveInfos(); //Get info of all connected slaves
+                var infoDS18B20 = infos.FirstOrDefault(x => x.MasterChannel == 7 && x.FamilyCode == FamilyCode.DS18B20); //look for a DS18B20 device on hw ch. 7
+
+                if (infoDS18B20 != null) //if DS18B20 available
+                {
+                    m_OneWireController.SelectMasterChannel(infoDS18B20.MasterChannel); //Select the master channel!
+                    m_OnBoardThermometer = m_OneWireController.GetSlave<DS18B20>(infoDS18B20.MasterChannel, infoDS18B20.Address); //Get the slave (DS18B20) device instance
+                }
+                else
+                {
+                    Logger.Write("Onbard thermometer (DS18B20) not available!", SubSystem.LowLevel);
+                    return double.NaN;
+                }
+            }
+
+            return m_OnBoardThermometer.GetTemperature();
+        }
+
+        #endregion 1-wire
 
         #region Calibration
         public bool CalPhAddPoint(CalData data, out string errorMessage)
@@ -608,7 +653,7 @@ namespace EzoGateway
                 SingleMeasurementAsync();
             }
         }
-        
+
         /// <summary>
         /// Send a value to the connected PLC
         /// </summary>

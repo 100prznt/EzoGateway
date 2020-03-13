@@ -83,6 +83,7 @@ This app is made possible by contributions from:
 ### Open Source Project Credits
 
 * [Rca.EzoDeviceLib](https://github.com/100prznt/Rca.EzoDeviceLib) - UWP driver library for the Atlas Scientific EZO™ devices
+* [Rca.OneWireLib](https://github.com/100prznt/Rca.OneWireLib) - UWP 1-Wire® library. Supports I2C single and eight channel masters (DS2482) and various slaves like thermometer, I2C-bridge, EEPROM, etc. 
 * [Sharp7](http://snap7.sourceforge.net/) C# implementation of the S7Protocol
 * [Newtonsoft.Json](https://www.newtonsoft.com/json) Object serialization for REST API and local storage
 * [UIkit](https://github.com/uikit/uikit) Style up the web interface

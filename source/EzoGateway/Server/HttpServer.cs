@@ -521,6 +521,11 @@ namespace EzoGateway.Server
                     infos.Add("SystemStartTime", m_Controller.SystemStartTime.ToString());
                     infos.Add("SystemRuntime", (DateTime.Now - m_Controller.SystemStartTime).ToString());
                     infos.Add("RequestCounter", RequestCounter.ToString());
+                    var temperature = m_Controller.GetOnBoardTemperature();
+                    if (double.IsNaN(temperature))
+                        infos.Add("OnboardTemperature", "Only available on <a href=\"https://github.com/100prznt/EzoGateway/tree/master/hardware\" target=\"_blank\">EzoGateway hardware/PCB</a>");
+                    else
+                        infos.Add("OnboardTemperature", m_Controller.GetOnBoardTemperature().ToString() + " °C");
 
                     return HttpResource.CreateJsonResource(infos);
                 }
