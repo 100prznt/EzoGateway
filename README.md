@@ -6,6 +6,7 @@
 ---
 
 ![EzoGateway PCB equipped with RaspberryPi and EZO™ devices (pH, ORP and RTD)](hardware/img/assembly_sn001_side_ws.jpg "EzoGateway PCB equipped with RaspberryPi and EZO™ devices (pH, ORP and RTD)")
+No panic! It doesn't need to a professional pcb. It also works with the Whitebox HAT -> [see sample](docu/img/wb-ezo-hat_small.jpg)
 # EzoGateway
 Open source UWP App, to brings the Atlas Scientific EZO™ devices in the __Internet of Things__. Per __REST API__ you can fetch live measdata and calibrate connected sensors.
 Ideal for monitoring water quality in your pool.
