@@ -370,6 +370,8 @@ namespace EzoGateway.Server
                             Logger.Write("Update configuration", SubSystem.RestApi);
                             var settings = JsonConvert.DeserializeObject<GeneralSettings>(request.Content);
                             m_Controller.UpdateConfig(settings);
+                            //no response???
+                            return HttpResource.JsonAccepted202("Configuration accepted");
                         }
                     }
                     else if (request.Uri.Segments.Length == 4 && request.Uri.Segments[3].Trim('/').Equals("TIME", StringComparison.OrdinalIgnoreCase))

@@ -94,8 +94,24 @@
                     data: JSON.stringify(json)
                 }).done(function () {
                     console.log("success")
-                }).fail(function () {
+
+                    UIkit.notification({
+                        message: "<span uk-icon='icon: check'></span> Settings successfully applied.",
+                        status: 'success',
+                        pos: 'top-center',
+                        timeout: 5000
+                    });
+                }).fail(function (jqXHR, textStatus, errorThrown) {
                     console.log("error");
+                    console.log(jqXHR);
+                    console.log(textStatus);
+                    console.log(errorThrown);
+                    UIkit.notification({
+                        message: 'Error while applying the settings!',
+                        status: 'danger',
+                        pos: 'top-center',
+                        timeout: 7000
+                    });
                 });
 
                 return true;
@@ -339,7 +355,7 @@
                             </div>
 
                             <input id="saveConfig" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Settings">
-</form>
+                    </form>
                 </div>
             </div>
 
