@@ -130,10 +130,14 @@
     </Compile>
     <Compile Include="Config\EzoConfig.cs" />
     <Compile Include="Config\GeneralSettings.cs" />
-    <Compile Include="Config\OneWireConfig.cs" />
-    <Compile Include="Config\OneWireSensor.cs" />
+    <Compile Include="Config\OneWire\Configuration.cs" />
+    <Compile Include="Config\OneWire\Sensor.cs" />
+    <Compile Include="Config\OneWire\SensorUnits.cs" />
+    <Compile Include="Config\OneWire\SupportedSensorExtensions.cs" />
     <Compile Include="Config\PlcConfig.cs" />
     <Compile Include="Config\LogConfig.cs" />
+    <Compile Include="Config\OneWire\SupportedSensorAttribute.cs" />
+    <Compile Include="Config\OneWire\SupportedSensors.cs" />
     <Compile Include="Config\UiConfig.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="Calibration\CalData.cs" />
@@ -274,7 +278,7 @@
       <Version>1.0.25</Version>
     </PackageReference>
     <PackageReference Include="Rca.OneWireLib">
-      <Version>1.0.4</Version>
+      <Version>1.0.6</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

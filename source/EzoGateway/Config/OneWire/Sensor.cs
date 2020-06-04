@@ -1,21 +1,24 @@
-﻿using Rca.OneWireLib.Slaves;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Rca.OneWireLib.Slaves;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EzoGateway.Config
+namespace EzoGateway.Config.OneWire
 {
     /// <summary>
     /// 1-wire sensor definition
     /// </summary>
-    public class OneWireSensor
+    public class Sensor
     {
         /// <summary>
         /// Sensortype, hardware device type
         /// </summary>
-        public IOneWireSlave SensorType { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public SupportedSensors SensorType { get; set; }
 
         /// <summary>
         /// User-defined name, is displayed in the sensor overview (API)

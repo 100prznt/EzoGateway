@@ -391,6 +391,21 @@ namespace EzoGateway.Server
                             return HttpResource.Error400;
                         }
                     }
+                    else if (request.Uri.Segments.Length == 4 && request.Uri.Segments[3].Trim('/').Equals("ONEWIRE", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (request.Method == HttpMethod.Get)
+                        {
+                            Logger.Write("Request 1-wire configuration", SubSystem.RestApi);
+                            return HttpResource.CreateJsonResource(m_Controller.ConfigurationOneWire);
+                        }
+                        else if (request.Method == HttpMethod.Put)
+                        {
+                            //Update config
+                            Logger.Write("Update 1-wire configuration", SubSystem.RestApi);
+                            var settings = JsonConvert.DeserializeObject<Config.OneWire.Configuration>(request.Content);
+                            m_Controller.UpdateConfigOneWire(settings);
+                        }
+                    }
                 }
                 else if (request.Uri.Segments.Length == 3 && request.Uri.Segments[2].Trim('/').Equals("ACQ", StringComparison.OrdinalIgnoreCase))
                 {
@@ -531,6 +546,21 @@ namespace EzoGateway.Server
                         infos.Add("OnboardTemperature", m_Controller.GetOnBoardTemperature().ToString() + " °C");
 
                     return HttpResource.CreateJsonResource(infos);
+                }
+                else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("ONEWIRE", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (request.Uri.Segments.Length == 5)
+                    {
+                        if (request.Uri.Segments[3].Trim('/').Equals("SCANCHANNEL", StringComparison.OrdinalIgnoreCase)
+                            && request.Method == HttpMethod.Get)
+                        {
+                            if (Int32.TryParse(request.Uri.Segments[4].Trim('/'), out int channel))
+                            {
+                                if (channel >= 0 && channel <= 1)
+                                    return HttpResource.CreateJsonResource(m_Controller.ScanOneWire(channel));
+                            }
+                        }
+                    }
                 }
 
                 return HttpResource.Error400;

@@ -1,5 +1,6 @@
 ﻿using EzoGateway.Calibration;
 using EzoGateway.Config;
+using EzoGateway.Config.OneWire;
 using EzoGateway.Helpers;
 using EzoGateway.Measurement;
 using EzoGateway.Plc;
@@ -36,6 +37,11 @@ namespace EzoGateway
         #region Properties
         public GeneralSettings Configuration { get; set; }
 
+        /// <summary>
+        /// 1-wire configuration for EzoGateway hardware/PCB
+        /// </summary>
+        public Config.OneWire.Configuration ConfigurationOneWire { get; set; }
+
         public Dictionary<int, SensorInfo> SensorInfos { get; set; }
 
         public Dictionary<int, MeasData> LatestMeasData
@@ -71,6 +77,8 @@ namespace EzoGateway
         /// Temperature probe on EZO device
         /// </summary>
         public EzoRtd TempSensor { get; set; }
+
+        public Dictionary<int, IOneWireSlave> OneWireSensors { get; set; }
 
         public IoDispatcher Io { get; set; }
 
@@ -109,7 +117,10 @@ namespace EzoGateway
             ConfigIsSavedEvent += Controller_ConfigIsSavedEvent;
             ConfigIsDeletedEvent += Controller_ConfigIsDeletedEvent;
 
+            OneWireConfigIsLoadedEvent += Controller_OneWireConfigIsLoadedEvent;
+
             LoadConfig();
+            LoadConfigOneWire();
 
             LatestMeasData = new Dictionary<int, MeasData>();
 
@@ -171,7 +182,7 @@ namespace EzoGateway
             Logger.Write("Start save config", SubSystem.Configuration);
             try
             {
-                await DeleteConfigFile();
+                await DeleteConfigFile("ezogateway.config.json");
 
                 var localFolder = ApplicationData.Current.LocalFolder;
 
@@ -191,14 +202,14 @@ namespace EzoGateway
             }
         }
 
-        public async Task DeleteConfigFile()
+        public async Task DeleteConfigFile(string fileName)
         {
             Logger.Write("Start delete config", SubSystem.Configuration);
             try
             {
                 //var localFolder = ApplicationData.Current.LocalFolder;
 
-                var item = await ApplicationData.Current.LocalFolder.TryGetItemAsync("ezogateway.config.json");
+                var item = await ApplicationData.Current.LocalFolder.TryGetItemAsync(fileName);
                 if (item != null)
                 {
                     await item.DeleteAsync(StorageDeleteOption.PermanentDelete);
@@ -208,7 +219,7 @@ namespace EzoGateway
             catch (Exception ex)
             {
                 Logger.Write(ex, SubSystem.Configuration);
-                throw new ArgumentException("DeleteConfigFile", ex);
+                throw new ArgumentException("DeleteConfigFile ->" + fileName, ex);
             }
         }
 
@@ -248,6 +259,9 @@ namespace EzoGateway
         public event Action ConfigIsSavedEvent;
         public event Action ConfigIsLoadedEvent;
         public event Action ConfigIsDeletedEvent;
+
+
+        public event Action OneWireConfigIsLoadedEvent;
 
         #endregion Events
 
@@ -297,12 +311,20 @@ namespace EzoGateway
                 }
 
 #if EZOGW_HW
-                m_OneWireController = new OneWireController();
-                m_OneWireController.InitMaster<DS2482_100>(0x18, "I2C1");
-                m_OneWireController.SearchSlaves();
+                try
+                {
+                    m_OneWireController = new OneWireController();
+                    m_OneWireController.InitMaster<DS2482_100>(0x18, "I2C1");
+                    m_OneWireController.SearchSlaves();
 
-                GetOnBoardTemperature();
+                    //GetOnBoardTemperature();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Write(ex, SubSystem.LowLevel, LoggerLevel.Error);
+                }
 
+                InitOneWireSensors();
 #endif
 
 
@@ -484,7 +506,137 @@ namespace EzoGateway
 
         #endregion Measurement
 
-        #region 1-wire
+        #region 1-wire (EzoGateway hardware/PCB)
+
+        public async Task<bool> LoadConfigOneWire()
+        {
+            Logger.Write("Start load 1-wire config", SubSystem.Configuration);
+
+            var localFolder = ApplicationData.Current.LocalFolder;
+
+            var item = await localFolder.TryGetItemAsync("onewire.config.json");
+            if (item != null)
+            {
+                try
+                {
+                    ConfigurationOneWire = Config.OneWire.Configuration.FromJsonFile(item.Path);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Write(ex, SubSystem.Configuration);
+                }
+
+                OneWireConfigIsLoadedEvent?.Invoke();
+                return true;
+            }
+            else //Generate default
+            {
+                Logger.Write("1-wire configuration not found, genarate default config", SubSystem.Configuration, LoggerLevel.Warning);
+                ConfigurationOneWire = Config.OneWire.Configuration.Default;
+                SaveConfigOneWire();
+                OneWireConfigIsLoadedEvent?.Invoke();
+                return false;
+            }
+        }
+
+        public async void SaveConfigOneWire()
+        {
+            Logger.Write("Start save 1-wire config", SubSystem.Configuration);
+            try
+            {
+                await DeleteConfigFile("onewire.config.json");
+
+                var localFolder = ApplicationData.Current.LocalFolder;
+
+                var file = await localFolder.CreateFileAsync("onewire.config.json", CreationCollisionOption.ReplaceExisting);
+
+                if (ConfigurationOneWire == null)
+                    ConfigurationOneWire = Config.OneWire.Configuration.Default;
+
+                await FileIO.WriteTextAsync(file, ConfigurationOneWire.ToJson());
+
+                //ConfigIsSavedEvent?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(ex, SubSystem.Configuration);
+                throw new ArgumentException("SaveConfigOneWire", ex);
+            }
+        }
+
+
+
+        public void UpdateConfigOneWire(Config.OneWire.Configuration settings)
+        {
+            Logger.Write("Start update 1-wire config", SubSystem.Configuration);
+            ConfigurationOneWire = settings;
+            SaveConfigOneWire();
+        }
+
+        public async Task<bool> InitOneWireSensors()
+        {
+            if (m_OneWireController == null)
+            {
+                Logger.Write("1-wire master not available!", SubSystem.LowLevel);
+                return false;
+            }
+
+            foreach (var sensorConf in ConfigurationOneWire.SensorList)
+            {
+                if (OneWireSensors == null)
+                    OneWireSensors = new Dictionary<int, IOneWireSlave>();
+                else if (OneWireSensors.ContainsKey(sensorConf.CustomUniqueId))
+                    OneWireSensors.Remove(sensorConf.CustomUniqueId);
+
+                var arr = sensorConf.OneWireAddressString.Split('-', ':');
+                var address = new byte[arr.Length];
+                for (int i = 0; i < arr.Length; i++)
+                    address[i] = Convert.ToByte(arr[i], 16);
+
+                switch (sensorConf.SensorType)
+                {
+                    case SupportedSensors.DS18B20:
+                        try
+                        {
+                            m_OneWireController.SelectMasterChannel(sensorConf.MasterChannel);
+                            var sensor = m_OneWireController.GetSlave<DS18B20>(sensorConf.MasterChannel, address);
+                            //var sensor = m_OneWireController.GetSlave<DS18B20>(infoDS18B20.MasterChannel, infoDS18B20.Address);
+                            OneWireSensors.Add(sensorConf.CustomUniqueId, sensor);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Write(ex, SubSystem.LowLevel, LoggerLevel.Error);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+
+
+            return false;
+        }
+
+        private void Controller_OneWireConfigIsLoadedEvent()
+        {
+            //InitOneWireSensors();
+        }
+
+
+        public string[] ScanOneWire(int masterChannel)
+        {
+            if (m_OneWireController == null)
+                return null;
+
+            var infos = m_OneWireController.GetSlaveInfos();
+
+            var channelInfos = infos.Where(x => x.MasterChannel == masterChannel);
+
+            return channelInfos.Select(x => BitConverter.ToString(x.Address)).ToArray();
+        }
+
+
         public double GetOnBoardTemperature()
         {
             if (m_OneWireController == null)
@@ -494,7 +646,7 @@ namespace EzoGateway
             {
                 var infos = m_OneWireController.GetSlaveInfos(); //Get info of all connected slaves
                 var infoDS18B20 = infos.FirstOrDefault(x => x.MasterChannel == 7 && x.FamilyCode == FamilyCode.DS18B20); //look for a DS18B20 device on hw ch. 7
-
+                
                 if (infoDS18B20 != null) //if DS18B20 available
                 {
                     m_OneWireController.SelectMasterChannel(infoDS18B20.MasterChannel); //Select the master channel!
@@ -502,7 +654,7 @@ namespace EzoGateway
                 }
                 else
                 {
-                    Logger.Write("Onbard thermometer (DS18B20) not available!", SubSystem.LowLevel);
+                    Logger.Write("Onboard thermometer (DS18B20) not available!", SubSystem.LowLevel);
                     return double.NaN;
                 }
             }
@@ -510,7 +662,7 @@ namespace EzoGateway
             return m_OnBoardThermometer.GetTemperature();
         }
 
-        #endregion 1-wire
+        #endregion 1-wire (EzoGateway hardware/PCB)
 
         #region Calibration
         public bool CalPhAddPoint(CalData data, out string errorMessage)
