@@ -423,6 +423,7 @@ namespace EzoGateway
         private void Controller_CyclicUpdateEvent()
         {
             SingleMeasurementAsync();
+            OneWireMeasurementAsync();
         }
 
 
@@ -464,6 +465,48 @@ namespace EzoGateway
             catch (Exception ex)
             {
                 Logger.Write("Single measurement failed with exception: " + ex, SubSystem.LowLevel);
+                return false;
+            }
+        }
+
+        public async Task<bool> OneWireMeasurementAsync()
+        {
+            if (!IoDispatcher.EZO_GATEWAY_HARDWARE_AVAILABLE)
+                return false;
+
+
+            Logger.Write("Perform 1-wire measurement", SubSystem.LowLevel);
+
+            if (!IsInitialized)
+                Logger.Write("Hardware is not ininitialized.", SubSystem.LowLevel, LoggerLevel.Error);
+
+            Io.IndicateMeasurement();
+
+
+            try
+            {
+
+                foreach (var sensor in OneWireSensors)
+                {
+                    int uid = sensor.Key;
+
+                    var tempSensor = sensor.Value as DS18B20;
+
+                    if (tempSensor != null)
+                    {
+                        var name = ConfigurationOneWire.SensorList.First(x => x.CustomUniqueId == uid).CustomName;
+
+                        var info = new MeasDataInfo(name, "Celsius", "°C");
+                        AddMeasDataInfo(uid, tempSensor.GetTemperature(), info);
+                    }
+                }
+
+                Logger.Write("1-wire measurement successfully", SubSystem.LowLevel);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.Write("1-wire measurement failed with exception: " + ex, SubSystem.LowLevel);
                 return false;
             }
         }
@@ -602,6 +645,16 @@ namespace EzoGateway
                             var sensor = m_OneWireController.GetSlave<DS18B20>(sensorConf.MasterChannel, address);
                             //var sensor = m_OneWireController.GetSlave<DS18B20>(infoDS18B20.MasterChannel, infoDS18B20.Address);
                             OneWireSensors.Add(sensorConf.CustomUniqueId, sensor);
+
+                            var info = new SensorInfo();
+                            info.Name = sensorConf.CustomName;
+                            info.Serial = sensorConf.OneWireAddressString;
+                            info.Address = sensorConf.MasterChannel;
+                            info.Description = sensorConf.SensorType.ToString();
+                            info.Interface = "1-wire";
+                            info.Package = typeof(SlaveBase).AssemblyQualifiedName;
+
+                            SensorInfos.Add(sensorConf.CustomUniqueId, info);
                         }
                         catch (Exception ex)
                         {
@@ -803,6 +856,7 @@ namespace EzoGateway
             {
                 Logger.Write("PLC trigger has initiated a single measurement", SubSystem.Plc);
                 SingleMeasurementAsync();
+                OneWireMeasurementAsync();
             }
         }
 

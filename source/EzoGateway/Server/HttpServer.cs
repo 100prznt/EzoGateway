@@ -418,6 +418,7 @@ namespace EzoGateway.Server
                     {
                         Logger.Write("Request a new data acquesition", SubSystem.RestApi);
                         await m_Controller.SingleMeasurementAsync();
+                        await m_Controller.OneWireMeasurementAsync();
                         return HttpResource.JsonAccepted202("AcquireMeasdata");
                     }
                 }
@@ -543,7 +544,7 @@ namespace EzoGateway.Server
                     if (double.IsNaN(temperature))
                         infos.Add("OnboardTemperature", "Only available on <a href=\"https://github.com/100prznt/EzoGateway/tree/master/hardware\" target=\"_blank\">EzoGateway hardware/PCB</a>");
                     else
-                        infos.Add("OnboardTemperature", m_Controller.GetOnBoardTemperature().ToString() + " °C");
+                        infos.Add("OnboardTemperature", temperature.ToString("F1") + " °C");
 
                     return HttpResource.CreateJsonResource(infos);
                 }

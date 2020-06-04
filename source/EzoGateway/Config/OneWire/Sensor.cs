@@ -26,7 +26,7 @@ namespace EzoGateway.Config.OneWire
         public string CustomName { get; set; }
 
         /// <summary>
-        /// User-defined ID, must be unique
+        /// User-defined ID, must be unique and >10
         /// </summary>
         public int CustomUniqueId { get; set; }
 
@@ -36,5 +36,13 @@ namespace EzoGateway.Config.OneWire
         public string OneWireAddressString { get; set; }
 
         public int MasterChannel { get; set; }
+
+        public string Description
+        {
+            get
+            {
+                return SensorType.GetDescription();
+            }
+        }
     }
 }

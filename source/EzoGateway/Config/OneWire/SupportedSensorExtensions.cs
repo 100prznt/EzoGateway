@@ -51,6 +51,27 @@ namespace EzoGateway.Config.OneWire
                 return attr.Unit;
         }
 
+        public static string GetDescription(this SupportedSensors sensor)
+        {
+            Attribute[] attributes = sensor.GetAttributes();
+
+            SupportedSensorAttribute attr = null;
+
+            for (int i = 0; i < attributes.Length; i++)
+            {
+                if (attributes[i].GetType() == typeof(SupportedSensorAttribute))
+                {
+                    attr = (SupportedSensorAttribute)attributes[i];
+                    break;
+                }
+            }
+
+            if (attr == null)
+                return "No description available.";
+            else
+                return attr.Description;
+        }
+
         public static Attribute[] GetAttributes(this SupportedSensors sensor)
         {
             var fi = sensor.GetType().GetField(sensor.ToString());

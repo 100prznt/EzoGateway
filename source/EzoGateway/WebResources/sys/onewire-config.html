@@ -12,170 +12,54 @@
         $(document).ready(function () {
             $("#footer").load("../template.html #footer");
             $.ajaxSetup({ cache: false });
-
-            $.getJSON('../../api/config', function (data) {
+            
+            $.getJSON('../../api/config/onewire', function (data) {
                 console.log(data);
-                $('#ph-active').prop("checked", data["PhSensor"].Enabled);
-                $('#ph-address').val(data["PhSensor"].I2CAddress);
-                $('#orp-active').prop("checked", data["RedoxSensor"].Enabled);
-                $('#orp-address').val(data["RedoxSensor"].I2CAddress);
-                $('#rtd-active').prop("checked", data["TemperatureSensor"].Enabled);
-                $('#rtd-address').val(data["TemperatureSensor"].I2CAddress);
-                $('#ph-tempcompensation').prop("checked", data.EnablePhTemperatureCompensation);
-                $('#temp-unit').val(data.TemperatureUnit);
-                $('#cyclic-updater').prop("checked", data.EnableCyclicUpdater);
-                $('#update-interval').val(data.UpdateInterval);
 
-                $('#plc-active').prop("checked", data["LogoConnection"].Enabled);
-                $('#plc-ip').val(data["LogoConnection"].IpAddress);
-                $('#vm-ph').val(data["LogoConnection"].PhVmAddress);
-                $('#vm-orp').val(data["LogoConnection"].RedoxVmAddress);
-                $('#vm-rtd').val(data["LogoConnection"].TemperatureVmAddress);
-                $('#vm-trigger').val(data["LogoConnection"].TriggerVmAddress);
-                $('#vm-trigger-bit').val(data["LogoConnection"].TriggerVmAddressBit);
-                $('#vm-counter').val(data["LogoConnection"].SecureCounterVmAddress);
+                var sensorcount = Object.size(data);
+                var i;
+                for (i = 0; i < sensorcount; i++) {
+                    console.log(i);
 
-                $('#ui-device-name').val(data["Appearance"].DeviceName);
+                    var sensor = data["SensorList"][i];
+                    var compSensorId = data["SensorIdForTemperatureCompensation"];
+                    console.log(sensor);
 
-                $('#logger-active').prop("checked", data["Logger"].Enabled);
-                $('#logger-minimum-log-level').val(data["Logger"].MinimumLogLevel);
-                $('#logger-lifetime').val(data["Logger"].Lifetime);
+                    if (typeof sensor !== 'undefined') {
+                        var newsensor = $("#sensor-template").clone();
 
-                var exclsyss = data["Logger"].ExcludedSubSystems;
-                if (exclsyss - 0x40 >= 0) {
-                    exclsyss -= 0x40;
-                } else {
-                    $('#logger-subsystem-logger').prop("checked", true);
+                        // Set id of new element
+                        $(newsensor).find("#type").text(sensor.SensorType);
+                        $(newsensor).find("#description").text(sensor.Description);
+                        $(newsensor).find("#address").text(sensor.OneWireAddressString);
+                        $(newsensor).find("#channel").text(sensor.MasterChannel);
+                        $(newsensor).find("#uid").text(sensor.CustomUniqueId);
+                        $(newsensor).find("#uid2").text(sensor.CustomUniqueId);
+                        $(newsensor).find("#delete-button").attr("href", "../../api/config/onewire/deletesensor/" + sensor.CustomUniqueId);
+                        $(newsensor).find("#name").text(sensor.CustomName);
+
+                        if (sensor.CustomUniqueId == compSensorId) {
+                            $(newsensor).find("#comp-sensor").removeClass("uk-hidden");
+                        }
+
+                        
+                        //$(newsensor).find("#name-1").attr("id", "type-" + i);
+
+                        $(newsensor).appendTo("#sensors");
+                    }
                 }
-                if (exclsyss - 0x20 >= 0) {
-                    exclsyss -= 0x20;
-                } else {
-                    $('#logger-subsystem-lowlevel').prop("checked", true);
-                }
-                if (exclsyss - 0x10 >= 0) {
-                    exclsyss -= 0x10;
-                } else {
-                    $('#logger-subsystem-plc').prop("checked", true);
-                }
-                if (exclsyss - 0x8 >= 0) {
-                    exclsyss -= 0x8;
-                } else {
-                    $('#logger-subsystem-restapi').prop("checked", true);
-                }
-                if (exclsyss - 0x4 >= 0) {
-                    exclsyss -= 0x4;
-                } else {
-                    $('#logger-subsystem-configuration').prop("checked", true);
-                }
-                if (exclsyss - 0x2 >= 0) {
-                    exclsyss -= 0x2;
-                } else {
-                    $('#logger-subsystem-httpserver').prop("checked", true);
-                }
-                if (exclsyss - 0x1 >= 0) {
-                    exclsyss -= 0x1;
-                } else {
-                    $('#logger-subsystem-app').prop("checked", true);
-                }
-                if (exclsyss != 0)
-                    console.log("Invalid ExcludedSubSystems parameter: " + data["Logger"].ExcludedSubSystems);
+                $("#sensor-template").remove();
             });
-
-            jQuery('form#config').bind('submit', function (event) {
-                console.log("submit");
-                event.preventDefault();
-
-                var form = this;
-                var json = ConvertFormToGeneralSettings(form);
-                $.ajax({
-                    type: "PUT",
-                    contentType: "application/json; charset=utf-8",
-                    url: "../../api/config",
-                    data: JSON.stringify(json)
-                }).done(function () {
-                    console.log("success")
-                }).fail(function () {
-                    console.log("error");
-                });
-
-                return true;
-            });
+            
         });
 
-        function ConvertFormToJSON(form) {
-            var array = jQuery(form).serializeArray();
-            var json = {};
-
-            jQuery.each(array, function () {
-                json[this.name] = this.value || '';
-            });
-
-            console.log(json);
-            return json;
-        }
-
-        function ConvertFormToGeneralSettings() {
-            var phSensor = new Object();
-            phSensor.Enabled = $('#ph-active').is(":checked");
-            phSensor.I2CAddress = $('#ph-address').val();
-            var redoxSensor = new Object();
-            redoxSensor.Enabled = $('#orp-active').is(":checked");
-            redoxSensor.I2CAddress = $('#orp-address').val();
-            var temperatureSensor = new Object();
-            temperatureSensor.Enabled = $('#rtd-active').is(":checked");
-            temperatureSensor.I2CAddress = $('#rtd-address').val();
-
-            var plc = new Object();
-            plc.Enabled = $('#plc-active').is(":checked");
-            plc.IpAddress = $('#plc-ip').val();
-            plc.TriggerVmAddress = $('#vm-trigger').val();
-            plc.TriggerVmAddressBit = $('#vm-trigger-bit').val();
-            plc.PhVmAddress = $('#vm-ph').val();
-            plc.RedoxVmAddress = $('#vm-orp').val();
-            plc.TemperatureVmAddress = $('#vm-rtd').val();
-            plc.SecureCounterVmAddress = $('#vm-counter').val();
-
-            var ui = new Object();
-            ui.DeviceName = $('#ui-device-name').val();
-
-            var exclsyss = 0x80 - 0x1;
-            if ($('#logger-subsystem-app').is(":checked"))
-                exclsyss -= 0x1;
-            if ($('#logger-subsystem-httpserver').is(":checked"))
-                exclsyss -= 0x2;
-            if ($('#logger-subsystem-configuration').is(":checked"))
-                exclsyss -= 0x4;
-            if ($('#logger-subsystem-restapi').is(":checked"))
-                exclsyss -= 0x8;
-            if ($('#logger-subsystem-plc').is(":checked"))
-                exclsyss -= 0x10;
-            if ($('#logger-subsystem-lowlevel').is(":checked"))
-                exclsyss -= 0x20;
-            if ($('#logger-subsystem-logger').is(":checked"))
-                exclsyss -= 0x40;
-
-            var logger = new Object();
-            logger.Enabled = $('#logger-active').is(":checked");
-            logger.MinimumLogLevel = $('#logger-minimum-log-level').val();
-            logger.ExcludedSubSystems = exclsyss;
-            logger.Lifetime = $('#logger-lifetime').val();
-
-            var settings = new Object();
-            settings.PhSensor = phSensor;
-            settings.RedoxSensor = redoxSensor;
-            settings.TemperatureSensor = temperatureSensor;
-            settings.EnablePhTemperatureCompensation = $('#ph-tempcompensation').is(":checked");
-            settings.TemperatureUnit = $('#temp-unit').val();
-            settings.EnableCyclicUpdater = $('#cyclic-updater').is(":checked");
-            settings.UpdateInterval = $('#update-interval').val();
-            settings.LogoConnection = plc;
-            settings.Appearance = ui;
-            settings.Logger = logger;
-
-            console.log(settings);
-
-            return settings;
-        }
+        Object.size = function(obj) {
+            var size = 0, key;
+            for (key in obj) {
+                if (obj.hasOwnProperty(key)) size++;
+            }
+            return size;
+        };
     </script>
 </head>
 <body class="uk-background-muted">
@@ -225,12 +109,12 @@
                 </div>
             </div>
             <!-- Show all sensors with edit and delete button -->
-            <div class="uk-margin-medium" uk-grid>
-                <div class="uk-width-1-1">
+            <div class="uk-margin-medium" uk-grid id="sensors">
+                <div class="uk-width-1-1" id="sensor-template">
                     <div class="uk-card uk-card-body uk-card-default uk-margin">
-                        <div class="uk-card-badge uk-label">Temp. compensation sensor</div>
-                        <h3 class="uk-card-title">DS18B20</h3>
-                        <p>The DS18B20 digital thermometer provides 9-bit to 12-bit celsius temperature measurements, in a range from -55 °C to +125 °C (-67 °F to +257 °F) with a ±0.5 °C accuracy from -10°C to +85 °C.</p>
+                        <div class="uk-card-badge uk-label uk-hidden" id="comp-sensor">Temp. compensation sensor</div>
+                        <h3 class="uk-card-title" id="type">Sensortype</h3>
+                        <p id="description">Description text.</p>
                         <table class="uk-table uk-table-hover uk-table-divider">
                             <thead>
                                 <tr>
@@ -249,20 +133,36 @@
                                 </tr>
                                 <tr>
                                     <td>Custom ID</td>
-                                    <td id="cid">value</td>
+                                    <td id="uid">value</td>
                                 </tr>
                                 <tr>
                                     <td>Custom name</td>
-                                    <td id="cname">value</td>
+                                    <td id="name">value</td>
                                 </tr>
                             </tbody>
                         </table>
                         <div class="uk-align-right">
-                            <a class="uk-button uk-button-danger" uk-icon="trash" href="" uk-tooltip="title: Delete this sensor; pos: bottom-right"></a>
+                            <a class="uk-button uk-button-danger" uk-icon="trash" href="#modal-delete-msg" uk-toggle uk-tooltip="title: Delete this sensor; pos: bottom-right"></a>
                             <a class="uk-button uk-button-default" uk-icon="file-edit" href="" uk-tooltip="title: Configure this sensor; pos: bottom-right"></a>
                         </div>
+
+
+                        <!-- This is the modal -->
+                        <div id="modal-delete-msg" uk-modal>
+                            <div class="uk-modal-dialog uk-modal-body">
+                                <h2 class="uk-modal-title">Delete sensor</h2>
+                                <p>Do you really want to delete the configuration of the sensor with ID <span id="uid2">id</span>?</p>
+                                <p class="uk-text-right">
+                                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                                    <a class="uk-button uk-button-danger" href="../../api/sensors" id="delete-button">Delete</a>
+                                </p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
+            </div>
+            <div class="uk-margin-medium" uk-grid>
                 <div class="uk-width-1-1">
                     <div class="uk-card uk-card-body uk-card-default uk-margin">
                         <div uk-grid>

@@ -13,10 +13,13 @@ namespace EzoGateway.Config.OneWire
 
         public SensorUnits Unit { get; set; }
 
-        public SupportedSensorAttribute(Type sensorType, SensorUnits unit)
+        public string Description { get; set; }
+
+        public SupportedSensorAttribute(Type sensorType, SensorUnits unit, string description = "")
         {
             SensorType = sensorType;
             Unit = unit;
+            Description = description;
         }
     }
 }

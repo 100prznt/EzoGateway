@@ -19,6 +19,8 @@
                 var orp = data[2];
                 var rtd = data[3];
 
+                var sensors = Object.size(data);
+
                 if (typeof ph === 'undefined') {
                     $("#ph-version").text("inactive");
                     $("#ezo-ph").attr("style", "filter:grayscale(100%)");
@@ -32,6 +34,8 @@
                     $("#ph-voltage").text(ph.SupplyVoltage + " V");
 
                     $("#package").text(rtd.Package);
+
+                    sensors--;
                 }
 
                 if (typeof orp === 'undefined') {
@@ -47,6 +51,8 @@
                     $("#orp-voltage").text(orp.SupplyVoltage + " V");
 
                     $("#package").text(rtd.Package);
+
+                    sensors--;
                 }
 
                 if (typeof rtd === 'undefined') {
@@ -62,9 +68,36 @@
                     $("#rtd-voltage").text(rtd.SupplyVoltage + " V");
 
                     $("#package").text(rtd.Package);
+
+                    sensors--;
+                }
+
+                console.log("Additional sensors count: " + sensors);
+
+                if (sensors > 0) {
+                    $("#onewireinfo").removeClass("uk-hidden");
+
+                    var ids = " ";
+
+                    for (let [key] of Object.entries(data)) {
+                        if (key > 10) {
+                            ids = ids.concat(`, ${key}`);
+                        }
+                    }
+
+
+                    $("#onewireids").text(ids.substr(2));
                 }
             });
         });
+
+        Object.size = function(obj) {
+            var size = 0, key;
+            for (key in obj) {
+                if (obj.hasOwnProperty(key)) size++;
+            }
+            return size;
+        };
     </script>
 </head>
 <body class="uk-background-muted">
@@ -155,9 +188,9 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="uk-card-footer">
-                            <p>Calibration info...</>
-                        </div>
+                        <!--<div class="uk-card-footer">
+        <p>Calibration info...</>
+    </div>-->
                     </div>
                 </div>
                 <div class="uk-width-1-3">
@@ -203,9 +236,9 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="uk-card-footer">
-                            <p>Calibration info...</>
-                        </div>
+                        <!--<div class="uk-card-footer">
+        <p>Calibration info...</>
+    </div>-->
                     </div>
                 </div>
                 <div class="uk-width-1-3">
@@ -251,16 +284,26 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="uk-card-footer">
+                        <!--<div class="uk-card-footer">
                             <p>Calibration info...</>
-                        </div>
+                        </div>-->
                     </div>
                 </div>
             </div>
             <div uk-grid>
                 <div class="uk-width-expand">
-                    <div  class="uk-card uk-card-body uk-text-center">
+                    <div class="uk-card uk-card-body uk-text-center">
                         <span class="uk-text-muted">Low level driver: </span><a href="https://www.nuget.org/packages/Rca.EzoDeviceLib/" target="_blank" id="package"></a>
+                    </div>
+                </div>
+            </div>
+            <div uk-grid id="onewireinfo" class="uk-hidden">
+                <div class="uk-width-1-1">
+                    <h1 class="uk-heading-small uk-heading-divider">1-wire sensors</h1>
+                </div>
+                <div class="uk-width-1-1">
+                    <div class="uk-card uk-card-body uk-text-center">
+                        <span class="uk-text-muted">IDs of configured and detected 1-wire sensors: </span><span id="onewireids">100</span>
                     </div>
                 </div>
             </div>
