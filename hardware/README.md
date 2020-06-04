@@ -12,7 +12,7 @@ For a better usability of the EzoGateway a custom PCB was designed, which replac
 | 1     | non-isolated EZO sockets  | BNC                                 | for RTD circuit             |
 | 2/4   | external 1-wire channels  | Wago MCS                            | for digital temp. sensors   |
 | 1     | on-board temp. sensor     |                                     | on seperate int. 1-wire ch. |
-|       | expansion port (I2C, SPI) | .10" pin header                     |                             |
+|       | expansion port (I2C, SPI) | .10" pin header                     | e.g. for relais expansion   |
 | 4     | status LEDs               |                                     |                             |
 |       | fits for ALUBOS 1000      |                                     |                             |
 
