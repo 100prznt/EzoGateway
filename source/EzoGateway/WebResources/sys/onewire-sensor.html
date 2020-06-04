@@ -219,7 +219,8 @@
                         <div class="uk-navbar-dropdown">
                             <ul class="uk-nav uk-navbar-dropdown-nav">
                                 <li><a href="sensors.html">Sensors</a></li>
-                                <li class="uk-active"><a href="#">Settings</a></li>
+                                <li><a href="config.html">Settings</a></li>
+                                <li><a href="onewire-config.html">Configuartion 1-wire</a></li>
                                 <li><a href="../logs" target="_blank">Log</a></li>
                                 <li><a href="about.html">About</a></li>
                             </ul>
@@ -236,125 +237,48 @@
 
             <div uk-grid>
                 <div class="uk-width-expand">
-                    <h1 class="uk-heading-small uk-heading-divider">System Settings</h1>
+                    <h1 class="uk-heading-small uk-heading-divider">1-wire sensor configuartion</h1>
                     <form id="config" class="uk-margin-medium">
-                        <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="ph-active"> EZO&trade; pH Circuit</legend>
-                        <p class="uk-margin-small">Module for connecting a pH probe, to measure the pH value.</p>
-                        <label>I2C address (dec):</label>
-                        <input class="uk-input" type="number" id="ph-address" min="1" max="127">
-
-                        <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="orp-active"> EZO&trade; ORP Circuit</legend>
-                        <p class="uk-margin-small">Module for connecting a ORP/Redox probe, to measure the redox potential.</p>
-                        <label>I2C address (dec):</label>
-                        <input class="uk-input" type="number" id="orp-address" min="1" max="127">
-
-                        <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="rtd-active"> EZO&trade; RTD Circuit</legend>
-                        <p class="uk-margin-small">Module for connecting a PT100/1000 temperature sensor.</p>
-                        <label>I2C address (dec):</label>
-                        <input class="uk-input" type="number" id="rtd-address" min="1" max="127">
-
-                        <legend class="uk-legend uk-margin-top">General</legend>
-                        <div class="uk-margin-small">
-                            <label><input class="uk-checkbox" type="checkbox" id="ph-tempcompensation" /> Enable automatic temperature compensation for pH value</label>
-                        </div>
-                        <label>Temperature unit:</label>
-                        <select class="uk-select" id="temp-unit">
-                            <option value="Celsius">Celsius (&deg;C)</option>
-                            <option value="Kelvin">Kelvin (K)</option>
-                            <option value="Fahrenheit">Fahrenheit (&deg;F)</option>
-                        </select>
-                        <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="cyclic-updater"> Cyclic Updater</legend>
-                        <p class="uk-margin-small">Enable cyclic hardware readings. External triggers (REST and PLC) are disabled.</p>
-                        <label>Update interval:</label>
-                        <input class="uk-input" type="number" id="update-interval" min="10" max="3600">
-
-                        <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="plc-active"> Siemens LOGO! Interface</legend>
-                        <p class="uk-margin-small">Send measurement data via ethernet to a connected Siemens LOGO! PLC.</p>
-                        <label>IP address of the Siemens LOGO! PLC:</label>
-                        <input class="uk-input" id="plc-ip">
-                        <div class="uk-grid-small uk-margin-top" uk-grid>
-                            <div class="uk-width-1-2">
-                                <label>Trigger, VM address (dec) and bit-position (dec):</label>
-                            </div>
-                            <div class="uk-width-1-4">
-                                <input class="uk-input" type="number" id="vm-trigger" min="1" max="850">
-                            </div>
-                            <div class="uk-width-1-4">
-                                <input class="uk-input" type="number" id="vm-trigger-bit" min="0" max="7">
-                            </div>
-                            <div class="uk-width-1-2">
-                                <label>pH value, VM address (dec):</label>
-                            </div>
-                            <div class="uk-width-1-2">
-                                <input class="uk-input" type="number" id="vm-ph" min="1" max="850">
-                            </div>
-                            <div class="uk-width-1-2">
-                                <label>Redox value, VM address (dec):</label>
-                            </div>
-                            <div class="uk-width-1-2">
-                                <input class="uk-input" type="number" id="vm-orp" min="1" max="850">
-                            </div>
-                            <div class="uk-width-1-2">
-                                <label>Temperature value, VM address (dec):</label>
-                            </div>
-                            <div class="uk-width-1-2">
-                                <input class="uk-input" type="number" id="vm-rtd" min="1" max="850">
-                            </div>
-                            <div class="uk-width-1-2">
-                                <label>Secure counter, VM address (dec):</label>
-                            </div>
-                            <div class="uk-width-1-2">
-                                <input class="uk-input" type="number" id="vm-counter" min="1" max="850">
-                            </div>
-                        </div>
-
                         <legend class="uk-legend uk-margin-top">Appearance</legend>
                         <p class="uk-margin-small">Settings to customize the appearance of the provided user interfaces (web and build-in).</p>
                         <div class="uk-grid-small uk-margin-top" uk-grid>
                             <div class="uk-width-1-2">
-                                <label>Device name:</label>
+                                <label>Custom name:</label>
                             </div>
                             <div class="uk-width-1-2">
-                                <input class="uk-input" type="text" id="ui-device-name">
-                            </div>
-                        </div>
-
-                        <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-active"> Logger</legend>
-                        <p class="uk-margin-small">Log system events and errors to a log file. </p>
-                        <div class="uk-grid-small uk-margin-top" uk-grid>
-                            <div class="uk-width-1-2">
-                                <label>Minimum log-level:</label>
+                                <input class="uk-input" type="text" id="sensor-name">
                             </div>
                             <div class="uk-width-1-2">
-                                <select class="uk-select" id="logger-minimum-log-level">
-                                    <option value="0">Info</option>
-                                    <option value="10">Warning</option>
-                                    <option value="20">Error</option>
-                                    <option value="30">Critical error</option>
+                                <label>Custom ID:</label>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <input class="uk-input" type="number" id="cid" min="11" max="63">
+                            </div>
+                            <div class="uk-width-1-2">
+                                <label>Master channel:</label>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <select class="uk-select" id="master-channel">
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
                                 </select>
                             </div>
-
                             <div class="uk-width-1-2">
-                                <label>Sub systems to log:</label>
+                                <label>Sensor address:</label>
                             </div>
                             <div class="uk-width-1-2">
-                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-app"> Application</legend>
-                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-httpserver"> HTTP server</legend>
-                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-configuration"> Configuration</legend>
-                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-restapi"> REST API</legend>
-                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-plc"> Siemens LOGO! interface</legend>
-                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-lowlevel"> Hardware (I2C)</legend>
-                                <legend class="uk-margin-top"><input class="uk-checkbox" type="checkbox" id="logger-subsystem-logger"> Logger</legend>
-                            </div>
-                            <div class="uk-width-1-2">
-                                <label>Log file lifetime in days:</label>
-                            </div>
-                            <div class="uk-width-1-2">
-                                <input class="uk-input" type="number" id="logger-lifetime" min="1" max="180">
-                            </div>
+                                <input class="uk-input" type="text" id="sensor-address">
                             </div>
 
-                            <input id="saveConfig" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Apply Settings">
+                            <legend class="uk-legend uk-margin-top"><input class="uk-checkbox" type="checkbox" id="temp-comp"> Temperature compensation</legend>
+                            <p class="uk-margin-small">Use this sensor as reference for the temperature compensation of the pH value measurement.</p>
+
+                           
+                        </div>
+
+                        <input id="saveConfig" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="submit" value="Save configuration">
                     </form>
                 </div>
             </div>
