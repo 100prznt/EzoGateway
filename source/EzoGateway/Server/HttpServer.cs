@@ -393,19 +393,54 @@ namespace EzoGateway.Server
                             return HttpResource.Error400;
                         }
                     }
-                    else if (request.Uri.Segments.Length == 4 && request.Uri.Segments[3].Trim('/').Equals("ONEWIRE", StringComparison.OrdinalIgnoreCase))
+                    else if (request.Uri.Segments.Length >= 4 && request.Uri.Segments[3].Trim('/').Equals("ONEWIRE", StringComparison.OrdinalIgnoreCase))
                     {
-                        if (request.Method == HttpMethod.Get)
+                        if (request.Uri.Segments.Length == 4)
                         {
-                            Logger.Write("Request 1-wire configuration", SubSystem.RestApi);
-                            return HttpResource.CreateJsonResource(m_Controller.ConfigurationOneWire);
+                            if (request.Method == HttpMethod.Get)
+                            {
+                                Logger.Write("Request 1-wire configuration", SubSystem.RestApi);
+                                return HttpResource.CreateJsonResource(m_Controller.ConfigurationOneWire);
+                            }
+                            else if (request.Method == HttpMethod.Put)
+                            {
+                                //Update config
+                                Logger.Write("Update 1-wire configuration", SubSystem.RestApi);
+                                var settings = JsonConvert.DeserializeObject<Config.OneWire.Configuration>(request.Content);
+                                m_Controller.UpdateConfigOneWire(settings);
+                            }
                         }
-                        else if (request.Method == HttpMethod.Put)
+                        else if (request.Uri.Segments.Length == 6 && request.Uri.Segments[4].Trim('/').Equals("DELETESENSOR", StringComparison.OrdinalIgnoreCase))
                         {
-                            //Update config
-                            Logger.Write("Update 1-wire configuration", SubSystem.RestApi);
-                            var settings = JsonConvert.DeserializeObject<Config.OneWire.Configuration>(request.Content);
-                            m_Controller.UpdateConfigOneWire(settings);
+                            if (int.TryParse(request.Uri.Segments[5].Trim('/'), out int id))
+                            {
+                                //delete 1-wire sensor from config
+                                if (m_Controller.ConfigurationOneWire.SensorList.Any(x => x.CustomUniqueId == id))
+                                {
+                                    if (m_Controller.ConfigurationOneWire.SensorIdForTemperatureCompensation == id)
+                                        m_Controller.ConfigurationOneWire.SensorIdForTemperatureCompensation = null;
+                                    m_Controller.ConfigurationOneWire.SensorList.RemoveAt(m_Controller.ConfigurationOneWire.SensorList.FindIndex(x => x.CustomUniqueId == id));
+
+                                    m_Controller.SaveConfigOneWire();
+                                }
+
+                                return HttpResource.JsonAccepted202("1-wire sensor deleted");
+                            }
+                        }
+                        else if (request.Uri.Segments.Length == 6 && request.Uri.Segments[4].Trim('/').Equals("SENSOR", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (int.TryParse(request.Uri.Segments[5].Trim('/'), out int id))
+                            {
+                                //GET 1-wire sensor from config
+                                if (m_Controller.ConfigurationOneWire.SensorList.Any(x => x.CustomUniqueId == id))
+                                {
+                                    if (m_Controller.ConfigurationOneWire.SensorIdForTemperatureCompensation == id)
+                                    { 
+                                    }
+
+                                    return HttpResource.CreateJsonResource(m_Controller.ConfigurationOneWire.SensorList.First(x => x.CustomUniqueId == id));
+                                }
+                            }
                         }
                     }
                 }

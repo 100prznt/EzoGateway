@@ -13,72 +13,16 @@
             $("#footer").load("../template.html #footer");
             $.ajaxSetup({ cache: false });
 
-            $.getJSON('../../api/config', function (data) {
+            var id = getUrlParameter('id');
+
+            console.log(id)
+
+            $.getJSON('../../api/config/onewire/sensor/' + id, function (data) {
                 console.log(data);
-                $('#ph-active').prop("checked", data["PhSensor"].Enabled);
-                $('#ph-address').val(data["PhSensor"].I2CAddress);
-                $('#orp-active').prop("checked", data["RedoxSensor"].Enabled);
-                $('#orp-address').val(data["RedoxSensor"].I2CAddress);
-                $('#rtd-active').prop("checked", data["TemperatureSensor"].Enabled);
-                $('#rtd-address').val(data["TemperatureSensor"].I2CAddress);
-                $('#ph-tempcompensation').prop("checked", data.EnablePhTemperatureCompensation);
-                $('#temp-unit').val(data.TemperatureUnit);
-                $('#cyclic-updater').prop("checked", data.EnableCyclicUpdater);
-                $('#update-interval').val(data.UpdateInterval);
+                $('#sensor-name').val(data["RedoxSensor"].I2CAddress);
+                $('#cid').val(id);
+                $('#sensor-address').val(data["RedoxSensor"].I2CAddress);
 
-                $('#plc-active').prop("checked", data["LogoConnection"].Enabled);
-                $('#plc-ip').val(data["LogoConnection"].IpAddress);
-                $('#vm-ph').val(data["LogoConnection"].PhVmAddress);
-                $('#vm-orp').val(data["LogoConnection"].RedoxVmAddress);
-                $('#vm-rtd').val(data["LogoConnection"].TemperatureVmAddress);
-                $('#vm-trigger').val(data["LogoConnection"].TriggerVmAddress);
-                $('#vm-trigger-bit').val(data["LogoConnection"].TriggerVmAddressBit);
-                $('#vm-counter').val(data["LogoConnection"].SecureCounterVmAddress);
-
-                $('#ui-device-name').val(data["Appearance"].DeviceName);
-
-                $('#logger-active').prop("checked", data["Logger"].Enabled);
-                $('#logger-minimum-log-level').val(data["Logger"].MinimumLogLevel);
-                $('#logger-lifetime').val(data["Logger"].Lifetime);
-
-                var exclsyss = data["Logger"].ExcludedSubSystems;
-                if (exclsyss - 0x40 >= 0) {
-                    exclsyss -= 0x40;
-                } else {
-                    $('#logger-subsystem-logger').prop("checked", true);
-                }
-                if (exclsyss - 0x20 >= 0) {
-                    exclsyss -= 0x20;
-                } else {
-                    $('#logger-subsystem-lowlevel').prop("checked", true);
-                }
-                if (exclsyss - 0x10 >= 0) {
-                    exclsyss -= 0x10;
-                } else {
-                    $('#logger-subsystem-plc').prop("checked", true);
-                }
-                if (exclsyss - 0x8 >= 0) {
-                    exclsyss -= 0x8;
-                } else {
-                    $('#logger-subsystem-restapi').prop("checked", true);
-                }
-                if (exclsyss - 0x4 >= 0) {
-                    exclsyss -= 0x4;
-                } else {
-                    $('#logger-subsystem-configuration').prop("checked", true);
-                }
-                if (exclsyss - 0x2 >= 0) {
-                    exclsyss -= 0x2;
-                } else {
-                    $('#logger-subsystem-httpserver').prop("checked", true);
-                }
-                if (exclsyss - 0x1 >= 0) {
-                    exclsyss -= 0x1;
-                } else {
-                    $('#logger-subsystem-app').prop("checked", true);
-                }
-                if (exclsyss != 0)
-                    console.log("Invalid ExcludedSubSystems parameter: " + data["Logger"].ExcludedSubSystems);
             });
 
             jQuery('form#config').bind('submit', function (event) {
@@ -117,6 +61,21 @@
                 return true;
             });
         });
+
+        function getUrlParameter(sParam) {
+            var sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                }
+            }
+        };
 
         function ConvertFormToJSON(form) {
             var array = jQuery(form).serializeArray();

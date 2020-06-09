@@ -36,6 +36,7 @@
                         $(newsensor).find("#uid").text(sensor.CustomUniqueId);
                         $(newsensor).find("#uid2").text(sensor.CustomUniqueId);
                         $(newsensor).find("#delete-button").attr("href", "../../api/config/onewire/deletesensor/" + sensor.CustomUniqueId);
+                        $(newsensor).find("#edit-button").attr("href", "onewire-sensor.html?id=" + sensor.CustomUniqueId); //id as GET parameter
                         $(newsensor).find("#name").text(sensor.CustomName);
 
                         if (sensor.CustomUniqueId == compSensorId) {
@@ -143,7 +144,7 @@
                         </table>
                         <div class="uk-align-right">
                             <a class="uk-button uk-button-danger" uk-icon="trash" href="#modal-delete-msg" uk-toggle uk-tooltip="title: Delete this sensor; pos: bottom-right"></a>
-                            <a class="uk-button uk-button-default" uk-icon="file-edit" href="" uk-tooltip="title: Configure this sensor; pos: bottom-right"></a>
+                            <a class="uk-button uk-button-default" uk-icon="file-edit" href="" id="edit-button" uk-tooltip="title: Configure this sensor; pos: bottom-right"></a>
                         </div>
 
 
