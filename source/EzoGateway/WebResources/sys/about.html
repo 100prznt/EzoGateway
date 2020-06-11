@@ -15,13 +15,15 @@
 
             $.getJSON('../../api/info', function (data) {
                 console.log(data);
-                var version = data["Version"];
+                var fwversion = data["FwVersion"];
+                var hwversion = data["HwVersion"];
                 var time = data["SystemTime"];
                 var runtime = data["SystemRuntime"];
                 var requests = data["RequestCounter"];
                 var temperature = data["OnboardTemperature"];
-
-                $("#version").text(version);
+                
+                $("#fw-version").text(fwversion);
+                $("#hw-version").text(hwversion);
                 $("#time").text(time);
                 $("#runtime").text(runtime);
                 $("#requests").text(requests);
@@ -89,8 +91,12 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Ezo Gateway version</td>
-                                <td id="version">value</td>
+                                <td>Hardware version</td>
+                                <td id="hw-version">value</td>
+                            </tr>
+                            <tr>
+                                <td>Firmware version</td>
+                                <td id="fw-version">value</td>
                             </tr>
                             <tr>
                                 <td>System time</td>

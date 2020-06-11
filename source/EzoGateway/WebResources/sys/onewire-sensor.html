@@ -19,10 +19,19 @@
 
             $.getJSON('../../api/config/onewire/sensor/' + id, function (data) {
                 console.log(data);
-                $('#sensor-name').val(data["RedoxSensor"].I2CAddress);
+                $('#sensor-name').val(data["CustomName"]);
                 $('#cid').val(id);
-                $('#sensor-address').val(data["RedoxSensor"].I2CAddress);
+                $('#sensor-address').val(data["OneWireAddressString"]);
+                $('#master-channel').val(data["MasterChannel"]);
 
+            });
+
+            $.getJSON('../../api/config/onewire', function (data) {
+                console.log(data);
+
+                if (data["SensorIdForTemperatureCompensation"] == id) {
+                    $('#temp-comp').prop("checked", true);
+                }
             });
 
             jQuery('form#config').bind('submit', function (event) {

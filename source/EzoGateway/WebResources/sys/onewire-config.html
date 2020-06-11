@@ -12,7 +12,15 @@
         $(document).ready(function () {
             $("#footer").load("../template.html #footer");
             $.ajaxSetup({ cache: false });
-            
+
+            $.getJSON('../../api/info', function (data) {
+                var hwversion = data["HwVersion"];
+                if (hwversion == "generic") {
+                    $(location).attr('href', "ezo-hw-required.html");
+                }
+
+            });
+
             $.getJSON('../../api/config/onewire', function (data) {
                 console.log(data);
 

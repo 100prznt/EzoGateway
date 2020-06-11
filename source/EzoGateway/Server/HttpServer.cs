@@ -566,10 +566,11 @@ namespace EzoGateway.Server
                 else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("INFO", StringComparison.OrdinalIgnoreCase))
                 {
                     Logger.Write("Request system info", SubSystem.RestApi);
-
+                    
                     var infos = new Dictionary<string, string>
                     {
-                        { "Version", typeof(App).GetTypeInfo().Assembly.GetName().Version.ToString() },
+                        { "FwVersion", typeof(App).GetTypeInfo().Assembly.GetName().Version.ToString() },
+                        { "HwVersion", IoDispatcher.EZO_GATEWAY_HARDWARE_AVAILABLE ? "01.1" : "generic" },
                         { "App", typeof(HttpServer).GetType().AssemblyQualifiedName },
                         { "SystemTime", DateTime.Now.ToString() },
                         { "SystemStartTime", m_Controller.SystemStartTime.ToString() },
