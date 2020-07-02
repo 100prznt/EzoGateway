@@ -26,6 +26,7 @@
         </StackPanel>
         <TextBlock x:Name="tbl_Version" HorizontalAlignment="Right" Text="tbl_Version" VerticalAlignment="Bottom" Margin="0,0,5,2" FontSize="18" Foreground="Gray"/>
         <TextBlock HorizontalAlignment="Left" Text="EzoGateway" VerticalAlignment="Bottom" Margin="5,0,0,2" FontSize="18" Foreground="Gray"/>
+        <TextBlock x:Name="tbl_Time" HorizontalAlignment="Left" Text="Time" VerticalAlignment="Top" Margin="5,0,0,2" FontSize="18" Foreground="Gray"/>
 
     </Grid>
 </Page>

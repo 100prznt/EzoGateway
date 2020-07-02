@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using EzoGateway.Server;
 using System.Reflection;
+using System.Threading;
 
 // Die Elementvorlage "Leere Seite" wird unter https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x407 dokumentiert.
 
@@ -28,6 +29,7 @@ namespace EzoGateway
         #region Members
         Controller m_Controller;
         HttpServer m_Server;
+        Timer m_Timer;
         #endregion Members
 
         public MainPage()
@@ -45,6 +47,8 @@ namespace EzoGateway
             m_Controller.PropertyChanged += Controller_PropertyChanged;
             m_Controller.ConfigIsLoadedEvent += Controller_ConfigIsLoadedEvent;
 
+            var autoEvent = new AutoResetEvent(false);
+            m_Timer = new Timer(UpdateTime, autoEvent, 1000, 100);
 
             //Apply labels
 
@@ -126,6 +130,16 @@ namespace EzoGateway
                     }
                 }
             }
+        }
+
+        private void UpdateTime(object stateInfo)
+        {
+            var time = DateTime.Now.ToString();
+
+            if (tbl_Time.Dispatcher.HasThreadAccess)
+                tbl_Time.Text = time;
+            else
+                tbl_Time.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => tbl_Time.Text = time );
         }
     }
 }
