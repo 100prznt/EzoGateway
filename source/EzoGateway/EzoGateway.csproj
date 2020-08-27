@@ -268,11 +268,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Net.Native.SharedLibrary-arm">
-      <Version>2.0.3</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.10</Version>
     </PackageReference>
@@ -284,6 +279,11 @@
     </PackageReference>
     <PackageReference Include="Rca.OneWireLib">
       <Version>1.0.6</Version>
+    </PackageReference>
+    <PackageReference Include="runtime.win10-arm.Microsoft.Net.Native.SharedLibrary">
+      <Version>2.2.3</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
