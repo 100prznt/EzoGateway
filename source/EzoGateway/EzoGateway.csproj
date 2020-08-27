@@ -269,10 +269,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.9</Version>
+      <Version>6.2.10</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.3-beta1</Version>
+      <Version>12.0.3</Version>
     </PackageReference>
     <PackageReference Include="Rca.EzoDeviceLib">
       <Version>1.0.25</Version>
