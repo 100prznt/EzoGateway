@@ -280,11 +280,6 @@
     <PackageReference Include="Rca.OneWireLib">
       <Version>1.0.6</Version>
     </PackageReference>
-    <PackageReference Include="runtime.win10-arm.Microsoft.Net.Native.SharedLibrary">
-      <Version>2.2.3</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="WindowsIoT, Version=10.0.17134.0">
