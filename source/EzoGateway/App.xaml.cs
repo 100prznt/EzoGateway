@@ -33,7 +33,7 @@ namespace EzoGateway
 
             Logger.Write("Startup EzoGateway App", SubSystem.App);
             Logger.Write("Version " + typeof(App).GetTypeInfo().Assembly.GetName().Version.ToString(), SubSystem.App);
-            //this.UnhandledException += OnUnhandledException;
+            this.UnhandledException += OnUnhandledException;
 
             this.Suspending += OnSuspending;
         }
@@ -43,15 +43,15 @@ namespace EzoGateway
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        //private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
-        //{
-        //    Logger.Write(":::::::::::::::::::::::::::::::::::::: START OF UNHANDLED EXCEPTION ::::::::::::::::::::::::::::::::::::::", SubSystem.App);
-        //    Logger.Write(e.Message, SubSystem.App, LoggerLevel.CriticalError);
-        //    Logger.Write(e.Exception.StackTrace, SubSystem.App, LoggerLevel.CriticalError);
-        //    Logger.Write("::::::::::::::::::::::::::::::::::::::: END OF UNHANDLED EXCEPTION :::::::::::::::::::::::::::::::::::::::", SubSystem.App);
+        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Logger.Write(":::::::::::::::::::::::::::::::::::::: START OF UNHANDLED EXCEPTION ::::::::::::::::::::::::::::::::::::::", SubSystem.App);
+            Logger.Write(e.Message, SubSystem.App, LoggerLevel.CriticalError);
+            Logger.Write(e.Exception.StackTrace, SubSystem.App, LoggerLevel.CriticalError);
+            Logger.Write("::::::::::::::::::::::::::::::::::::::: END OF UNHANDLED EXCEPTION :::::::::::::::::::::::::::::::::::::::", SubSystem.App);
 
-        //    Logger.Flush();
-        //}
+            Logger.Flush();
+        }
 
         /// <summary>
         /// Is called when the application is started normally by the end user. Other entry points
