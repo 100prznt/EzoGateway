@@ -203,6 +203,7 @@ BundleArtifacts/
 Package.StoreAssociation.xml
 _pkginfo.txt
 *.appx
+!source/Dependencies/**/*.appx
 
 # Visual Studio cache files
 # files ending in .cache can be ignored
