@@ -49,7 +49,7 @@ namespace EzoGateway
             Logger.Write(e.Message, SubSystem.App, LoggerLevel.CriticalError);
             Logger.Write(e.Exception.StackTrace, SubSystem.App, LoggerLevel.CriticalError);
             Logger.Write("::::::::::::::::::::::::::::::::::::::: END OF UNHANDLED EXCEPTION :::::::::::::::::::::::::::::::::::::::", SubSystem.App);
-            
+
             Logger.Flush();
         }
 
