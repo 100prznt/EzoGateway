@@ -21,10 +21,22 @@
             $.ajaxSetup({ cache: false });
             setInterval(function () {
                 $.getJSON('../api/fetch', function (data) {
-                    //console.log(data);
-                    $('#temp').text(data[1].Value.toFixed(1));
-                    $('#ph').text(data[2].Value.toFixed(2));
-                    $('#redox').text(data[3].Value.toFixed(0));
+                    console.log(data);
+                    if (data[1].Value == "NaN") {
+                        $('#temp').text("-");
+                    } else {
+                        $('#temp').text(data[1].Value.toFixed(1));
+                    }
+                    if (data[2].Value == "NaN") {
+                        $('#ph').text("-");
+                    } else {
+                        $('#ph').text(data[2].Value.toFixed(2));
+                    }
+                    if (data[3].Value == "NaN") {
+                        $('#redox').text("-");
+                    } else {
+                        $('#redox').text(data[3].Value.toFixed(0));
+                    }
 
                     var datetime = data[1].Timestamp.split("T")
                     var dateonly = datetime[0].split("-");

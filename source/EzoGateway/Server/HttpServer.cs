@@ -484,6 +484,9 @@ namespace EzoGateway.Server
                     {
                         if (request.Uri.Segments[3].Trim('/').Equals("PH", StringComparison.OrdinalIgnoreCase))
                         {
+                            if (m_Controller.PhSensor == null)
+                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, "pH sensor not available"));
+
                             if (request.Method == HttpMethod.Get)
                             {
                                 Logger.Write("Request calibration data from PH sensor", SubSystem.RestApi);
@@ -509,6 +512,9 @@ namespace EzoGateway.Server
                         }
                         else if (request.Uri.Segments[3].Trim('/').Equals("ORP", StringComparison.OrdinalIgnoreCase))
                         {
+                            if (m_Controller.RedoxSensor == null)
+                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, "ORP sensor not available"));
+
                             if (request.Method == HttpMethod.Get)
                             {
                                 Logger.Write("Request calibration data from ORP sensor", SubSystem.RestApi);
@@ -534,6 +540,9 @@ namespace EzoGateway.Server
                         }
                         else if (request.Uri.Segments[3].Trim('/').Equals("RTD", StringComparison.OrdinalIgnoreCase))
                         {
+                            if (m_Controller.TempSensor == null)
+                                return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Error, "RTD sensor not available"));
+
                             if (request.Method == HttpMethod.Get)
                             {
                                 Logger.Write("Request calibration data from RTD sensor", SubSystem.RestApi);

@@ -282,32 +282,59 @@ namespace EzoGateway
 
                 if (Configuration.PhSensor.Enabled)
                 {
-                    Logger.Write("Start initialization of the Atlas Scientific EZO pH Circuit", SubSystem.LowLevel);
-                    PhSensor = new EzoPh(Configuration.PhSensor.I2CAddress);
-                    await PhSensor.InitSensorAsync();
-                    Logger.Write("Atlas Scientific EZO pH Circuit successfully initialized, FW: " + PhSensor.GetDeviceInfo().FirmwareVersion, SubSystem.LowLevel);
+                    try
+                    {
+                        Logger.Write("Start initialization of the Atlas Scientific EZO pH Circuit", SubSystem.LowLevel);
+                        PhSensor = new EzoPh(Configuration.PhSensor.I2CAddress);
+                        await PhSensor.InitSensorAsync();
+                        Logger.Write("Atlas Scientific EZO pH Circuit successfully initialized, FW: " + PhSensor.GetDeviceInfo().FirmwareVersion, SubSystem.LowLevel);
 
-                    SensorInfos.Add(1, GetSensorInfo(PhSensor, "Atlas Scientific EZO pH Circuit")); //id for pH: 1
+                        SensorInfos.Add(1, GetSensorInfo(PhSensor, "Atlas Scientific EZO pH Circuit")); //id for pH: 1
+                    }
+                    catch (Exception ex)
+                    {
+                        PhSensor = null;
+                        Logger.Write("Error during initialization of the Atlas Scientific EZO pH Circuit, see details below", SubSystem.LowLevel, LoggerLevel.Error);
+                        Logger.Write(ex, SubSystem.LowLevel, LoggerLevel.Error);
+                    }
                 }
 
                 if (Configuration.RedoxSensor.Enabled)
                 {
-                    Logger.Write("Start initialization of the Atlas Scientific EZO ORP circuit", SubSystem.LowLevel);
-                    RedoxSensor = new EzoOrp(Configuration.RedoxSensor.I2CAddress);
-                    await RedoxSensor.InitSensorAsync();
-                    Logger.Write("Atlas Scientific EZO ORP circuit successfully initialized, FW: " + RedoxSensor.GetDeviceInfo().FirmwareVersion, SubSystem.LowLevel);
+                    try
+                    {
+                        Logger.Write("Start initialization of the Atlas Scientific EZO ORP circuit", SubSystem.LowLevel);
+                        RedoxSensor = new EzoOrp(Configuration.RedoxSensor.I2CAddress);
+                        await RedoxSensor.InitSensorAsync();
+                        Logger.Write("Atlas Scientific EZO ORP circuit successfully initialized, FW: " + RedoxSensor.GetDeviceInfo().FirmwareVersion, SubSystem.LowLevel);
 
-                    SensorInfos.Add(2, GetSensorInfo(RedoxSensor, "Atlas Scientific EZO ORP circuit")); //id for Redox: 2
+                        SensorInfos.Add(2, GetSensorInfo(RedoxSensor, "Atlas Scientific EZO ORP circuit")); //id for Redox: 2
+                    }
+                    catch (Exception ex)
+                    {
+                        RedoxSensor = null;
+                        Logger.Write("Error during initialization of the Atlas Scientific EZO ORP Circuit, see details below", SubSystem.LowLevel, LoggerLevel.Error);
+                        Logger.Write(ex, SubSystem.LowLevel, LoggerLevel.Error);
+                    }
                 }
 
                 if (Configuration.TemperatureSensor.Enabled)
                 {
-                    Logger.Write("Start initialization of the Atlas Scientific EZO RTD circuit", SubSystem.LowLevel);
-                    TempSensor = new EzoRtd(Configuration.TemperatureSensor.I2CAddress);
-                    await TempSensor.InitSensorAsync();
-                    Logger.Write("Atlas Scientific EZO RTD circuit successfully initialized, FW: " + TempSensor.GetDeviceInfo().FirmwareVersion, SubSystem.LowLevel);
+                    try
+                    {
+                        Logger.Write("Start initialization of the Atlas Scientific EZO RTD circuit", SubSystem.LowLevel);
+                        TempSensor = new EzoRtd(Configuration.TemperatureSensor.I2CAddress);
+                        await TempSensor.InitSensorAsync();
+                        Logger.Write("Atlas Scientific EZO RTD circuit successfully initialized, FW: " + TempSensor.GetDeviceInfo().FirmwareVersion, SubSystem.LowLevel);
 
-                    SensorInfos.Add(3, GetSensorInfo(TempSensor, "Atlas Scientific EZO RTD circuit")); //id for Temperature: 3
+                        SensorInfos.Add(3, GetSensorInfo(TempSensor, "Atlas Scientific EZO RTD circuit")); //id for Temperature: 3
+                    }
+                    catch (Exception ex)
+                    {
+                        TempSensor = null;
+                        Logger.Write("Error during initialization of the Atlas Scientific EZO RTD Circuit, see details below", SubSystem.LowLevel, LoggerLevel.Error);
+                        Logger.Write(ex, SubSystem.LowLevel, LoggerLevel.Error);
+                    }
                 }
 
 #if EZOGW_HW
@@ -513,10 +540,10 @@ namespace EzoGateway
 
         private void AddMeasDataInfo(int id, double? measValue, MeasDataInfo info)
         {
-            Logger.Write($"Add {info.Name} measdata to the latest-measdata-collection", SubSystem.App);
-
-            if (measValue is double value && info != null)
+            if (measValue is double value && info != null && info != null)
             {
+                Logger.Write($"Add {info.Name} measdata to the latest-measdata-collection", SubSystem.App);
+
                 var data = new MeasData()
                 {
                     Name = info.Name,
@@ -544,7 +571,20 @@ namespace EzoGateway
                     else
                         SendValueToPlc(Configuration.LogoConnection.GetVmAddressByName(info.Name), Convert.ToInt16(scaledValue));
                 }
+                return;
             }
+
+            //skip
+            var dummy = new MeasData()
+            {
+                Name = string.Empty,
+                Timestamp = DateTime.Now,
+                Value = double.NaN,
+                Unit = string.Empty,
+                Symbol = string.Empty
+            };
+
+            LatestMeasData[id] = dummy;
         }
 
         #endregion Measurement
