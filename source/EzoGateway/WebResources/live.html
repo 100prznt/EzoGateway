@@ -21,7 +21,7 @@
             $.ajaxSetup({ cache: false });
             setInterval(function () {
                 $.getJSON('../api/fetch', function (data) {
-                    console.log(data);
+                    //console.log(data);
                     if (data[1].Value == "NaN") {
                         $('#temp').text("-");
                     } else {
