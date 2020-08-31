@@ -37,6 +37,7 @@
                     url: "../../api/cal/orp"
                 }).done(function () {
                     console.log("success")
+                    location.reload();
                 }).fail(function () {
                     console.log("error");
                 });
@@ -52,6 +53,13 @@
                     data: JSON.stringify(json)
                 }).done(function () {
                     console.log("success")
+
+                    UIkit.notification({
+                        message: "<span uk-icon='icon: check'></span> Calibration point successfully applied.",
+                        status: 'success',
+                        pos: 'top-center',
+                        timeout: 5000
+                    });
                 }).fail(function () {
                     console.log("error");
                 });
@@ -119,7 +127,7 @@
                         </div>
                         <input id="apply" class="uk-button uk-button-primary uk-button-large uk-align-right uk-margin-large-top" type="button" value="Apply Calibration">
                         <input id="clearCal" class="uk-button uk-button-danger uk-button-large uk-align-right uk-margin-large-top" type="button" value="Clear Calibration">
-                        <input id="continuousReadingOrp" class="uk-button uk-button-large uk-align-right uk-margin-large-top" type="button" value="Continuous Reading Window" disabled>
+                        <input id="continuousReadingOrp" class="uk-button uk-button-large uk-align-right uk-margin-large-top" type="button" value="Continuous Reading Window">
                     </form>
 
                 </div>

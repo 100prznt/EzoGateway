@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>EzoGateway</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/uikit.min.css" />
+    <script src="../js/uikit.min.js"></script>
+    <script src="../js/uikit-icons.min.js"></script>
+    <script src="../js/jquery-3.4.1.min.js"></script>
+    <script>
+    $(document).ready(function () {
+            $.ajaxSetup({ cache: false });
+
+            var worker;
+
+            $("#startReading").prop('disabled', true);
+            $("#stopReading").prop('disabled', false);
+
+            var worker = new Worker('js/orp-live.js');
+            worker.addEventListener('message', function (e) {
+                console.log(e.data);
+                $("#data").prepend('&deg; = ' + e.data.toFixed(3) + ' mV<br>');
+            }, false);
+
+            worker.postMessage({ 'cmd': 'start' });
+        });</script>
+</head>
+<body>
+    <div class="uk-section uk-section-secondary uk-padding-remove-vertical" uk-height-viewport="expand: true" style="padding: 13px">
+        <p id="data" style="font-family: Consolas,monaco,monospace"></p>
+    </div>
+</body>
+</html>

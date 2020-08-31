@@ -37,6 +37,7 @@
                     url: "../../api/cal/ph"
                 }).done(function () {
                     console.log("success")
+                    location.reload();
                 }).fail(function () {
                     console.log("error");
                 });
@@ -52,6 +53,13 @@
                     data: JSON.stringify(json)
                 }).done(function () {
                     console.log("success")
+
+                    UIkit.notification({
+                        message: "<span uk-icon='icon: check'></span> Calibration point successfully applied.",
+                        status: 'success',
+                        pos: 'top-center',
+                        timeout: 5000
+                    });
                 }).fail(function () {
                     console.log("error");
                 });
