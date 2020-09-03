@@ -20,7 +20,7 @@
             var worker = new Worker('js/orp-live.js');
             worker.addEventListener('message', function (e) {
                 console.log(e.data);
-                $("#data").prepend('&deg; = ' + e.data.toFixed(3) + ' mV<br>');
+                $("#data").prepend('E&deg; = ' + e.data.toFixed(3) + ' mV<br>');
             }, false);
 
             worker.postMessage({ 'cmd': 'start' });
