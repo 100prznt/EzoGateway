@@ -191,7 +191,7 @@ namespace EzoGateway.Server
                             try
                             {
                                 data.StatusCode = "301 Moved Permanently";
-                                data.HeaderFields.Add("location", m_ServerUri.ToString() + "web/");
+                                data.HeaderFields.Add("location", m_ServerUri.ToString() + "web/live.html");
                             }
                             catch (Exception ex)
                             {
