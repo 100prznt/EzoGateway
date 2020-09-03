@@ -231,6 +231,7 @@ namespace EzoGateway
         private void Controller_ConfigIsSavedEvent()
         {
             Logger.Write("Controller_ConfigIsSavedEvent", SubSystem.Configuration);
+            Logger.Write("Configuration JSON (in the following lines)\n" + Configuration.ToJson(), SubSystem.Configuration);
 
             InitAfterConfigChange();
         }
@@ -476,7 +477,9 @@ namespace EzoGateway
             try
             {
                 double? ph = null;
-                var temp = await TempSensor?.GetMeasValue(); //Test async
+                double? temp = null;
+                if (TempSensor != null)
+                    temp = await TempSensor?.GetMeasValue(); //Test async
                 if (Configuration.EnablePhTemperatureCompensation && temp is double tempValue)
                     ph = PhSensor?.GetMeasValue(tempValue);
                 else
