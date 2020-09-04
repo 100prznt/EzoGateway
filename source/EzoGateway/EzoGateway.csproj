@@ -128,6 +128,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Calibration\CalInfo.cs" />
     <Compile Include="Config\EzoConfig.cs" />
     <Compile Include="Config\GeneralSettings.cs" />
     <Compile Include="Config\OneWire\Configuration.cs" />

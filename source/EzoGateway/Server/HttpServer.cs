@@ -490,7 +490,11 @@ namespace EzoGateway.Server
                             if (request.Method == HttpMethod.Get)
                             {
                                 Logger.Write("Request calibration data from PH sensor", SubSystem.RestApi);
-                                return HttpResource.CreateJsonResource(new { StoredCalibPoints = m_Controller.PhSensor.GetCalibrationInfo() });
+
+                                var lastCalDate = DateTime.MinValue;
+                                if (m_Controller.LastCalibration.LastCalDate.TryGetValue("PH", out DateTime date))
+                                    lastCalDate = date;
+                                return HttpResource.CreateJsonResource(new { StoredCalibPoints = m_Controller.PhSensor.GetCalibrationInfo(), LastCalibrationDate = lastCalDate });
                             }
                             else if (request.Method == HttpMethod.Put)
                             {
@@ -518,7 +522,11 @@ namespace EzoGateway.Server
                             if (request.Method == HttpMethod.Get)
                             {
                                 Logger.Write("Request calibration data from ORP sensor", SubSystem.RestApi);
-                                return HttpResource.CreateJsonResource(new { StoredCalibPoints = m_Controller.RedoxSensor.GetCalibrationInfo() });
+
+                                var lastCalDate = DateTime.MinValue;
+                                if (m_Controller.LastCalibration.LastCalDate.TryGetValue("ORP", out DateTime date))
+                                    lastCalDate = date;
+                                return HttpResource.CreateJsonResource(new { StoredCalibPoints = m_Controller.RedoxSensor.GetCalibrationInfo(), LastCalibrationDate = lastCalDate });
                             }
                             else if (request.Method == HttpMethod.Put)
                             {
@@ -546,10 +554,15 @@ namespace EzoGateway.Server
                             if (request.Method == HttpMethod.Get)
                             {
                                 Logger.Write("Request calibration data from RTD sensor", SubSystem.RestApi);
+
+                                var lastCalDate = DateTime.MinValue;
+                                if (m_Controller.LastCalibration.LastCalDate.TryGetValue("RTD", out DateTime date))
+                                    lastCalDate = date;
                                 return HttpResource.CreateJsonResource(new
                                 {
                                     StoredCalibPoints = m_Controller.TempSensor.GetCalibrationInfo(),
-                                    UnitScale = m_Controller.Configuration.TemperatureUnit.GetSymbol()
+                                    UnitScale = m_Controller.Configuration.TemperatureUnit.GetSymbol(),
+                                    LastCalibrationDate = lastCalDate
                                 });
                             }
                             else if (request.Method == HttpMethod.Put)

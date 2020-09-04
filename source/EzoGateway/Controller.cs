@@ -37,6 +37,8 @@ namespace EzoGateway
         #region Properties
         public GeneralSettings Configuration { get; set; }
 
+        public CalInfo LastCalibration { get; set; }
+
         /// <summary>
         /// 1-wire configuration for EzoGateway hardware/PCB
         /// </summary>
@@ -121,6 +123,9 @@ namespace EzoGateway
 
             LoadConfig();
             LoadConfigOneWire();
+
+            LoadCalInfo();
+
 
             LatestMeasData = new Dictionary<int, MeasData>();
 
@@ -263,6 +268,9 @@ namespace EzoGateway
 
 
         public event Action OneWireConfigIsLoadedEvent;
+
+
+        public event Action CalInfoIsLoadedEvent;
 
         #endregion Events
 
@@ -777,6 +785,7 @@ namespace EzoGateway
                 {
                     PhSensor.SetCalibrationPoint(pnt, data.Value);
                     Logger.Write($"Calibration point ({data.CalibPointName}) added successfully for pH sensor.", SubSystem.Logger);
+                    UpdateCalInfo("PH");
                     return true;
                 }
                 else
@@ -808,6 +817,7 @@ namespace EzoGateway
             {
                 RedoxSensor.SetCalibrationPoint((int)data.Value);
                 Logger.Write($"Calibration point ({data.CalibPointName}) added successfully for ORP sensor.", SubSystem.Logger);
+                UpdateCalInfo("ORP");
                 return true;
             }
             else
@@ -832,6 +842,7 @@ namespace EzoGateway
             {
                 TempSensor.SetCalibrationPoint(data.Value);
                 Logger.Write($"Calibration point ({data.CalibPointName}) added successfully for Rtd sensor.", SubSystem.Logger);
+                UpdateCalInfo("RTD");
                 return true;
             }
             else
@@ -839,6 +850,82 @@ namespace EzoGateway
                 errorMessage = $"EZO pH Circuit not initialized, calibration aborted.";
                 Logger.Write(errorMessage, SubSystem.Logger, LoggerLevel.Warning);
                 return false;
+            }
+        }
+
+
+        public async Task<bool> LoadCalInfo()
+        {
+            Logger.Write("Start load calibration info", SubSystem.Configuration);
+
+            var localFolder = ApplicationData.Current.LocalFolder;
+
+            var item = await localFolder.TryGetItemAsync("calibration-info.json");
+            if (item != null)
+            {
+                try
+                {
+                    LastCalibration = CalInfo.FromJsonFile(item.Path);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Write(ex, SubSystem.Configuration);
+                }
+
+                CalInfoIsLoadedEvent?.Invoke();
+                return true;
+            }
+            else //Generate default
+            {
+                Logger.Write("Calibration info not found", SubSystem.Configuration, LoggerLevel.Warning);
+                LastCalibration = new CalInfo();
+                SaveCalInfo();
+                CalInfoIsLoadedEvent?.Invoke();
+                return false;
+            }
+        }
+
+        public async void SaveCalInfo()
+        {
+            Logger.Write("Start save calibration info", SubSystem.Configuration);
+            try
+            {
+                await DeleteConfigFile("onewire.config.json");
+
+                var localFolder = ApplicationData.Current.LocalFolder;
+
+                var file = await localFolder.CreateFileAsync("calibration-info.json", CreationCollisionOption.ReplaceExisting);
+
+                if (LastCalibration == null)
+                    LastCalibration = new CalInfo();
+
+                await FileIO.WriteTextAsync(file, LastCalibration.ToJson());
+
+                //ConfigIsSavedEvent?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Logger.Write(ex, SubSystem.Configuration);
+                throw new ArgumentException("Save calibration info", ex);
+            }
+        }
+
+
+
+        public void UpdateCalInfo(string sensorName)
+        {
+            Logger.Write("Start update calibration info", SubSystem.Configuration);
+
+            if (LastCalibration == null)
+                Logger.Write("Last calibration info not found!", SubSystem.Configuration, LoggerLevel.Warning);
+            else
+            {
+                if (LastCalibration.LastCalDate.ContainsKey(sensorName))
+                    LastCalibration.LastCalDate[sensorName] = DateTime.Now;
+                else
+                    LastCalibration.LastCalDate.Add(sensorName, DateTime.Now);
+
+                SaveCalInfo();
             }
         }
 
