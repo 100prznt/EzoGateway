@@ -62,6 +62,8 @@ Example program on the Siemens LOGO! PLC which shows the measured data on the di
 ### Tentacle T3
 For fast hardware integration there is a cool project from [Whitebox](https://github.com/whitebox-labs). The [Tentacle T3 HAT](https://github.com/whitebox-labs/tentacle-raspi-oshw) accepts three Atlas Scientific EZO™ devices, two of them are electrically isolated.
 
+![Tentacle T3 HAT installed on Raspberry Pi 3B](docu/img/wb-ezo-hat.jpg "Tentacle T3 HAT installed on Raspberry Pi 3B")
+
 ### EzoGateway PCB
 An optimized PCB for the EzoGateway is currently being planned, details can be found under [hardware/](hardware/).
 
