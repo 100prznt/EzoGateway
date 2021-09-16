@@ -144,6 +144,7 @@
     <Compile Include="Calibration\CalData.cs" />
     <Compile Include="Helpers\PathHelper.cs" />
     <Compile Include="IoDispatcher.cs" />
+    <Compile Include="Io\IoData.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>

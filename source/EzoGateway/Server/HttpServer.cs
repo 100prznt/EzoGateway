@@ -435,7 +435,7 @@ namespace EzoGateway.Server
                                 if (m_Controller.ConfigurationOneWire.SensorList.Any(x => x.CustomUniqueId == id))
                                 {
                                     if (m_Controller.ConfigurationOneWire.SensorIdForTemperatureCompensation == id)
-                                    { 
+                                    {
                                     }
 
                                     return HttpResource.CreateJsonResource(m_Controller.ConfigurationOneWire.SensorList.First(x => x.CustomUniqueId == id));
@@ -588,7 +588,7 @@ namespace EzoGateway.Server
                 else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("INFO", StringComparison.OrdinalIgnoreCase))
                 {
                     Logger.Write("Request system info", SubSystem.RestApi);
-                    
+
                     var infos = new Dictionary<string, string>
                     {
                         { "FwVersion", typeof(App).GetTypeInfo().Assembly.GetName().Version.ToString() },
@@ -620,6 +620,43 @@ namespace EzoGateway.Server
                                 if (channel >= 0 && channel <= 1)
                                     return HttpResource.CreateJsonResource(m_Controller.ScanOneWire(channel));
                             }
+                        }
+                    }
+                }
+                else if (request.Uri.Segments.Length >= 3 && request.Uri.Segments[2].Trim('/').Equals("OUTPUT", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (request.Uri.Segments.Length == 3 && request.Method == HttpMethod.Get)
+                    {
+                        var channelDict = new Dictionary<string, IoData>();
+                        for (int i = 0; i < m_Controller.Io.OutputChannelCount; i++)
+                            channelDict.Add((i + 1).ToString(), new IoData(m_Controller.Io.GetOutput(i + 1)));
+
+                        return HttpResource.CreateJsonResource(channelDict);
+                    }
+                    else if (request.Uri.Segments.Length == 4)
+                    {
+                        if (Int32.TryParse(request.Uri.Segments[3].Trim('/'), out int channel))
+                        {
+                            if (channel >= 1 && channel <= m_Controller.Io.OutputChannelCount)
+                            {
+                                if (request.Method == HttpMethod.Get)
+                                {
+                                    var state = new Dictionary<string, string>
+                                    {
+                                        { "state", m_Controller.Io.GetOutput(channel).ToString() }
+                                    };
+                                    return HttpResource.CreateJsonResource(state);
+                                }
+                                else if (request.Method == HttpMethod.Put)
+                                {
+                                    var ioData = JsonConvert.DeserializeObject<IoData>(request.Content);
+                                    m_Controller.Io.SetOutput(channel, ioData.State);
+
+                                    return HttpResource.CreateJsonResource(new RestStatus(OperationStatus.Success, "Output state send to GPIO controller"));
+                                }
+                            }
+                            else
+                                return HttpResource.JsonLocked423("Invalide channel number.");
                         }
                     }
                 }

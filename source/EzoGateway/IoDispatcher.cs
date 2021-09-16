@@ -35,6 +35,12 @@ namespace EzoGateway
         /// </summary>
         private const int FLASH_TIME_MS = 300;
 
+        //Only available if no EZO gateway hardware is used.
+        //GPIO pins in sequence for channel 1 to n.
+        //Pin 2 and 3 are reservated for I2C communication with the EZO circuit modules.
+        private readonly int[] OUT_PINS = { 5, 6, 13, 19, 26, 12 };
+
+
         private const GpioPinValue ON = GpioPinValue.Low;
         private const GpioPinValue OFF = GpioPinValue.High;
         #endregion Constants
@@ -44,6 +50,8 @@ namespace EzoGateway
         private GpioPin m_Led2;
         private GpioPin m_Led3;
         private GpioPin m_Led4;
+
+        private GpioPin[] m_Outputs;
 
         private Timer m_Timer;
         private int m_CycleCounter;
@@ -55,6 +63,16 @@ namespace EzoGateway
 
         #region Properties
 
+        public int OutputChannelCount
+        {
+            get
+            {
+                if (!EZO_GATEWAY_HARDWARE_AVAILABLE && m_Outputs != null)
+                    return m_Outputs.Length;
+                else
+                    return 0;
+            }
+        }
 
         #endregion Properties
 
@@ -66,9 +84,10 @@ namespace EzoGateway
             {
                 m_Timer = new Timer(GpioWorker, new AutoResetEvent(false), 1000, 10);
                 m_CycleCounter = 0;
-
-                InitLeds();
             }
+
+            InitLeds();
+            InitOutputs();
         }
 
         /// <summary>
@@ -77,6 +96,7 @@ namespace EzoGateway
         public void Reinit()
         {
             InitLeds();
+            InitOutputs();
         }
 
         public void SetAliveState(bool alive)
@@ -128,6 +148,46 @@ namespace EzoGateway
             }
         }
 
+        /// <summary>
+        /// Set a specific output channel
+        /// </summary>
+        /// <param name="channel">Channel number</param>
+        /// <param name="state">State: true = on; false = off</param>
+        public void SetOutput(int channel, bool state = true)
+        {
+            if (EZO_GATEWAY_HARDWARE_AVAILABLE)
+                return;
+
+            if (m_Outputs == null || m_Outputs.Length <= 0)
+                throw new ArgumentNullException("Outputs not initialized");
+
+            if (channel < 1 || channel > m_Outputs.Length)
+                throw new ArgumentOutOfRangeException("Channel number out of valid range.");
+
+
+            m_Outputs[channel - 1].Write(state == true ? ON : OFF);
+        }
+
+        /// <summary>
+        /// Read the state of a specific output channel
+        /// </summary>
+        /// <param name="channel">Channel number</param>
+        /// <returns>State: true = on; false = off</returns>
+        public bool GetOutput(int channel)
+        {
+            if (EZO_GATEWAY_HARDWARE_AVAILABLE)
+                return false;
+
+            if (m_Outputs == null || m_Outputs.Length <= 0)
+                throw new ArgumentNullException("Outputs not initialized");
+
+            if (channel < 1 || channel > m_Outputs.Length)
+                throw new ArgumentOutOfRangeException("Channel number out of valid range.");
+
+
+            return m_Outputs[channel - 1].Read() == ON ? true : false;
+        }
+
         private async void GpioWorker(object stateInfo)
         {
             if (m_AliveState && m_CycleCounter < 25)
@@ -171,6 +231,25 @@ namespace EzoGateway
             m_Led4.Write(GpioPinValue.High);
 
             //BlinkGreenLed(2000);
+        }
+
+        private void InitOutputs()
+        {
+            if (EZO_GATEWAY_HARDWARE_AVAILABLE)
+                return;
+
+            var gpio = GpioController.GetDefault();
+            if (gpio == null)
+                throw new Exception("Kein GPIO-Controller auf diesem Gerät");
+
+            m_Outputs = new GpioPin[OUT_PINS.Length];
+
+            for (int i = 0; i < OUT_PINS.Length; i++)
+            {
+                m_Outputs[i] = gpio.OpenPin(OUT_PINS[i]);
+                m_Outputs[i].SetDriveMode(GpioPinDriveMode.Output);
+                m_Outputs[i].Write(GpioPinValue.High);
+            }
         }
 
 
