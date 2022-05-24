@@ -26,11 +26,6 @@ namespace EzoGateway
         private readonly int[] LED_PINS = { 16, 26, 19, 13 };
 
         /// <summary>
-        /// Flashtime in ms
-        /// </summary>
-        private const int FLASH_TIME_MS = 300;
-
-        /// <summary>
         /// Output GPIO pins for relays in sequence for channel 1 to n
         /// </summary>
         /// <remarks>
@@ -39,6 +34,10 @@ namespace EzoGateway
         /// </remarks>
         private readonly int[] OUT_PINS = { 5, 6, 13, 19, 26, 12 };
 
+        /// <summary>
+        /// LED flashtime in ms
+        /// </summary>
+        private const int FLASH_TIME_MS = 300;
 
         private const GpioPinValue ON = GpioPinValue.Low;
         private const GpioPinValue OFF = GpioPinValue.High;
