@@ -25,6 +25,8 @@
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <UapDefaultAssetScale>100</UapDefaultAssetScale>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+    <PackageCertificateThumbprint>FA4A79AF41E41643A1C804EEBB62B5A429FAD42B</PackageCertificateThumbprint>
+    <PackageCertificateKeyFile>EzoGateway_TemporaryKey.pfx</PackageCertificateKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -291,6 +293,9 @@
     <PackageReference Include="Rca.OneWireLib">
       <Version>1.0.6</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="EzoGateway_TemporaryKey.pfx" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
