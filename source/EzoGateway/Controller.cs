@@ -18,6 +18,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -947,7 +948,10 @@ namespace EzoGateway
             foreach (var host in hosts)
             {
                 string ip = host.DisplayName;
-                ipAddresses.Add(ip);
+                //nur IP v4 Adressen auswählen
+                var match = Regex.Match(ip, @"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}");
+                if (match.Success)
+                    ipAddresses.Add(ip);
             }
 
             return ipAddresses.Last(); //TODO: Ist es wirklich immer die letzte IP???
