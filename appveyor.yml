@@ -35,5 +35,5 @@ deploy:
 - provider: GitHub
   description: The application included in the release (EzoGateway_%APPVEYOR_BUILD_VERSION%_ARM.appx) can be installed in the Windows Device Portal via the App Manager. Before doing so, make sure that no old version of EzoGateway is running or installed.
   auth_token:
-    secure: gmAjx1bn6j1O5AdQgLhZUoORFevYT/raUu8c+6NMalg2qNQXEZgGV2iQbs45Q0jC
+    secure: z3YLzHX618nku0wc3lwNbyhhFVgBvhYl5zs3hh4bgK8Sou/AQt/eukIP7GaLFWh0
   prerelease: true
