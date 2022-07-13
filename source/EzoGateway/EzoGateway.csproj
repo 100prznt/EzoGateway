@@ -287,7 +287,7 @@
       <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="Rca.EzoDeviceLib">
-      <Version>1.0.25</Version>
+      <Version>1.0.29</Version>
     </PackageReference>
     <PackageReference Include="Rca.OneWireLib">
       <Version>1.0.6</Version>
